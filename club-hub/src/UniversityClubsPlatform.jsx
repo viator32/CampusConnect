@@ -1115,7 +1115,7 @@ const UniversityClubsPlatform = () => {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
         <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900">ClubHub</h1>
+          <h1 className="text-xl font-bold text-gray-900">ClubHouse</h1>
           <p className="text-sm text-gray-600">University Clubs Platform</p>
         </div>
 

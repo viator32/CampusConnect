@@ -7,31 +7,35 @@ import {
   Users,
   Bell,
   Settings,
+  HelpCircle,
   User as UserIcon
 } from 'lucide-react';
 import { useProfile } from '../features/profile/hooks/useProfile';
 
 const sidebarItems = [
-  { path: '/explore', label: 'Explore', icon: TrendingUp },
-  { path: '/feed', label: 'Feed', icon: Home },
-  { path: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
-  { path: '/my-clubs', label: 'My Clubs', icon: Users },
+  { path: '/explore',   label: 'Explore',           icon: TrendingUp },
+  { path: '/feed',      label: 'Feed',              icon: Home },
+  { path: '/bookmarks', label: 'Bookmarks',         icon: Bookmark },
+  { path: '/my-clubs',  label: 'My Clubs',          icon: Users },
   { path: '/notifications', label: 'Notifications', icon: Bell },
-  { path: '/settings', label: 'Settings', icon: Settings }
+  { path: '/settings',  label: 'Settings',          icon: Settings },
+  { path: '/support',   label: 'Support & Feedback',icon: HelpCircle } 
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useProfile();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const { user }  = useProfile();
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
       <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
         <div className="p-6">
           <h1 className="text-xl font-bold">ClubHub</h1>
           <p className="text-sm text-gray-600">University Clubs Platform</p>
         </div>
+
         <nav className="flex-1 px-4 space-y-2">
           {sidebarItems.map(item => {
             const Icon = item.icon;
@@ -40,11 +44,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium ${
-                  isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                className={`
+                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium
+                  ${isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-100'}
+                `}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}
@@ -52,6 +55,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+
         {user && (
           <div
             className="p-4 border-t border-gray-200 cursor-pointer"
@@ -69,7 +73,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </div>
-      <div className="flex-1 overflow-auto p-6">{children}</div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto p-6">
+        {children}
+      </div>
     </div>
   );
 }
