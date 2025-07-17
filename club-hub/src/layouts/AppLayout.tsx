@@ -1,3 +1,4 @@
+// src/layouts/AppLayout.tsx
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -8,24 +9,29 @@ import {
   Bell,
   Settings,
   HelpCircle,
+  Shield,
   User as UserIcon
 } from 'lucide-react';
 import { useProfile } from '../features/profile/hooks/useProfile';
-
-const sidebarItems = [
-  { path: '/explore',   label: 'Explore',           icon: TrendingUp },
-  { path: '/feed',      label: 'Feed',              icon: Home },
-  { path: '/bookmarks', label: 'Bookmarks',         icon: Bookmark },
-  { path: '/my-clubs',  label: 'My Clubs',          icon: Users },
-  { path: '/notifications', label: 'Notifications', icon: Bell },
-  { path: '/settings',  label: 'Settings',          icon: Settings },
-  { path: '/support',   label: 'Support & Feedback',icon: HelpCircle } 
-];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { user }  = useProfile();
+
+  const sidebarItems = [
+    { path: '/explore',       label: 'Explore',           icon: TrendingUp },
+    { path: '/feed',          label: 'Feed',              icon: Home },
+    { path: '/bookmarks',     label: 'Bookmarks',         icon: Bookmark },
+    { path: '/my‑clubs',      label: 'My Clubs',          icon: Users },
+    { path: '/notifications', label: 'Notifications',     icon: Bell },
+    { path: '/settings',      label: 'Settings',          icon: Settings },
+    { path: '/support',       label: 'Support & Feedback',icon: HelpCircle },
+    // only show admin if role is 'admin' or 'moderator'
+    ...(user && (user.role === 'admin' || user.role === 'moderator')
+      ? [{ path: '/admin',    label: 'Admin',             icon: Shield }]
+      : []),
+  ];
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -38,16 +44,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <nav className="flex-1 px-4 space-y-2">
           {sidebarItems.map(item => {
-            const Icon = item.icon;
+            const Icon     = item.icon;
             const isActive = location.pathname === item.path;
             return (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`
-                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium
-                  ${isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-100'}
-                `}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium
+                  ${isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-100'}`}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}

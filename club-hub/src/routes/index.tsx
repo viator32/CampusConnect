@@ -7,19 +7,29 @@ import FeedPage         from '../features/feed/pages/FeedPage';
 import ProfilePage      from '../features/profile/pages/ProfilePage';
 import SettingsPage     from '../features/settings/pages/SettingsPage';
 import SupportPage      from '../features/support/SupportPage';
+import MyClubsPage from '../features/clubs/pages/MyClubsPage';
+import BookmarksPage from '../features/bookmarks/pages/BookmarksPage';
+import NotificationsPage from '../features/notifications/pages/NotificationsPage';
+import AdminPage        from '../features/admin/pages/AdminPage';
+
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <AppLayout>
         <Routes>
-          <Route path="/"                    element={<Navigate to="/explore" replace />} />
-          <Route path="/explore"             element={<ExplorePage />} />
-          <Route path="/clubs/:clubId"       element={<ClubDetailPage />} />
-          <Route path="/feed"                element={<FeedPage />} />
-          <Route path="/profile"             element={<ProfilePage />} />
-          <Route path="/settings"            element={<SettingsPage />} />
-          <Route path="/support"             element={<SupportPage />} /> 
+            <Route path="/"                    element={<Navigate to="/explore" replace />} />
+            <Route path="/explore"             element={<ExplorePage />} />
+            <Route path="/clubs/:clubId"       element={<ClubDetailPage />} />
+            <Route path="/feed"                element={<FeedPage />} />
+            <Route path="/profile"             element={<ProfilePage />} />
+            <Route path="/settings"            element={<SettingsPage />} />
+            <Route path="/support"             element={<SupportPage />} /> 
+            <Route path="/my-clubs"            element={<MyClubsPage />} />
+            <Route path="/bookmarks"           element={<BookmarksPage />} />
+            <Route path="/notifications"       element={<NotificationsPage />} />
+            <Route path="/admin"               element={<AdminPage />} />
+            {/* Redirect any unknown routes to explore */}
         </Routes>
       </AppLayout>
     </BrowserRouter>

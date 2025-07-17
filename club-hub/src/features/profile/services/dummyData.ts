@@ -2,6 +2,7 @@ import { User } from '../types';
 
 export const initialUser: User = {
   id: 1,
+  role: "admin",
   name: "John Doe",
   email: "john.doe@university.edu",
   avatar: "👨‍🎓",
