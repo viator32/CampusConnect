@@ -23,7 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { path: '/explore',       label: 'Explore',           icon: TrendingUp },
     { path: '/feed',          label: 'Feed',              icon: Home },
     { path: '/bookmarks',     label: 'Bookmarks',         icon: Bookmark },
-    { path: '/my‑clubs',      label: 'My Clubs',          icon: Users },
+    { path: '/my-clubs',      label: 'My Clubs',          icon: Users },
     { path: '/notifications', label: 'Notifications',     icon: Bell },
     { path: '/settings',      label: 'Settings',          icon: Settings },
     { path: '/support',       label: 'Support & Feedback',icon: HelpCircle },

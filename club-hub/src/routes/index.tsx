@@ -11,6 +11,7 @@ import MyClubsPage from '../features/clubs/pages/MyClubsPage';
 import BookmarksPage from '../features/bookmarks/pages/BookmarksPage';
 import NotificationsPage from '../features/notifications/pages/NotificationsPage';
 import AdminPage        from '../features/admin/pages/AdminPage';
+import CreateClubPage from '../features/clubs/pages/CreateClubPage';
 
 
 export default function AppRoutes() {
@@ -29,6 +30,7 @@ export default function AppRoutes() {
             <Route path="/bookmarks"           element={<BookmarksPage />} />
             <Route path="/notifications"       element={<NotificationsPage />} />
             <Route path="/admin"               element={<AdminPage />} />
+            <Route path="/clubs/new" element={<CreateClubPage />} />
             {/* Redirect any unknown routes to explore */}
         </Routes>
       </AppLayout>

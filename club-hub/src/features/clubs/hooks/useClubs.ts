@@ -4,8 +4,15 @@ import { ClubService } from '../services/ClubService';
 
 export function useClubs() {
   const [clubs, setClubs] = useState<Club[]>([]);
+  
   useEffect(() => {
     ClubService.getAll().then(setClubs);
   }, []);
-  return { clubs };
+  
+  /** locally adds a club; later you can call ClubService.create() too */
+  const addClub = (newClub: Club) => {
+    setClubs(prev => [...prev, newClub]);
+  };
+
+  return { clubs, addClub };
 }
