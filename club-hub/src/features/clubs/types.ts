@@ -1,3 +1,5 @@
+// src/features/clubs/types.ts
+
 export interface Event {
   id: number;
   title: string;
@@ -13,6 +15,16 @@ export interface Comment {
   likes?: number;
 }
 
+export interface PollOption {
+  text: string;
+  votes: number;
+}
+
+export interface Poll {
+  question: string;
+  options: PollOption[];
+}
+
 export interface Post {
   id: number;
   author: string;
@@ -21,6 +33,10 @@ export interface Post {
   comments: number;
   time: string;
   commentsList?: Comment[];
+  /** optional photo URL */
+  photo?: string;
+  /** optional poll */
+  poll?: Poll;
 }
 
 export interface Member {

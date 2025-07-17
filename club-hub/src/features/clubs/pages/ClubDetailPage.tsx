@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+// src/features/clubs/pages/ClubDetailPage.tsx
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Club, Thread, Post } from '../types';
 import { ClubService } from '../services/ClubService';
@@ -10,17 +11,32 @@ import {
   MessageCircle,
   User as UserIcon,
   Heart,
-  Share2
+  Share2,
+  Image as PhotoIcon,
+  BarChart2,
+  Bookmark as BookmarkIcon
 } from 'lucide-react';
 import Button from '../../../components/Button';
 
 export default function ClubDetailPage() {
   const { clubId } = useParams<{ clubId: string }>();
+  const navigate = useNavigate();
+
   const [club, setClub] = useState<Club | null>(null);
   const [activeTab, setActiveTab] = useState<'about'|'events'|'forum'|'posts'|'members'>('about');
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const navigate = useNavigate();
+
+  // new feature state
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<number[]>([]);
+  const [newPostText, setNewPostText] = useState('');
+  const [newPostPhoto, setNewPostPhoto] = useState<File | null>(null);
+  const [isPoll, setIsPoll] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
+
+  const [newThreadTitle, setNewThreadTitle] = useState('');
+  const [newThreadContent, setNewThreadContent] = useState('');
 
   useEffect(() => {
     if (clubId) {
@@ -30,16 +46,78 @@ export default function ClubDetailPage() {
 
   if (!club) return <div>Loading...</div>;
 
-  // ----- Thread Detail View -----
+  // Handlers
+  const toggleBookmark = (postId: number) => {
+    setBookmarkedPosts(ids =>
+      ids.includes(postId)
+        ? ids.filter(id => id !== postId)
+        : [...ids, postId]
+    );
+  };
+
+  const handlePostPhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setNewPostPhoto(e.target.files[0]);
+  };
+
+  const handleAddPollOption = () => {
+    setPollOptions(opts => [...opts, '']);
+  };
+
+  const handlePollOptionChange = (idx: number, value: string) => {
+    setPollOptions(opts => opts.map((o,i) => i===idx ? value : o));
+  };
+
+  const handlePostSubmit = () => {
+    if (!newPostText.trim() && !newPostPhoto && !isPoll) return;
+    const newPost: Post = {
+      id: Date.now(),
+      author: 'You',
+      content: newPostText,
+      likes: 0,
+      comments: 0,
+      time: 'Just now',
+      commentsList: [],
+      photo: newPostPhoto ? URL.createObjectURL(newPostPhoto) : undefined,
+      poll: isPoll
+        ? {
+            question: pollQuestion,
+            options: pollOptions.filter(o => o.trim()).map(o => ({ text: o, votes: 0 }))
+          }
+        : undefined
+    };
+    setClub({ ...club, posts: [newPost, ...club.posts] });
+    // reset
+    setNewPostText('');
+    setNewPostPhoto(null);
+    setIsPoll(false);
+    setPollQuestion('');
+    setPollOptions(['','']);
+  };
+
+  const handleThreadSubmit = () => {
+    if (!newThreadTitle.trim() || !newThreadContent.trim()) return;
+    const newThread: Thread = {
+      id: Date.now(),
+      title: newThreadTitle,
+      author: 'You',
+      content: newThreadContent,
+      replies: 0,
+      lastActivity: 'Just now',
+      posts: []
+    };
+    setClub({ ...club, forum_threads: [newThread, ...club.forum_threads] });
+    setNewThreadTitle('');
+    setNewThreadContent('');
+  };
+
+  // Thread detail view
   if (selectedThread) {
     return (
       <div className="space-y-6">
-        <button
-          onClick={() => setSelectedThread(null)}
-          className="text-gray-500 hover:text-gray-700"
-        >
+        <button onClick={() => setSelectedThread(null)} className="text-gray-500 hover:text-gray-700">
           ← Back to Forum
         </button>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -57,6 +135,7 @@ export default function ClubDetailPage() {
             <span>{selectedThread.lastActivity}</span>
           </div>
         </div>
+
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Replies</h3>
           {(selectedThread.posts ?? []).map(post => (
@@ -82,6 +161,7 @@ export default function ClubDetailPage() {
             </div>
           ))}
         </div>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <h4 className="font-semibold text-gray-900 mb-3">Add a Reply</h4>
           <textarea
@@ -99,16 +179,14 @@ export default function ClubDetailPage() {
     );
   }
 
-  // ----- Post Comments View -----
+  // Post comments view
   if (selectedPost) {
     return (
       <div className="space-y-6">
-        <button
-          onClick={() => setSelectedPost(null)}
-          className="text-gray-500 hover:text-gray-700"
-        >
+        <button onClick={() => setSelectedPost(null)} className="text-gray-500 hover:text-gray-700">
           ← Back to Posts
         </button>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -129,6 +207,7 @@ export default function ClubDetailPage() {
             </span>
           </div>
         </div>
+
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Comments</h3>
           {(selectedPost.commentsList ?? []).map(c => (
@@ -154,6 +233,7 @@ export default function ClubDetailPage() {
             </div>
           ))}
         </div>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <h4 className="font-semibold text-gray-900 mb-3">Add a Comment</h4>
           <textarea
@@ -171,7 +251,7 @@ export default function ClubDetailPage() {
     );
   }
 
-  // ----- Club Detail + Tabs -----
+  // Main detail + tabs
   const tabs = [
     { id: 'about',   label: 'About',  icon: BookOpen      },
     { id: 'events',  label: 'Events', icon: Calendar      },
@@ -184,10 +264,7 @@ export default function ClubDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-gray-500 hover:text-gray-700"
-        >
+        <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-700">
           ← Back
         </button>
         <div className="flex items-center gap-3">
@@ -208,7 +285,7 @@ export default function ClubDetailPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => { setActiveTab(tab.id as any); setSelectedThread(null); setSelectedPost(null); }}
                 className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   isActive
                     ? 'border-orange-500 text-orange-600'
@@ -248,7 +325,7 @@ export default function ClubDetailPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="font-semibold text-gray-900 mb-4">About This Club</h3>
             <p className="text-gray-700">
-              Welcome to the {club.name}! We’re a community passionate about {club.category.toLowerCase()}.
+              Welcome to the {club.name}! We’re a community of students passionate about {club.category.toLowerCase()} activities.
             </p>
           </div>
         </div>
@@ -258,10 +335,7 @@ export default function ClubDetailPage() {
       {activeTab === 'events' && (
         <div className="space-y-4">
           {club.events.map(event => (
-            <div
-              key={event.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-            >
+            <div key={event.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-2">{event.title}</h4>
               <p className="text-sm text-gray-600 mb-3">
                 {event.date} at {event.time}
@@ -277,6 +351,27 @@ export default function ClubDetailPage() {
       {/* Forum */}
       {activeTab === 'forum' && (
         <div className="space-y-4">
+          {/* New Thread Form */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <input
+              type="text"
+              placeholder="Thread title"
+              className="w-full border border-gray-300 rounded-lg px-3 py-1 mb-2"
+              value={newThreadTitle}
+              onChange={e => setNewThreadTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Thread content"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 resize-none"
+              rows={3}
+              value={newThreadContent}
+              onChange={e => setNewThreadContent(e.target.value)}
+            />
+            <Button onClick={handleThreadSubmit} className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+              Create Thread
+            </Button>
+          </div>
+
           {club.forum_threads.map(thread => (
             <div
               key={thread.id}
@@ -292,49 +387,131 @@ export default function ClubDetailPage() {
         </div>
       )}
 
-     {/* Posts */}
-{activeTab === 'posts' && (
-  <div className="space-y-4">
-    {club.posts.map(post => (
-      <div
-        key={post.id}
-        className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-            👤
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">{post.author}</p>
-            <p className="text-xs text-gray-500">{post.time}</p>
-          </div>
-        </div>
-        <p className="text-gray-700 mb-3">{post.content}</p>
-        <div className="flex items-center gap-6 text-gray-500">
-          {/* ← Likes button */}
-          <button className="flex items-center gap-1 hover:text-orange-500">
-            <Heart className="w-4 h-4" />
-            <span className="text-sm">{post.likes}</span>
-          </button>
-          {/* ← Comments button */}
-          <button
-            className="flex items-center gap-1 hover:text-orange-500"
-            onClick={() => setSelectedPost(post)}
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span className="text-sm">{post.comments}</span>
-          </button>
-          {/* Share */}
-         <button className="flex items-center gap-1 hover:text-orange-500">
-           <Share2 className="w-4 h-4" />
-          </button>
-        </div>
-        </div>
-      
-    ))}
-  </div>
-)}
+      {/* Posts */}
+      {activeTab === 'posts' && (
+        <div className="space-y-4">
+          {/* New Post / Poll Form */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <textarea
+              placeholder="What's on your mind?"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
+              rows={3}
+              value={newPostText}
+              onChange={e => setNewPostText(e.target.value)}
+            />
 
+            {isPoll && (
+              <div className="mt-2 space-y-2">
+                <input
+                  type="text"
+                  placeholder="Poll question"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1"
+                  value={pollQuestion}
+                  onChange={e => setPollQuestion(e.target.value)}
+                />
+                {pollOptions.map((opt, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    placeholder={`Option ${idx + 1}`}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1"
+                    value={opt}
+                    onChange={e => handlePollOptionChange(idx, e.target.value)}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={handleAddPollOption}
+                  className="text-blue-500 text-sm"
+                >
+                  + Add option
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 mt-2">
+              <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
+                <PhotoIcon className="w-5 h-5 text-gray-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePostPhotoChange}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsPoll(prev => !prev)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <BarChart2 className="w-5 h-5 text-gray-500" />
+              </button>
+              <Button
+                onClick={handlePostSubmit}
+                className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+              >
+                Post
+              </Button>
+            </div>
+          </div>
+
+          {club.posts.map(post => {
+            const isBookmarked = bookmarkedPosts.includes(post.id);
+            return (
+              <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                    👤
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{post.author}</p>
+                    <p className="text-xs text-gray-500">{post.time}</p>
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-2">{post.content}</p>
+
+                {post.photo && (
+                  <img src={post.photo} alt="attachment" className="mb-2 rounded-lg max-h-60 object-cover w-full" />
+                )}
+
+                {post.poll && (
+                  <div className="mb-2">
+                    <p className="font-medium">{post.poll.question}</p>
+                    <ul className="list-disc list-inside">
+                      {post.poll.options.map((o, i) => (
+                        <li key={i} className="text-gray-700 text-sm">{o.text} — {o.votes} votes</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-6 text-gray-500">
+                  <button className="flex items-center gap-1 hover:text-orange-500">
+                    <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
+                  </button>
+                  <button
+                    className="flex items-center gap-1 hover:text-orange-500"
+                    onClick={() => setSelectedPost(post)}
+                  >
+                    <MessageCircle className="w-4 h-4" /><span className="text-sm">{post.comments}</span>
+                  </button>
+                  <button className="flex items-center gap-1 hover:text-orange-500">
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="flex items-center gap-1 hover:text-orange-500"
+                    onClick={() => toggleBookmark(post.id)}
+                  >
+                    <BookmarkIcon
+                      className={`w-4 h-4 ${isBookmarked ? 'text-orange-500' : 'text-gray-500'}`}
+                    />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Members */}
       {activeTab === 'members' && (
