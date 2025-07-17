@@ -1,6 +1,7 @@
 // src/features/clubs/pages/ClubDetailPage.tsx
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Grid, List } from 'lucide-react';
 import { Club, Thread, Post } from '../types';
 import { ClubService } from '../services/ClubService';
 import {
@@ -37,6 +38,7 @@ export default function ClubDetailPage() {
 
   const [newThreadTitle, setNewThreadTitle] = useState('');
   const [newThreadContent, setNewThreadContent] = useState('');
+  const [memberView, setMemberView] = useState<'grid'|'list'>('grid');
 
   // Validation errors
   const [postError, setPostError] = useState<string | null>(null);
@@ -557,7 +559,62 @@ export default function ClubDetailPage() {
         </div>
       )}
 
-      {/* Members Tab unchanged… */}
+       {/* Members */}
+ {activeTab === 'members' && (
+    <div className="space-y-4">
+      {/* View toggle */}
+      <div className="flex justify-end items-center gap-2">
+        <button
+          onClick={() => setMemberView('grid')}
+          className={`p-2 rounded-lg ${memberView === 'grid' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'}`}
+        >
+          <Grid className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setMemberView('list')}
+          className={`p-2 rounded-lg ${memberView === 'list' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'}`}
+        >
+          <List className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Members */}
+      {memberView === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {club.members_list.map(member => (
+            <div
+              key={member.id}
+              onClick={() => navigate(`/users/${member.id}`)}
+              className="cursor-pointer bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow"
+            >
+              <div className="text-3xl">{member.avatar}</div>
+              <p className="font-medium text-gray-900">{member.name}</p>
+              <p className="text-sm text-gray-500">{member.role}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {club.members_list.map(member => (
+            <div
+              key={member.id}
+              onClick={() => navigate(`/users/${member.id}`)}
+              className="cursor-pointer bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
+            >
+              <div className="text-3xl">{member.avatar}</div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{member.name}</p>
+                <p className="text-sm text-gray-500">{member.role}</p>
+              </div>
+              <button className="text-gray-400 hover:text-gray-600">
+                View Profile →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
 
     </div>
   );
