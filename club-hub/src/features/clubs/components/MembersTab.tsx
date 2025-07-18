@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Member } from '../types';
+import { Club } from '../types';
 import { Grid, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface MembersTabProps {
-  members: Member[];
+  club: Club;
 }
 
-export default function MembersTab({ members }: MembersTabProps) {
+export default function MembersTab({ club }: MembersTabProps) {
   const [view, setView] = useState<'grid'|'list'>('grid');
   const navigate = useNavigate();
 
@@ -16,17 +16,13 @@ export default function MembersTab({ members }: MembersTabProps) {
       <div className="flex justify-end items-center gap-2">
         <button
           onClick={() => setView('grid')}
-          className={`p-2 rounded-lg ${
-            view === 'grid' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'
-          }`}
+          className={`p-2 rounded-lg ${view==='grid' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'}`}
         >
           <Grid className="w-5 h-5" />
         </button>
         <button
           onClick={() => setView('list')}
-          className={`p-2 rounded-lg ${
-            view === 'list' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'
-          }`}
+          className={`p-2 rounded-lg ${view==='list' ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100'}`}
         >
           <List className="w-5 h-5" />
         </button>
@@ -34,7 +30,7 @@ export default function MembersTab({ members }: MembersTabProps) {
 
       {view === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {members.map(m => (
+          {club.members_list.map(m => (
             <div
               key={m.id}
               onClick={() => navigate(`/users/${m.id}`)}
@@ -48,7 +44,7 @@ export default function MembersTab({ members }: MembersTabProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {members.map(m => (
+          {club.members_list.map(m => (
             <div
               key={m.id}
               onClick={() => navigate(`/users/${m.id}`)}

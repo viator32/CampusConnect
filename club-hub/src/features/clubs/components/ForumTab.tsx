@@ -1,59 +1,57 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState } from 'react';
 import { Club, Thread } from '../types';
-import { MessageSquare } from 'lucide-react';
 import Button from '../../../components/Button';
 
 interface ForumTabProps {
   club: Club;
-  setClub: React.Dispatch<React.SetStateAction<Club | null>>;
-  onSelectThread: (thread: Thread) => void;
+  onClubUpdate: (c: Club) => void;
+  onSelectThread: (t: Thread) => void;
 }
 
-export default function ForumTab({ club, setClub, onSelectThread }: ForumTabProps) {
-  const [newThreadTitle, setNewThreadTitle] = useState('');
-  const [newThreadContent, setNewThreadContent] = useState('');
-  const [threadError, setThreadError] = useState<string|null>(null);
+export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTabProps) {
+  const [title, setTitle]   = useState('');
+  const [content, setContent] = useState('');
+  const [error, setError]   = useState<string|null>(null);
 
-  const handleThreadSubmit = () => {
-    setThreadError(null);
-    if (!newThreadTitle.trim() || !newThreadContent.trim()) {
-      setThreadError('Please enter both a title and content for your thread.');
+  const handleCreate = () => {
+    setError(null);
+    if (!title.trim() || !content.trim()) {
+      setError('Both title and content are required.');
       return;
     }
     const newThread: Thread = {
       id: Date.now(),
-      title: newThreadTitle.trim(),
+      title,
       author: 'You',
-      content: newThreadContent.trim(),
       replies: 0,
       lastActivity: 'Just now',
+      content,
       posts: []
     };
-    setClub(prev => prev && ({ ...prev, forum_threads: [newThread, ...prev.forum_threads] }));
-    setNewThreadTitle('');
-    setNewThreadContent('');
+    onClubUpdate({ ...club, forum_threads: [ newThread, ...club.forum_threads ] });
+    setTitle(''); setContent('');
   };
 
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        {threadError && <p className="text-sm text-red-600 mb-2">{threadError}</p>}
+        {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
         <input
           type="text"
           placeholder="Thread title"
           className="w-full border border-gray-300 rounded-lg px-3 py-1 mb-2"
-          value={newThreadTitle}
-          onChange={e => setNewThreadTitle(e.target.value)}
+          value={title}
+          onChange={e => setTitle(e.target.value)}
         />
         <textarea
           placeholder="Thread content"
           className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 resize-none"
           rows={3}
-          value={newThreadContent}
-          onChange={e => setNewThreadContent(e.target.value)}
+          value={content}
+          onChange={e => setContent(e.target.value)}
         />
         <Button
-          onClick={handleThreadSubmit}
+          onClick={handleCreate}
           className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
         >
           Create Thread

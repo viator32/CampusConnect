@@ -12,114 +12,103 @@ import Button from '../../../components/Button';
 
 interface PostsTabProps {
   club: Club;
-  setClub: React.Dispatch<React.SetStateAction<Club | null>>;
-  onSelectPost: (post: Post) => void;
+  onClubUpdate: (c: Club) => void;
+  onSelectPost: (p: Post) => void;
 }
 
-export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps) {
-  const [bookmarkedPosts, setBookmarkedPosts] = useState<number[]>([]);
-  const [newPostText, setNewPostText] = useState('');
-  const [newPostPhoto, setNewPostPhoto] = useState<File | null>(null);
+export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabProps) {
+  const [text, setText]   = useState('');
+  const [photo, setPhoto] = useState<File|null>(null);
   const [isPoll, setIsPoll] = useState(false);
-  const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
-  const [postError, setPostError] = useState<string|null>(null);
+  const [question, setQuestion] = useState('');
+  const [options, setOptions]   = useState<string[]>(['','']);
+  const [error, setError]       = useState<string|null>(null);
+  const [bookmarks, setBookmarks] = useState<number[]>([]);
 
-  const handlePostPhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setNewPostPhoto(e.target.files[0]);
-  };
-  const handleAddPollOption = () => setPollOptions(o => [...o, '']);
-  const handlePollOptionChange = (i: number, v: string) =>
-    setPollOptions(o => o.map((x, idx) => (idx === i ? v : x)));
+  const toggleBookmark = (id: number) =>
+    setBookmarks(b => b.includes(id) ? b.filter(x=>x!==id) : [...b, id]);
 
-  const toggleBookmark = (postId: number) => {
-    setBookmarkedPosts(ids =>
-      ids.includes(postId) ? ids.filter(id => id !== postId) : [...ids, postId]
-    );
+  const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setPhoto(e.target.files[0]);
   };
 
-  const handlePostSubmit = () => {
-    setPostError(null);
-    if (!newPostText.trim() && !newPostPhoto && !isPoll) {
-      setPostError('Please add text, photo, or poll.');
+  const addPollOption = () => setOptions(o => [...o, '']);
+  const changeOpt = (i: number, v: string) =>
+    setOptions(o => o.map((x,idx) => idx===i? v:x));
+
+  const handlePost = () => {
+    setError(null);
+    if (!text.trim() && !photo && !isPoll) {
+      setError('Add text, photo or poll.');
       return;
     }
     if (isPoll) {
-      if (!pollQuestion.trim()) {
-        setPostError('Please enter a poll question.');
-        return;
-      }
-      const filled = pollOptions.filter(o => o.trim());
-      if (filled.length < 2) {
-        setPostError('Please provide at least two poll options.');
+      if (!question.trim() || options.filter(o=>o.trim()).length<2) {
+        setError('Poll needs question + 2 options.');
         return;
       }
     }
     const newPost: Post = {
       id: Date.now(),
       author: 'You',
-      content: newPostText.trim(),
+      content: text,
       likes: 0,
       comments: 0,
       time: 'Just now',
       commentsList: [],
-      photo: newPostPhoto ? URL.createObjectURL(newPostPhoto) : undefined,
+      photo: photo ? URL.createObjectURL(photo) : undefined,
       poll: isPoll
         ? {
-            question: pollQuestion.trim(),
-            options: pollOptions
-              .filter(o => o.trim())
-              .map(o => ({ text: o.trim(), votes: 0 }))
+            question,
+            options: options.filter(o=>o.trim()).map(o => ({ text: o, votes: 0 }))
           }
         : undefined
-    };
-    setClub(prev => prev && ({ ...prev, posts: [newPost, ...prev.posts] }));
-    setNewPostText('');
-    setNewPostPhoto(null);
-    setIsPoll(false);
-    setPollQuestion('');
-    setPollOptions(['', '']);
+    } as any;
+    onClubUpdate({ ...club, posts: [ newPost, ...club.posts ] });
+    setText(''); setPhoto(null); setIsPoll(false); setQuestion(''); setOptions(['','']);
   };
 
   return (
     <div className="space-y-4">
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        {postError && <p className="text-sm text-red-600 mb-2">{postError}</p>}
+        {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
         <textarea
           placeholder="What's on your mind?"
           className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
           rows={3}
-          value={newPostText}
-          onChange={e => setNewPostText(e.target.value)}
+          value={text}
+          onChange={e => setText(e.target.value)}
         />
+
         {isPoll && (
           <div className="mt-2 space-y-2">
             <input
               type="text"
               placeholder="Poll question"
               className="w-full border border-gray-300 rounded-lg px-3 py-1"
-              value={pollQuestion}
-              onChange={e => setPollQuestion(e.target.value)}
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
             />
-            {pollOptions.map((opt, i) => (
+            {options.map((opt,i) => (
               <input
                 key={i}
                 type="text"
-                placeholder={`Option ${i + 1}`}
+                placeholder={`Option ${i+1}`}
                 className="w-full border border-gray-300 rounded-lg px-3 py-1"
                 value={opt}
-                onChange={e => handlePollOptionChange(i, e.target.value)}
+                onChange={e => changeOpt(i, e.target.value)}
               />
             ))}
             <button
               type="button"
-              onClick={handleAddPollOption}
+              onClick={addPollOption}
               className="text-blue-500 text-sm"
             >
               + Add option
             </button>
           </div>
         )}
+
         <div className="flex items-center gap-4 mt-2">
           <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
             <PhotoIcon className="w-5 h-5 text-gray-500" />
@@ -127,7 +116,7 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handlePostPhotoChange}
+              onChange={handlePhoto}
             />
           </label>
           <button
@@ -138,7 +127,7 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
             <BarChart2 className="w-5 h-5 text-gray-500" />
           </button>
           <Button
-            onClick={handlePostSubmit}
+            onClick={handlePost}
             className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
           >
             Post
@@ -147,12 +136,9 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
       </div>
 
       {club.posts.map(post => {
-        const isBookmarked = bookmarkedPosts.includes(post.id);
+        const isBookmarked = bookmarks.includes(post.id);
         return (
-          <div
-            key={post.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-          >
+          <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
                 👤
@@ -163,6 +149,7 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
               </div>
             </div>
             <p className="text-gray-700 mb-2">{post.content}</p>
+
             {post.photo && (
               <img
                 src={post.photo}
@@ -170,11 +157,12 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
                 className="mb-2 rounded-lg max-h-60 object-cover w-full"
               />
             )}
+
             {post.poll && (
               <div className="mb-2">
                 <p className="font-medium">{post.poll.question}</p>
                 <ul className="list-disc list-inside">
-                  {post.poll.options.map((o, i) => (
+                  {post.poll.options.map((o,i)=>(
                     <li key={i} className="text-gray-700 text-sm">
                       {o.text} — {o.votes} votes
                     </li>
@@ -182,17 +170,16 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
                 </ul>
               </div>
             )}
+
             <div className="flex items-center gap-6 text-gray-500">
               <button className="flex items-center gap-1 hover:text-orange-500">
-                <Heart className="w-4 h-4" />
-                <span className="text-sm">{post.likes}</span>
+                <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
               </button>
               <button
                 className="flex items-center gap-1 hover:text-orange-500"
                 onClick={() => onSelectPost(post)}
               >
-                <MessageCircle className="w-4 h-4" />
-                <span className="text-sm">{post.comments}</span>
+                <MessageCircle className="w-4 h-4" /><span className="text-sm">{post.comments}</span>
               </button>
               <button className="flex items-center gap-1 hover:text-orange-500">
                 <Share2 className="w-4 h-4" />
@@ -202,9 +189,7 @@ export default function PostsTab({ club, setClub, onSelectPost }: PostsTabProps)
                 onClick={() => toggleBookmark(post.id)}
               >
                 <BookmarkIcon
-                  className={`w-4 h-4 ${
-                    isBookmarked ? 'text-orange-500' : 'text-gray-500'
-                  }`}
+                  className={`w-4 h-4 ${isBookmarked ? 'text-orange-500' : 'text-gray-500'}`}
                 />
               </button>
             </div>
