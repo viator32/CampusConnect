@@ -3,7 +3,7 @@
 export interface Event {
   id: number;
   title: string;
-  description: string;
+   description?: string;
   date: string;
   time: string;
 }
