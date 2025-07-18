@@ -10,8 +10,8 @@ export const dummyClubs: Club[] = [
     image: "🖥️",
     isJoined: true,
     events: [
-      { id: 1, title: "Hackathon 2025", date: "2025-07-15", time: "10:00 AM" },
-      { id: 2, title: "Tech Talk: AI in Healthcare", date: "2025-07-20", time: "2:00 PM" }
+      { id: 1, title: "Hackathon 2025", description:"some top event", date: "2025-07-15", time: "10:00 AM" },
+      { id: 2, title: "Tech Talk: AI in Healthcare", description:"some top event", date: "2025-07-20", time: "2:00 PM" }
     ],
     posts: [
       {
@@ -83,8 +83,8 @@ export const dummyClubs: Club[] = [
     image: "📸",
     isJoined: false,
     events: [
-      { id: 3, title: "Campus Photo Walk", date: "2025-07-12", time: "9:00 AM" },
-      { id: 4, title: "Portrait Photography Workshop", date: "2025-07-18", time: "1:00 PM" }
+      { id: 3, title: "Campus Photo Walk",description:"some top event", date: "2025-07-12", time: "9:00 AM" },
+      { id: 4, title: "Portrait Photography Workshop",description:"some top event", date: "2025-07-18", time: "1:00 PM" }
     ],
     posts: [
       {
@@ -127,7 +127,7 @@ export const dummyClubs: Club[] = [
     category: "Academic",
     image: "🎯",
     isJoined: true,
-    events: [{ id: 5, title: "Weekly Debate Night", date: "2025-07-11", time: "7:00 PM" }],
+    events: [{ id: 5, title: "Weekly Debate Night",description:"some top event", date: "2025-07-11", time: "7:00 PM" }],
     posts: [],
     members_list: [{ id: 7, name: "Grace Lee", role: "President", avatar: "👩‍⚖️" }],
     forum_threads: []
