@@ -1,6 +1,6 @@
 // src/features/admin/pages/AdminPage.tsx
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useProfile } from '../../profile/hooks/useProfile';
 import { Shield, Users, Globe } from 'lucide-react';
 import Button from '../../../components/Button';
@@ -10,8 +10,8 @@ type ExternalAccountRequest = { id: number; email: string; reason: string; date:
 
 export default function AdminPage() {
   const { user } = useProfile();
+  const navigate = useNavigate();
 
-  // ⚠️ Hooks must be here, before any returns:
   const [clubRequests, setClubRequests] = useState<ClubRequest[]>([
     { id: 1, name: 'Art Club', requestedBy: 'alice@uni.edu', date: '2025-07-10' },
     { id: 2, name: 'Chess Club', requestedBy: 'bob@uni.edu',   date: '2025-07-11' }
@@ -20,7 +20,6 @@ export default function AdminPage() {
     { id: 1, email: 'john@gmail.com', reason: 'Faculty advisor', date: '2025-07-12' }
   ]);
 
-  // now the guard:
   if (!user || (user.role !== 'admin' && user.role !== 'moderator')) {
     return <Navigate to="/" replace />;
   }
@@ -41,6 +40,7 @@ export default function AdminPage() {
         <Shield className="w-6 h-6 text-orange-600" /> Administration
       </h1>
 
+      {/* Club creation approvals */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-1">
           <Users className="w-5 h-5 text-gray-600" /> Club Creation Requests
@@ -69,6 +69,7 @@ export default function AdminPage() {
         )}
       </section>
 
+      {/* External account approvals */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-1">
           <Globe className="w-5 h-5 text-gray-600" /> External Account Requests
@@ -95,21 +96,31 @@ export default function AdminPage() {
         )}
       </section>
 
+      {/* Other Tools */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800">Other Tools</h2>
         <ul className="space-y-2">
           <li>
-            <Button onClick={() => {/* TODO */}} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+            <Button
+              onClick={() => navigate('/admin/users')}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
               Manage Users
             </Button>
           </li>
           <li>
-            <Button onClick={() => {/* TODO */}} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600">
+            <Button
+              onClick={() => navigate('/admin/analytics')}
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+            >
               View Platform Analytics
             </Button>
           </li>
           <li>
-            <Button onClick={() => {/* TODO */}} className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+            <Button
+              onClick={() => navigate('/admin/moderation')}
+              className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+            >
               Content Moderation
             </Button>
           </li>
