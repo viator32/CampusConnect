@@ -2,6 +2,13 @@
 
 export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
 
+export interface Participant {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+}
+
 export interface Event {
   id: number;
   title: string;
@@ -9,16 +16,9 @@ export interface Event {
   date: string;             // ISO date string, e.g. "2025-07-20"
   time: string;             // HH:mm format, e.g. "14:00"
   location?: string;        // e.g. "Student Union, Room 101"
-  status?: 'Scheduled' | 'Completed' | 'Cancelled';
-  joined?: number;          // cached count of participants
+  status?: EventStatus;
+  joined?: number;
   participants?: Participant[];
-}
-
-export interface Participant {
-  id: number;
-  name: string;
-  surname: string;
-  email: string;
 }
 
 export interface Comment {
@@ -47,9 +47,7 @@ export interface Post {
   comments: number;
   time: string;
   commentsList?: Comment[];
-  /** optional photo URL */
   photo?: string;
-  /** optional poll */
   poll?: Poll;
 }
 
@@ -70,6 +68,14 @@ export interface Thread {
   posts?: Comment[];
 }
 
+// new type for club projects
+export interface Project {
+  id: number;
+  title: string;
+  description?: string;
+  link?: string;
+}
+
 export interface Club {
   id: number;
   name: string;
@@ -78,8 +84,15 @@ export interface Club {
   category: string;
   image: string;
   isJoined: boolean;
+
   events: Event[];
   posts: Post[];
   members_list: Member[];
   forum_threads: Thread[];
+
+  // ← newly added optional fields
+  founded?: string;       // e.g. "2005"
+  location?: string;      // e.g. "Engineering Building, Room 101"
+  tags?: string[];        // e.g. ["robotics","ai","competitive"]
+  projects?: Project[];   // extra section in AboutTab
 }
