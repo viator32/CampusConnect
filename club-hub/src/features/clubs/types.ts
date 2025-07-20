@@ -1,11 +1,24 @@
 // src/features/clubs/types.ts
 
+export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
+
 export interface Event {
   id: number;
   title: string;
-   description?: string;
-  date: string;
-  time: string;
+  description?: string;
+  date: string;             // ISO date string, e.g. "2025-07-20"
+  time: string;             // HH:mm format, e.g. "14:00"
+  location?: string;        // e.g. "Student Union, Room 101"
+  status?: 'Scheduled' | 'Completed' | 'Cancelled';
+  joined?: number;          // cached count of participants
+  participants?: Participant[];
+}
+
+export interface Participant {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
 }
 
 export interface Comment {
