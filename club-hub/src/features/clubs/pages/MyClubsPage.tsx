@@ -1,9 +1,12 @@
+// src/features/clubs/pages/MyClubsPage.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClubs } from '../hooks/useClubs';
-import { Plus, Users, X } from 'lucide-react';
+import { Plus, Users, X, Smile } from 'lucide-react';
 import Button from '../../../components/Button';
 import type { Club } from '../types';
+
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 
 const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 
@@ -12,8 +15,9 @@ export default function MyClubsPage() {
   const { clubs, addClub } = useClubs();
   const joinedClubs = clubs.filter(c => c.isJoined);
 
-  // modal state + form state
+  // modal + emoji state
   const [showModal, setShowModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [form, setForm] = useState<Pick<Club, 'name'|'description'|'category'|'image'>>({
     name: '',
     description: '',
@@ -24,6 +28,11 @@ export default function MyClubsPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
+  };
+
+  const onEmojiClick = (emojiData: EmojiClickData) => {
+    setForm(f => ({ ...f, image: emojiData.emoji }));
+    setShowEmojiPicker(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,7 +49,7 @@ export default function MyClubsPage() {
     };
     addClub(newClub);
     setShowModal(false);
-    // reset form if you like
+    setShowEmojiPicker(false);
     setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
   };
 
@@ -97,9 +106,12 @@ export default function MyClubsPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-            {/* Close button */}
+            {/* Close */}
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setShowModal(false);
+                setShowEmojiPicker(false);
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               <X className="w-5 h-5" />
@@ -110,6 +122,36 @@ export default function MyClubsPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Emoji selector now at the very top */}
+              <div className="relative">
+                <label className="block text-gray-700 mb-1">Icon (emoji)</label>
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(v => !v)}
+                  className="flex items-center gap-1 border px-3 py-2 rounded hover:bg-gray-100"
+                >
+                  <Smile className="w-5 h-5 text-gray-600" />
+                  <span className="text-xl">{form.image}</span>
+                </button>
+                {showEmojiPicker && (
+                  <div
+                    className={`
+                      absolute z-20 top-full left-0 -mt-2 mb-1
+                      shadow-lg bg-white rounded-lg overflow-hidden
+                    `}
+                  >
+                    <div className="w-[350px] h-[400px]">
+                      <EmojiPicker
+                        onEmojiClick={onEmojiClick}
+                        theme={Theme.AUTO}
+                        height={400}
+                        width="100%"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-gray-700 mb-1">Name</label>
                 <input
@@ -143,23 +185,18 @@ export default function MyClubsPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-gray-700 mb-1">Icon (emoji)</label>
-                <input
-                  name="image"
-                  value={form.image}
-                  onChange={handleChange}
-                  className="w-16 border px-3 py-2 rounded text-center"
-                />
-              </div>
+
               <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" onClick={() => setShowModal(false)}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setShowEmojiPicker(false);
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  className="bg-orange-500 text-white hover:bg-orange-600"
-                >
+                <Button type="submit" className="bg-orange-500 text-white hover:bg-orange-600">
                   Create
                 </Button>
               </div>
