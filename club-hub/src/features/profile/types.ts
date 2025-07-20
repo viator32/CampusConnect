@@ -25,6 +25,16 @@ export interface Settings {
   preferences: Preferences;
 }
 
+export interface JoinedEvent {
+  id: number;
+  clubId: number;
+  clubName: string;
+  clubImage: string;   // emoji or icon
+  title: string;
+  date: string;        // ISO date "2025-07-20"
+  time: string;        // "14:00"
+}
+
 export interface User {
   id: number;
   role: string;
@@ -41,4 +51,7 @@ export interface User {
   badges: string[];
   interests: string[];
   settings: Settings;
+
+  // ← newly added
+  joinedEvents: JoinedEvent[];
 }

@@ -15,6 +15,27 @@ export const initialUser: User = {
   postsCreated: 12,
   badges: ["Active Member", "Event Organizer", "Helpful Contributor"],
   interests: ["Programming", "Photography", "Debate", "Volunteering"],
+   joinedEvents: [
+    {
+      id: 101,
+      clubId: 10,
+      clubName: "Art Society",
+      clubImage: "🎨",
+      title: "Watercolor Workshop",
+      date: "2025-08-05",
+      time: "14:00"
+    },
+    {
+      id: 202,
+      clubId: 20,
+      clubName: "Chess Club",
+      clubImage: "♟️",
+      title: "Weekly Blitz Tournament",
+      date: "2025-08-07",
+      time: "18:30"
+    }
+  ],
+
   settings: {
     notifications: {
       email: true,

@@ -3,7 +3,7 @@ import { useProfile } from '../../profile/hooks/useProfile';
 import Toggle from '../../../components/Toggle';
 
 export default function SettingsPage() {
-  const { user, setUser } = useProfile();
+  const { user, updateUser} = useProfile();
   if (!user) return <div>Loading...</div>;
 
   // 1) Notification toggles
@@ -23,7 +23,7 @@ export default function SettingsPage() {
   } as const;
 
   const toggleNotification = (key: keyof typeof user.settings.notifications) => {
-    setUser({
+    updateUser({
       ...user,
       settings: {
         ...user.settings,
@@ -38,7 +38,7 @@ export default function SettingsPage() {
 
   // 2) Privacy toggles
   const togglePrivacy = (key: keyof typeof user.settings.privacy) => {
-    setUser({
+    updateUser({
       ...user,
       settings: {
         ...user.settings,
@@ -52,7 +52,7 @@ export default function SettingsPage() {
 
   // 3) Profile visibility
   const changeProfileVisibility = (value: 'public' | 'private') => {
-    setUser({
+    updateUser({
       ...user,
       settings: {
         ...user.settings,
@@ -66,7 +66,7 @@ export default function SettingsPage() {
 
   // 4) Preferences
   const changePreference = (key: keyof typeof user.settings.preferences, value: any) => {
-    setUser({
+    updateUser({
       ...user,
       settings: {
         ...user.settings,

@@ -4,20 +4,27 @@ import { ProfileService } from '../services/ProfileService';
 
 type ProfileContextValue = {
   user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  updateUser: (u: User) => Promise<void>;
 };
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
-export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  // fetch once on mount
   useEffect(() => {
     ProfileService.getCurrent().then(setUser);
   }, []);
 
+  // updateUser calls service then updates context
+  const updateUser = async (updated: User) => {
+    const saved = await ProfileService.updateCurrent(updated);
+    setUser(saved);
+  };
+
   return (
-    <ProfileContext.Provider value={{ user, setUser }}>
+    <ProfileContext.Provider value={{ user, updateUser }}>
       {children}
     </ProfileContext.Provider>
   );
@@ -25,6 +32,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
 export function useProfile() {
   const ctx = useContext(ProfileContext);
-  if (!ctx) throw new Error('useProfile must be used within ProfileProvider');
+  if (!ctx) throw new Error('useProfile must be used inside ProfileProvider');
   return ctx;
 }
