@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Club, Thread, Post } from '../types';
 import { ClubService } from '../services/ClubService';
+
 import AboutTab     from '../components/AboutTab';
 import EventsTab    from '../components/EventsTab';
 import ForumTab     from '../components/ForumTab';
@@ -23,18 +24,20 @@ export default function ClubDetailPage() {
   const { clubId } = useParams<{ clubId: string }>();
   const navigate  = useNavigate();
 
-  const [club, setClub]               = useState<Club|null>(null);
-  const [activeTab, setActiveTab]     = useState<TabId>('about');
-  const [selectedThread, setThread]   = useState<Thread|null>(null);
-  const [selectedPost, setPost]       = useState<Post|null>(null);
+  const [club, setClub]             = useState<Club|null>(null);
+  const [activeTab, setActiveTab]   = useState<TabId>('about');
+  const [selectedThread, setThread] = useState<Thread|null>(null);
+  const [selectedPost, setPost]     = useState<Post|null>(null);
 
   useEffect(() => {
     if (!clubId) return;
-    ClubService.getById(Number(clubId)).then(c => setClub(c ?? null));
+    ClubService.getById(Number(clubId))
+      .then(c => setClub(c ?? null));
   }, [clubId]);
 
   if (!club) return <div>Loading…</div>;
 
+  // single‑views override tabs
   if (selectedThread) {
     return <ThreadDetail thread={selectedThread} onBack={() => setThread(null)} />;
   }
@@ -50,7 +53,7 @@ export default function ClubDetailPage() {
     { id: 'members', label: 'Members',icon: Users         },
   ];
 
-  const updateClub = (c: Club) => setClub(c);
+  const updateClub = (updated: Club) => setClub(updated);
 
   return (
     <div className="space-y-6">
@@ -89,31 +92,32 @@ export default function ClubDetailPage() {
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
                 `}
               >
-                <Icon className="w-4 h-4" />{tab.label}
+                <Icon className="w-4 h-4" />
+                {tab.label}
               </button>
             );
           })}
         </nav>
       </div>
 
-      {/* Tab Contents */}
-      {activeTab === 'about'  && <AboutTab   club={club}                     />}
-      {activeTab === 'events' && (
-        <EventsTab  club={club} onClubUpdate={updateClub}       />
-      )}
+      {/* Tab contents */}
+      {activeTab === 'about'  && <AboutTab   club={club} onUpdate={updateClub}               />}
+      {activeTab === 'events' && <EventsTab  club={club} onClubUpdate={updateClub}           />}
       {activeTab === 'forum'  && (
-        <ForumTab   club={club}
-                    onClubUpdate={updateClub}
-                    onSelectThread={setThread}
+        <ForumTab
+          club={club}
+          onClubUpdate={updateClub}
+          onSelectThread={setThread}
         />
       )}
       {activeTab === 'posts'  && (
-        <PostsTab   club={club}
-                    onClubUpdate={updateClub}
-                    onSelectPost={setPost}
+        <PostsTab
+          club={club}
+          onClubUpdate={updateClub}
+          onSelectPost={setPost}
         />
       )}
-      {activeTab === 'members' && <MembersTab club={club}         />}
+      {activeTab === 'members' && <MembersTab club={club}                                    />}
     </div>
   );
 }
