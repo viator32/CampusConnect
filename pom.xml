@@ -78,6 +78,16 @@
 			<artifactId>quarkus-rest-jackson</artifactId>
 		</dependency>
 
+		<!-- OpenAPI and Swagger UI -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-smallrye-openapi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-swagger-ui</artifactId>
+		</dependency>
+
 		<!-- Test Dependencies -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -90,12 +100,11 @@
 			<scope>test</scope>
 		</dependency>
 
-
-                <!-- Keycloak / OIDC -->
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-oidc</artifactId>
-                </dependency>
+		<!-- Keycloak / OIDC -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-oidc</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
