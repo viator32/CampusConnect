@@ -39,8 +39,8 @@ public interface ClubResource {
 	@Path("/{id}")
 	Response delete(@PathParam("id") UUID id);
 
-	@POST
-	@Path("/{id}/join")
-	public Response joinClub(@PathParam("id") UUID id);
+    @POST
+    @Path("/{clubId}/join/{userId}")
+    public Response joinClub(@PathParam("clubId") UUID clubId, @PathParam("userId") UUID userId);
 
 }
