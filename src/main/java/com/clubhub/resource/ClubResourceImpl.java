@@ -59,4 +59,10 @@ public class ClubResourceImpl implements ClubResource {
 		}
 		return Response.noContent().build();
 	}
+
+	@Override
+	public Response joinClub(UUID id) {
+		clubService.joinClub(id);
+		return Response.ok().build();
+	}
 }

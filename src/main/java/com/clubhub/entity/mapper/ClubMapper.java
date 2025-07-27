@@ -109,9 +109,13 @@ public class ClubMapper {
 	public static MemberDTO toDTO(Member m) {
 		MemberDTO dto = new MemberDTO();
 		dto.id = m.getId();
-		dto.name = m.getName();
 		dto.role = m.getRole();
 		dto.avatar = m.getAvatar();
+
+		if (m.getUser() != null) {
+			dto.name = m.getUser().getUsername();
+		}
+
 		return dto;
 	}
 

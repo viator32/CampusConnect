@@ -14,33 +14,29 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import com.clubhub.entity.dto.ClubDTO;
+import com.clubhub.entity.dto.UserDTO;
 
-@Path("/api/clubs")
+@Path("/api/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface ClubResource {
+public interface UserResource {
 
 	@GET
-	List<ClubDTO> getAll();
+	List<UserDTO> getAll();
 
 	@GET
 	@Path("/{id}")
 	Response getById(@PathParam("id") UUID id);
 
 	@POST
-	Response create(ClubDTO clubDTO);
+	Response create(UserDTO userDto);
 
 	@PUT
 	@Path("/{id}")
-	Response update(@PathParam("id") UUID id, ClubDTO clubDTO);
+	Response update(@PathParam("id") UUID id, UserDTO userDto);
 
 	@DELETE
 	@Path("/{id}")
 	Response delete(@PathParam("id") UUID id);
-
-	@POST
-	@Path("/{id}/join")
-	public Response joinClub(@PathParam("id") UUID id);
 
 }

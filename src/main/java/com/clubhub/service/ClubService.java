@@ -5,9 +5,12 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import com.clubhub.entity.Club;
+import com.clubhub.entity.Member;
+import com.clubhub.entity.User;
 import com.clubhub.repository.ClubRepository;
 
 @ApplicationScoped
@@ -15,6 +18,14 @@ public class ClubService {
 
 	@Inject
 	ClubRepository clubRepository;
+
+	@Inject
+	ClubService clubService;
+
+	@Inject
+	EntityManager em;
+	@Inject
+	UserService userService;
 
 	public List<Club> getAllClubs() {
 		return clubRepository.findAll();
@@ -51,6 +62,40 @@ public class ClubService {
 		}
 		clubRepository.delete(id);
 		return true;
+	}
+
+	@Transactional
+	public void joinClub(UUID clubId) {
+		Club club = em.find(Club.class, clubId);
+		if (club == null) {
+			throw new IllegalArgumentException("Club not found");
+		}
+
+		User user = userService.getUserById(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+		boolean alreadyMember = club.getMembersList().stream()
+				.anyMatch(member -> member.getId().equals(user.getId()));
+		if (alreadyMember) {
+			return;
+		}
+
+		Member member = new Member();
+		member.setClub(club);
+		member.setUser(user);
+		member.setRole("member");
+		member.setAvatar("👤");
+
+		em.persist(member);
+
+		club.getMembersList().add(member);
+		club.setMembers(club.getMembersList().size());
+
+		if (!user.getJoinedClubs().contains(club)) {
+			user.getJoinedClubs().add(club);
+		}
+
+		em.merge(club);
+		em.merge(user);
 	}
 
 }

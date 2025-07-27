@@ -18,18 +18,21 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = "club")
+@ToString(exclude = { "club", "user" })
 public class Member {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-	private String name;
 	private String role;
 	private String avatar;
 
 	@ManyToOne
-	@JoinColumn(name = "club_id")
+	@JoinColumn(name = "club_id", nullable = false)
 	private Club club;
+
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 }
