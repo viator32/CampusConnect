@@ -6,6 +6,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.dto.ClubDTO;
@@ -61,7 +63,8 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
     @Override
-    public Response joinClub(UUID clubId, UUID userId) {
+    public Response joinClub(UUID clubId, @Context ContainerRequestContext ctx) {
+            UUID userId = (UUID) ctx.getProperty("userId");
             clubService.joinClub(clubId, userId);
             return Response.ok().build();
     }
