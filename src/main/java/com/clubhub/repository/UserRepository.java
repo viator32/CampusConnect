@@ -6,6 +6,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 
 import com.clubhub.entity.User;
 
@@ -31,15 +32,17 @@ public class UserRepository {
 		return em.createQuery("SELECT u FROM User u", User.class).getResultList();
 	}
 
-	public User findByEmail(String email) {
-		try {
-			return em.createQuery("SELECT u FROM User u WHERE  u.email = :email", User.class)
-					.setParameter("email", email).getSingleResult();
-
-		} catch (NullPointerException e) {
-			return null;
-		}
-	}
+        public User findByEmail(String email) {
+                try {
+                        return em.createQuery(
+                                        "SELECT u FROM User u WHERE u.email = :email",
+                                        User.class)
+                                        .setParameter("email", email)
+                                        .getSingleResult();
+                } catch (NoResultException e) {
+                        return null;
+                }
+        }
 
 	public void save(User user) {
 		em.persist(user);
