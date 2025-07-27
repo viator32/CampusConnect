@@ -64,38 +64,40 @@ public class ClubService {
 		return true;
 	}
 
-	@Transactional
-	public void joinClub(UUID clubId) {
-		Club club = em.find(Club.class, clubId);
-		if (club == null) {
-			throw new IllegalArgumentException("Club not found");
-		}
+    @Transactional
+    public void joinClub(UUID clubId, UUID userId) {
+        Club club = em.find(Club.class, clubId);
+        if (club == null) {
+                throw new IllegalArgumentException("Club not found");
+        }
 
-		User user = userService.getUserById(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        User user = userService.getUserById(userId);
+        if (user == null) {
+                throw new IllegalArgumentException("User not found");
+        }
 
-		boolean alreadyMember = club.getMembersList().stream()
-				.anyMatch(member -> member.getId().equals(user.getId()));
-		if (alreadyMember) {
-			return;
-		}
+        boolean alreadyMember = club.getMembersList().stream()
+                        .anyMatch(member -> member.getUser() != null && member.getUser().getId().equals(user.getId()));
+        if (alreadyMember) {
+                return;
+        }
 
-		Member member = new Member();
-		member.setClub(club);
-		member.setUser(user);
-		member.setRole("member");
-		member.setAvatar("👤");
+        Member member = new Member();
+        member.setClub(club);
+        member.setUser(user);
+        member.setRole("member");
+        member.setAvatar("👤");
 
-		em.persist(member);
+        em.persist(member);
 
-		club.getMembersList().add(member);
-		club.setMembers(club.getMembersList().size());
+        club.getMembersList().add(member);
+        club.setMembers(club.getMembersList().size());
 
-		if (!user.getJoinedClubs().contains(club)) {
-			user.getJoinedClubs().add(club);
-		}
+        user.getJoinedClubs().add(club);
+        user.getMemberships().add(member);
 
-		em.merge(club);
-		em.merge(user);
-	}
+        em.merge(club);
+        em.merge(user);
+    }
 
 }
