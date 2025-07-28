@@ -87,6 +87,7 @@ public class ClubService {
         member.setUser(user);
         member.setRole("member");
         member.setAvatar("👤");
+        member.setJoinedAt(java.time.LocalDateTime.now());
 
         em.persist(member);
 

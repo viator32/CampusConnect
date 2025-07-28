@@ -1,5 +1,6 @@
 package com.clubhub.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
@@ -26,7 +27,9 @@ public class Member {
 	private UUID id;
 
 	private String role;
-	private String avatar;
+    private String avatar;
+
+    private LocalDateTime joinedAt;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id", nullable = false)

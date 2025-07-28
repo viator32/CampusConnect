@@ -71,11 +71,13 @@ public class ClubMapper {
 		PostDTO dto = new PostDTO();
 		dto.id = p.getId();
 		dto.author = p.getAuthor();
-		dto.content = p.getContent();
-		dto.likes = p.getLikes();
-		dto.comments = p.getComments();
-		dto.time = p.getTime();
-		dto.photo = p.getPhoto();
+                dto.content = p.getContent();
+                dto.likes = p.getLikes();
+                dto.comments = p.getComments();
+                dto.bookmarks = p.getBookmarks();
+                dto.shares = p.getShares();
+                dto.time = p.getTime();
+                dto.photo = p.getPhoto();
 
 		dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
 		dto.commentsList = p.getCommentsList().stream().map(ClubMapper::toDTO).toList();
@@ -106,15 +108,16 @@ public class ClubMapper {
 		return dto;
 	}
 
-	public static MemberDTO toDTO(Member m) {
-		MemberDTO dto = new MemberDTO();
-		dto.id = m.getId();
-		dto.role = m.getRole();
-		dto.avatar = m.getAvatar();
+        public static MemberDTO toDTO(Member m) {
+                MemberDTO dto = new MemberDTO();
+                dto.id = m.getId();
+                dto.role = m.getRole();
+                dto.avatar = m.getAvatar();
+                dto.joinedAt = m.getJoinedAt();
 
-		if (m.getUser() != null) {
-			dto.name = m.getUser().getUsername();
-		}
+                if (m.getUser() != null) {
+                        dto.name = m.getUser().getUsername();
+                }
 
 		return dto;
 	}
