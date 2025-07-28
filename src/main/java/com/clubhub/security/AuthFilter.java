@@ -18,24 +18,24 @@ import com.clubhub.service.AuthService;
 @Priority(Priorities.AUTHENTICATION)
 public class AuthFilter implements ContainerRequestFilter {
 
-    @Inject
-    AuthService authService;
+	@Inject
+	AuthService authService;
 
-    @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        String path = requestContext.getUriInfo().getPath();
-        if (path.startsWith("api/auth")) {
-            return;
-        }
-        String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            UUID userId = authService.validateToken(token);
-            if (userId != null) {
-                requestContext.setProperty("userId", userId);
-                return;
-            }
-        }
-        requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-    }
+	@Override
+	public void filter(ContainerRequestContext requestContext) throws IOException {
+		String path = requestContext.getUriInfo().getPath();
+		if (path.startsWith("/api/auth")) {
+			return;
+		}
+		String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+		if (header != null && header.startsWith("Bearer ")) {
+			String token = header.substring(7);
+			UUID userId = authService.validateToken(token);
+			if (userId != null) {
+				requestContext.setProperty("userId", userId);
+				return;
+			}
+		}
+		requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+	}
 }
