@@ -1,5 +1,6 @@
 package com.clubhub.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,10 +33,12 @@ public class Post {
 
 	private String author;
 	private String content;
-	private int likes;
-	private int comments;
-	private String time;
-	private String photo;
+        private int likes;
+        private int comments;
+        private int bookmarks;
+        private int shares;
+        private LocalDateTime time;
+        private String photo;
 
 	@Embedded
 	private Poll poll;
