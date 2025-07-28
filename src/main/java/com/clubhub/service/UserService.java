@@ -64,10 +64,6 @@ public class UserService {
                 return null;
         }
 
-	@Transactional
-	public void createUser(User user) {
-		userRepository.save(user);
-	}
 
 	@Transactional
 	public User updateUser(User user) {
