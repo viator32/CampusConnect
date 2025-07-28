@@ -16,6 +16,8 @@ services:
     command: start-dev
     ports:
       - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
 
   backend:
     build: .
@@ -28,3 +30,6 @@ services:
       - keycloak
     ports:
       - "8081:8080"
+
+volumes:
+  keycloak_data:
