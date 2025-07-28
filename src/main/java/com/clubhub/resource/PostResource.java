@@ -11,6 +11,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
 
 import com.clubhub.entity.dto.PostDTO;
 
@@ -25,7 +26,7 @@ public interface PostResource {
 
     @POST
     @Path("/clubs/{clubId}/posts")
-    Response create(@PathParam("clubId") UUID clubId, PostDTO postDTO);
+    Response create(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
 
     @POST
     @Path("/posts/{postId}/like")
