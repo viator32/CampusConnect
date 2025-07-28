@@ -60,3 +60,14 @@ If you want to learn more about building native executables, please consult <htt
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+## Configuration
+
+The backend expects a pepper value for password hashing to be provided via an environment variable.
+Copy `.env.example` to `.env` beside `docker-compose.yml` and adjust the value.
+
+```bash
+AUTH_PEPPER=CHANGE_ME
+```
+
+Docker Compose will load this file and pass the variable to the application at startup.
