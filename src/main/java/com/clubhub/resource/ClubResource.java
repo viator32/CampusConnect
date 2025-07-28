@@ -13,6 +13,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 
 import com.clubhub.entity.dto.ClubDTO;
 
@@ -41,6 +43,6 @@ public interface ClubResource {
 
     @POST
     @Path("/{clubId}/join")
-    public Response joinClub(@PathParam("clubId") UUID clubId);
+    public Response joinClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
 }

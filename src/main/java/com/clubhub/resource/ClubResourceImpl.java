@@ -6,7 +6,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.dto.ClubDTO;
@@ -16,11 +17,8 @@ import com.clubhub.service.ClubService;
 @RequestScoped
 public class ClubResourceImpl implements ClubResource {
 
-        @Inject
-        ClubService clubService;
-
-        @Inject
-        SecurityIdentity identity;
+	@Inject
+	ClubService clubService;
 
 	@Override
 	public List<ClubDTO> getAll() {
@@ -65,8 +63,8 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
     @Override
-    public Response joinClub(UUID clubId) {
-            UUID userId = UUID.fromString(identity.getPrincipal().getName());
+    public Response joinClub(UUID clubId, @Context ContainerRequestContext ctx) {
+            UUID userId = (UUID) ctx.getProperty("userId");
             clubService.joinClub(clubId, userId);
             return Response.ok().build();
     }

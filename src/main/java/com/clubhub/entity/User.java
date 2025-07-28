@@ -40,6 +40,10 @@ public class User {
 
 	@Column(nullable = false)
         private String username; // z. B. MaxM
+
+        @Column(nullable = false)
+        private String passwordHash;
+
 	@Column(nullable = true)
 	private String studentId; // Optional: Matrikelnummer oder Ähnliches
 
