@@ -29,12 +29,6 @@ public class UserResourceImpl implements UserResource {
 				: Response.status(Response.Status.NOT_FOUND).build();
 	}
 
-	@Override
-	public Response create(UserDTO userDto) {
-		var entity = UserMapper.toEntity(userDto);
-		userService.createUser(entity);
-		return Response.status(Response.Status.CREATED).entity(UserMapper.toDTO(entity)).build();
-	}
 
 	@Override
 	public Response update(UUID id, UserDTO userDto) {
