@@ -78,16 +78,6 @@
 			<artifactId>quarkus-rest-jackson</artifactId>
 		</dependency>
 
-		<!-- OpenAPI and Swagger UI -->
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-smallrye-openapi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-swagger-ui</artifactId>
-		</dependency>
-
 		<!-- Test Dependencies -->
 		<dependency>
 			<groupId>io.quarkus</groupId>

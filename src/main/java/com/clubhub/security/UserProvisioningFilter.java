@@ -10,41 +10,42 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 
-import io.quarkus.security.identity.SecurityIdentity;
-import io.smallrye.jwt.auth.principal.JsonWebToken;
-
 import com.clubhub.entity.User;
 import com.clubhub.service.UserService;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
+import io.quarkus.security.identity.SecurityIdentity;
+
 /**
- * Ensures that a User entity exists for the currently authenticated Keycloak user.
- * If the user does not exist in the database, it will be created automatically.
+ * Ensures that a User entity exists for the currently authenticated Keycloak user. If the user does not exist in the
+ * database, it will be created automatically.
  */
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class UserProvisioningFilter implements ContainerRequestFilter {
 
-    @Inject
-    SecurityIdentity identity;
+	@Inject
+	SecurityIdentity identity;
 
-    @Inject
-    JsonWebToken jwt;
+	@Inject
+	JsonWebToken jwt;
 
-    @Inject
-    UserService userService;
+	@Inject
+	UserService userService;
 
-    @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        if (identity.isAnonymous()) {
-            return;
-        }
-        UUID userId = UUID.fromString(identity.getPrincipal().getName());
-        if (userService.getUserById(userId) == null) {
-            User user = new User();
-            user.setId(userId);
-            user.setEmail(jwt.getClaim("email"));
-            user.setUsername(jwt.getClaim("preferred_username"));
-            userService.createUser(user);
-        }
-    }
+	@Override
+	public void filter(ContainerRequestContext requestContext) throws IOException {
+		if (identity.isAnonymous()) {
+			return;
+		}
+		UUID userId = UUID.fromString(identity.getPrincipal().getName());
+		if (userService.getUserById(userId) == null) {
+			User user = new User();
+			user.setId(userId);
+			user.setEmail(jwt.getClaim("email"));
+			user.setUsername(jwt.getClaim("preferred_username"));
+			userService.createUser(user);
+		}
+	}
 }
