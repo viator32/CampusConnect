@@ -3,22 +3,26 @@ import {
   ClubRequest,
   ExternalAccountRequest,
   Analytics,
-  dummyClubRequests,
-  dummyExternalRequests,
+  dummyClubRequests as initialClubRequests,
+  dummyExternalRequests as initialExternalRequests,
   dummyAnalytics
 } from './dummyData';
 
 export class AdminService {
+  // make private mutable copies
+  private static clubRequests: ClubRequest[] = [...initialClubRequests];
+  private static externalRequests: ExternalAccountRequest[] = [...initialExternalRequests];
+
   static async getClubRequests(): Promise<ClubRequest[]> {
     return new Promise(resolve =>
-      setTimeout(() => resolve(dummyClubRequests), 200)
+      setTimeout(() => resolve(this.clubRequests), 200)
     );
   }
 
   static async approveClub(id: number): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        dummyClubRequests = dummyClubRequests.filter(r => r.id !== id);
+        this.clubRequests = this.clubRequests.filter(r => r.id !== id);
         resolve();
       }, 200)
     );
@@ -27,7 +31,7 @@ export class AdminService {
   static async rejectClub(id: number): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        dummyClubRequests = dummyClubRequests.filter(r => r.id !== id);
+        this.clubRequests = this.clubRequests.filter(r => r.id !== id);
         resolve();
       }, 200)
     );
@@ -35,14 +39,14 @@ export class AdminService {
 
   static async getExternalRequests(): Promise<ExternalAccountRequest[]> {
     return new Promise(resolve =>
-      setTimeout(() => resolve(dummyExternalRequests), 200)
+      setTimeout(() => resolve(this.externalRequests), 200)
     );
   }
 
   static async approveExternal(id: number): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        dummyExternalRequests = dummyExternalRequests.filter(r => r.id !== id);
+        this.externalRequests = this.externalRequests.filter(r => r.id !== id);
         resolve();
       }, 200)
     );
@@ -51,7 +55,7 @@ export class AdminService {
   static async rejectExternal(id: number): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        dummyExternalRequests = dummyExternalRequests.filter(r => r.id !== id);
+        this.externalRequests = this.externalRequests.filter(r => r.id !== id);
         resolve();
       }, 200)
     );
