@@ -83,14 +83,12 @@ export default function ProfilePage() {
             </div>
             {isEditing && showAvatarPicker && (
               <div className="absolute z-30 top-full mt-2">
-                <div className="h-60 w-80 overflow-auto rounded-lg shadow-lg">
                   <EmojiPicker
                     onEmojiClick={onAvatarClick}
                     theme={Theme.AUTO}
-                    height={240}
+                    height={400}
                     width="100%"
                   />
-                </div>
               </div>
             )}
           </div>
