@@ -1,73 +1,231 @@
-# clubhub-backend
+# ClubHub Backend
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Backend service for ClubHub built with [Quarkus](https://quarkus.io/).
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Setup and Running
 
-## Running the application in dev mode
+### Requirements
 
-You can run your application in dev mode that enables live coding using:
+- Docker and Docker Compose
+- Java 21 (if running without Docker)
 
-```shell script
-./mvnw quarkus:dev
+### Environment configuration
+
+Copy the example environment file and set a secret pepper used for password hashing:
+
+```bash
+cp .env.example .env
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
-
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
-```
-
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/clubhub-backend-1.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-## Configuration
-
-The backend expects a pepper value for password hashing to be provided via an environment variable.
-Copy `.env.example` to `.env` beside `docker-compose.yml` and adjust the value.
+Edit `.env` and replace the placeholder value:
 
 ```bash
 AUTH_PEPPER=CHANGE_ME
 ```
 
-Docker Compose will load this file and pass the variable to the application at startup.
+### Start with Docker
+
+```bash
+docker compose up --build
+```
+
+The API will be available at <http://localhost:8080>.
+
+### Development mode
+
+Alternatively, start the application directly (requires a running PostgreSQL instance):
+
+```bash
+./mvnw quarkus:dev
+```
+
+## API Endpoints
+
+Unless noted otherwise, requests require an `Authorization: Bearer <token>` header.
+
+### Authentication
+
+- **Register** – `POST /api/auth/register`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/register \
+       -H "Content-Type: application/json" \
+       -d '{"email":"user@study.thws.de","username":"alice","studentId":"123456","password":"secret"}'
+  ```
+
+- **Login** – `POST /api/auth/login`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/login \
+       -H "Content-Type: application/json" \
+       -d '{"email":"user@study.thws.de","password":"secret"}'
+  ```
+
+- **Refresh token** – `POST /api/auth/refresh`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/refresh \
+       -H "Content-Type: application/json" \
+       -d '{"token":"<jwt>"}'
+  ```
+
+### Users
+
+- **List users** – `GET /api/users`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" http://localhost:8080/api/users
+  ```
+
+- **Get user** – `GET /api/users/{id}`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/users/<userId>
+  ```
+
+- **Update user** – `PUT /api/users/{id}`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId> \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"username":"newName"}'
+  ```
+
+- **Delete user** – `DELETE /api/users/{id}`
+
+  ```bash
+  curl -X DELETE -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/users/<userId>
+  ```
+
+### Clubs
+
+- **List clubs** – `GET /api/clubs`
+
+  ```bash
+  curl http://localhost:8080/api/clubs
+  ```
+
+- **Get club** – `GET /api/clubs/{id}`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>
+  ```
+
+- **Create club** – `POST /api/clubs`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"name":"Chess Club","description":"Play chess","category":"Games","image":""}'
+  ```
+
+- **Update club** – `PUT /api/clubs/{id}`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/clubs/<clubId> \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"description":"Updated description"}'
+  ```
+
+- **Delete club** – `DELETE /api/clubs/{id}`
+
+  ```bash
+  curl -X DELETE -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>
+  ```
+
+- **Join club** – `POST /api/clubs/{clubId}/join`
+
+  ```bash
+  curl -X POST -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/join
+  ```
+
+- **List posts of a club** – `GET /api/clubs/{clubId}/posts`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/posts
+  ```
+
+- **Create post in a club** – `POST /api/clubs/{clubId}/posts`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/posts \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"content":"Hello Club!"}'
+  ```
+
+### Events
+
+- **List events of a club** – `GET /api/clubs/{clubId}/events`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/events
+  ```
+
+- **Create event in a club** – `POST /api/clubs/{clubId}/events`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/events \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"18:00"}'
+  ```
+
+### Comments
+
+- **List comments of a post** – `GET /api/posts/{postId}/comments`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/posts/<postId>/comments
+  ```
+
+- **Add comment to a post** – `POST /api/posts/{postId}/comments`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/posts/<postId>/comments \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"content":"Nice post!"}'
+  ```
+
+- **Like comment** – `POST /api/comments/{commentId}/like`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/comments/<commentId>/like \
+       -H "Authorization: Bearer <token>"
+  ```
+
+### Post actions
+
+- **Like post** – `POST /api/posts/{postId}/like`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/posts/<postId>/like \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Bookmark post** – `POST /api/posts/{postId}/bookmark`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/posts/<postId>/bookmark \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Share post** – `POST /api/posts/{postId}/share`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/posts/<postId>/share \
+       -H "Authorization: Bearer <token>"
+  ```
+
