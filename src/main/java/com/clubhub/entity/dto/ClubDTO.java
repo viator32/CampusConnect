@@ -10,11 +10,13 @@ public class ClubDTO {
 	public String description;
 	public String category;
 	public String image;
-	public boolean isJoined;
-	public int members;
+        public boolean isJoined;
+        public int members;
+        public int eventsCount;
+        public int postsCount;
 
-	public List<EventDTO> events = new ArrayList<>();
-	public List<PostDTO> posts = new ArrayList<>();
-	public List<MemberDTO> members_list = new ArrayList<>();
-	public List<ForumThreadDTO> forum_threads = new ArrayList<>();
+        public List<EventDTO> events = new ArrayList<>();
+        public List<PostDTO> posts = new ArrayList<>();
+        public List<MemberDTO> members_list = new ArrayList<>();
+        public List<ForumThreadDTO> forum_threads = new ArrayList<>();
 }

@@ -27,9 +27,9 @@ public interface ClubResource {
 	@GET
 	List<ClubDTO> getAll();
 
-	@GET
-	@Path("/{id}")
-	Response getById(@PathParam("id") UUID id);
+    @GET
+    @Path("/{id}")
+    Response getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
 
 	@POST
 	Response create(ClubDTO clubDTO);
@@ -48,7 +48,7 @@ public interface ClubResource {
 
     @GET
     @Path("/{clubId}/posts")
-    List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId);
+    List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
     @POST
     @Path("/{clubId}/posts")

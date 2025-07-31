@@ -33,20 +33,26 @@ public class ClubResourceImpl implements ClubResource {
         UserService userService;
 
 	@Override
-	public List<ClubDTO> getAll() {
-		return clubService.getAllClubs().stream()
-				.map(ClubMapper::toDTO)
-				.toList();
-	}
+        public List<ClubDTO> getAll() {
+                return clubService.getAllClubs().stream()
+                                .map(ClubMapper::toSummaryDTO)
+                                .toList();
+        }
 
-	@Override
-	public Response getById(UUID id) {
-		Club club = clubService.getClubById(id);
-		if (club == null) {
-			return Response.status(Response.Status.NOT_FOUND).build();
-		}
-		return Response.ok(ClubMapper.toDTO(club)).build();
-	}
+        @Override
+        public Response getById(UUID id, @Context ContainerRequestContext ctx) {
+                Club club = clubService.getClubById(id);
+                if (club == null) {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                }
+                UUID userId = (UUID) ctx.getProperty("userId");
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (isMember) {
+                        return Response.ok(ClubMapper.toDTO(club)).build();
+                }
+                return Response.ok(ClubMapper.toSummaryDTO(club)).build();
+        }
 
 	@Override
 	public Response create(ClubDTO clubDto) {
@@ -82,9 +88,15 @@ public class ClubResourceImpl implements ClubResource {
     }
 
     @Override
-    public List<PostDTO> getClubPosts(UUID clubId) {
+    public List<PostDTO> getClubPosts(UUID clubId, @Context ContainerRequestContext ctx) {
         var club = clubService.getClubById(clubId);
-        return club.getPosts().stream().map(ClubMapper::toDTO).toList();
+        UUID userId = (UUID) ctx.getProperty("userId");
+        boolean isMember = club.getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new jakarta.ws.rs.WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        return club.getPosts().stream().map(PostMapper::toDTO).toList();
     }
 
     @Override
@@ -97,6 +109,11 @@ public class ClubResourceImpl implements ClubResource {
         var club = clubService.getClubById(clubId);
         if (club == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        boolean isMember = club.getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
         var post = PostMapper.toEntity(dto, club);
         post.setAuthor(user.getUsername());

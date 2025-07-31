@@ -47,8 +47,12 @@ public class CommentResourceImpl implements CommentResource {
     @Override
     public Response addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
         UUID userId = (UUID) ctx.getProperty("userId");
-        var comment = commentService.addComment(postId, userId, dto.content);
-        return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
+        try {
+            var comment = commentService.addComment(postId, userId, dto.content);
+            return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
     }
 
     @Override
