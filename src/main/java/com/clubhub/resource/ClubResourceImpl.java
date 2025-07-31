@@ -9,16 +9,28 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 
+import java.net.URI;
+
 import com.clubhub.entity.Club;
 import com.clubhub.entity.dto.ClubDTO;
+import com.clubhub.entity.dto.PostDTO;
 import com.clubhub.entity.mapper.ClubMapper;
+import com.clubhub.entity.mapper.PostMapper;
 import com.clubhub.service.ClubService;
+import com.clubhub.service.PostService;
+import com.clubhub.service.UserService;
 
 @RequestScoped
 public class ClubResourceImpl implements ClubResource {
 
-	@Inject
-	ClubService clubService;
+        @Inject
+        ClubService clubService;
+
+        @Inject
+        PostService postService;
+
+        @Inject
+        UserService userService;
 
 	@Override
 	public List<ClubDTO> getAll() {
@@ -67,5 +79,31 @@ public class ClubResourceImpl implements ClubResource {
             UUID userId = (UUID) ctx.getProperty("userId");
             clubService.joinClub(clubId, userId);
             return Response.ok().build();
+    }
+
+    @Override
+    public List<PostDTO> getClubPosts(UUID clubId) {
+        var club = clubService.getClubById(clubId);
+        return club.getPosts().stream().map(ClubMapper::toDTO).toList();
+    }
+
+    @Override
+    public Response createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
+        UUID userId = (UUID) ctx.getProperty("userId");
+        var user = userService.getUserById(userId);
+        if (user == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        var club = clubService.getClubById(clubId);
+        if (club == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        var post = PostMapper.toEntity(dto, club);
+        post.setAuthor(user.getUsername());
+        if (post.getTime() == null) {
+            post.setTime(java.time.LocalDateTime.now());
+        }
+        postService.createPost(clubId, post);
+        return Response.created(URI.create("/api/clubs/" + clubId + "/posts/" + post.getId())).build();
     }
 }
