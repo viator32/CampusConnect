@@ -1,5 +1,6 @@
 package com.clubhub.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,10 @@ public class EventService {
         }
         for (Member m : user.getMemberships()) {
             LocalDateTime joined = m.getJoinedAt();
+            LocalDate joinedDate = joined != null ? joined.toLocalDate() : null;
             for (Event e : m.getClub().getEvents()) {
-                if (joined != null && e.getDate() != null
-                        && !e.getDate().atStartOfDay().isBefore(joined)) {
+                if (joinedDate != null && e.getDate() != null
+                        && !e.getDate().isBefore(joinedDate)) {
                     feed.add(e);
                 }
             }
