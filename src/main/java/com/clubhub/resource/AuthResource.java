@@ -1,6 +1,7 @@
 package com.clubhub.resource;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -26,5 +27,5 @@ public interface AuthResource {
 
     @POST
     @Path("/refresh")
-    Response refresh(AuthResponseDTO token);
+    Response refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO token);
 }
