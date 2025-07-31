@@ -1,4 +1,4 @@
-package com.clubhub.repository;
+package com.clubhub.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,11 +7,12 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import com.clubhub.entity.Event;
 import com.clubhub.entity.Member;
 import com.clubhub.entity.User;
-import com.clubhub.service.UserService;
+import com.clubhub.repository.EventRepository;
 
 @ApplicationScoped
 public class EventService {
@@ -22,6 +23,7 @@ public class EventService {
     @Inject
     UserService userService;
 
+    @Transactional
     public void save(Event event) {
         eventRepository.save(event);
     }

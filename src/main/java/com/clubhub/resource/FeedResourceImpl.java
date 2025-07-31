@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Context;
 import com.clubhub.entity.dto.FeedDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.EventMapper;
-import com.clubhub.repository.EventService;
+import com.clubhub.service.EventService;
 import com.clubhub.service.PostService;
 
 @RequestScoped
