@@ -18,7 +18,7 @@ import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.PostMapper;
 import com.clubhub.entity.mapper.EventMapper;
 import com.clubhub.entity.Event;
-import com.clubhub.repository.EventService;
+import com.clubhub.service.EventService;
 import com.clubhub.service.ClubService;
 import com.clubhub.service.PostService;
 import com.clubhub.service.UserService;
