@@ -36,6 +36,7 @@ export default function AppRoutes() {
           <Route path="/admin/analytics" element={<AnalyticsPage />} />
           <Route path="/admin/moderation" element={<ModerationPage />} />
             {/* Redirect any unknown routes to explore */}
+            <Route path="*" element={<Navigate to="/explore" replace />} />
         </Routes>
       </AppLayout>
     </BrowserRouter>
