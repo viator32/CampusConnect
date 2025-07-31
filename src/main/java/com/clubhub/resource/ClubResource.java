@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.Context;
 
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.entity.dto.EventDTO;
 
 @Path("/api/clubs")
 @Produces(MediaType.APPLICATION_JSON)
@@ -53,5 +54,13 @@ public interface ClubResource {
     @POST
     @Path("/{clubId}/posts")
     Response createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+
+    @GET
+    @Path("/{clubId}/events")
+    List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+
+    @POST
+    @Path("/{clubId}/events")
+    Response createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
 
 }
