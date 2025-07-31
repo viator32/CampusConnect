@@ -46,17 +46,17 @@ public class PostService {
     }
 
     @Transactional
-    public void like(UUID postId, UUID userId) {
+    public boolean like(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
             User user = userService.getUserById(userId);
             if (user == null) {
-                return;
+                return false;
             }
             boolean isMember = p.getClub().getMembersList().stream()
                     .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
             if (!isMember) {
-                return;
+                return false;
             }
             boolean alreadyLiked = p.getLikedBy().stream()
                     .anyMatch(u -> u.getId().equals(userId));
@@ -65,35 +65,41 @@ public class PostService {
                 p.setLikes(p.getLikedBy().size());
                 postRepository.update(p);
             }
+            return true;
         }
+        return false;
     }
 
     @Transactional
-    public void bookmark(UUID postId, UUID userId) {
+    public boolean bookmark(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
             boolean isMember = p.getClub().getMembersList().stream()
                     .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
             if (!isMember) {
-                return;
+                return false;
             }
             p.setBookmarks(p.getBookmarks() + 1);
             postRepository.update(p);
+            return true;
         }
+        return false;
     }
 
     @Transactional
-    public void share(UUID postId, UUID userId) {
+    public boolean share(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
             boolean isMember = p.getClub().getMembersList().stream()
                     .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
             if (!isMember) {
-                return;
+                return false;
             }
             p.setShares(p.getShares() + 1);
             postRepository.update(p);
+            return true;
         }
+        return false;
     }
 
     public List<Post> getFeedForUser(UUID userId) {

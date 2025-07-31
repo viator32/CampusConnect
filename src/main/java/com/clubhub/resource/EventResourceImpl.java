@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.Club;
@@ -24,19 +26,31 @@ public class EventResourceImpl implements EventResource {
 	@Inject
 	ClubService clubService;
 
-	@Override
-	public List<EventDTO> getAll(UUID clubId) {
-		Club club = clubService.getClubById(clubId);
-		return club.getEvents().stream()
-				.map(EventMapper::toDTO)
-				.toList();
-	}
+        @Override
+        public List<EventDTO> getAll(UUID clubId, @Context ContainerRequestContext ctx) {
+                Club club = clubService.getClubById(clubId);
+                UUID userId = (UUID) ctx.getProperty("userId");
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new jakarta.ws.rs.WebApplicationException(Response.Status.FORBIDDEN);
+                }
+                return club.getEvents().stream()
+                                .map(EventMapper::toDTO)
+                                .toList();
+        }
 
-	@Override
-	public Response create(UUID clubId, EventDTO eventDTO) {
-		Club club = clubService.getClubById(clubId);
-		Event event = EventMapper.toEntity(eventDTO, club);
-		eventService.save(event);
-		return Response.created(URI.create("/api/clubs/" + clubId + "/events/" + event.getId())).build();
-	}
-}
+        @Override
+        public Response create(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
+                Club club = clubService.getClubById(clubId);
+                UUID userId = (UUID) ctx.getProperty("userId");
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        return Response.status(Response.Status.FORBIDDEN).build();
+                }
+                Event event = EventMapper.toEntity(eventDTO, club);
+                eventService.save(event);
+                return Response.created(URI.create("/api/clubs/" + clubId + "/events/" + event.getId())).build();
+        }
+ }

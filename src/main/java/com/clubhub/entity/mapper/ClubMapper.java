@@ -21,23 +21,30 @@ import com.clubhub.entity.dto.PostDTO;
 
 public class ClubMapper {
 
-	public static ClubDTO toDTO(Club club) {
-		ClubDTO dto = new ClubDTO();
-		dto.id = club.getId();
-		dto.name = club.getName();
-		dto.description = club.getDescription();
-		dto.category = club.getCategory();
-		dto.image = club.getImage();
-		dto.isJoined = club.isJoined();
-		dto.members = club.getMembers();
+        public static ClubDTO toDTO(Club club) {
+                ClubDTO dto = toSummaryDTO(club);
 
-		dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
-		dto.posts = club.getPosts().stream().map(ClubMapper::toDTO).toList();
-		dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
-		dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
+                dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
+                dto.posts = club.getPosts().stream().map(ClubMapper::toDTO).toList();
+                dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
+                dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
 
-		return dto;
-	}
+                return dto;
+        }
+
+        public static ClubDTO toSummaryDTO(Club club) {
+                ClubDTO dto = new ClubDTO();
+                dto.id = club.getId();
+                dto.name = club.getName();
+                dto.description = club.getDescription();
+                dto.category = club.getCategory();
+                dto.image = club.getImage();
+                dto.isJoined = club.isJoined();
+                dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
+                dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
+                dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
+                return dto;
+        }
 
 	public static Club toEntity(ClubDTO dto) {
 		Club club = new Club();
