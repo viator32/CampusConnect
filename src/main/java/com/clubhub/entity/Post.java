@@ -2,7 +2,9 @@ package com.clubhub.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -12,6 +14,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
@@ -24,7 +28,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "club", "commentsList" })
+@ToString(exclude = { "club", "commentsList", "likedBy" })
 public class Post {
 
 	@Id
@@ -43,8 +47,12 @@ public class Post {
 	@Embedded
 	private Poll poll;
 
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-	private List<Comment> commentsList = new ArrayList<>();
+        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+        private List<Comment> commentsList = new ArrayList<>();
+
+        @ManyToMany
+        @JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> likedBy = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

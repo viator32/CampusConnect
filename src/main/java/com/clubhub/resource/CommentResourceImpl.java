@@ -13,12 +13,12 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
 
 import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.service.CommentService;
 import com.clubhub.service.PostService;
-import com.clubhub.service.UserService;
 
 @RequestScoped
 @Path("/api")
@@ -32,20 +32,22 @@ public class CommentResourceImpl implements CommentResource {
     @Inject
     PostService postService;
 
-    @Inject
-    UserService userService;
-
     @Override
-    public List<CommentDTO> getComments(UUID postId) {
+    public List<CommentDTO> getComments(UUID postId, @Context ContainerRequestContext ctx) {
+        UUID userId = (UUID) ctx.getProperty("userId");
         var post = postService.getPost(postId);
+        boolean isMember = post.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
         return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
     }
 
     @Override
     public Response addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
         UUID userId = (UUID) ctx.getProperty("userId");
-        var user = userService.getUserById(userId);
-        var comment = commentService.addComment(postId, user.getUsername(), dto.content);
+        var comment = commentService.addComment(postId, userId, dto.content);
         return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
     }
 

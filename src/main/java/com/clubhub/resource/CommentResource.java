@@ -23,7 +23,7 @@ public interface CommentResource {
 
     @GET
     @Path("/posts/{postId}/comments")
-    List<CommentDTO> getComments(@PathParam("postId") UUID postId);
+    List<CommentDTO> getComments(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
     @POST
     @Path("/posts/{postId}/comments")

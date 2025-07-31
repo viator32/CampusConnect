@@ -46,27 +46,51 @@ public class PostService {
     }
 
     @Transactional
-    public void like(UUID postId) {
+    public void like(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
-            p.setLikes(p.getLikes() + 1);
-            postRepository.update(p);
+            User user = userService.getUserById(userId);
+            if (user == null) {
+                return;
+            }
+            boolean isMember = p.getClub().getMembersList().stream()
+                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+            if (!isMember) {
+                return;
+            }
+            boolean alreadyLiked = p.getLikedBy().stream()
+                    .anyMatch(u -> u.getId().equals(userId));
+            if (!alreadyLiked) {
+                p.getLikedBy().add(user);
+                p.setLikes(p.getLikedBy().size());
+                postRepository.update(p);
+            }
         }
     }
 
     @Transactional
-    public void bookmark(UUID postId) {
+    public void bookmark(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
+            boolean isMember = p.getClub().getMembersList().stream()
+                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+            if (!isMember) {
+                return;
+            }
             p.setBookmarks(p.getBookmarks() + 1);
             postRepository.update(p);
         }
     }
 
     @Transactional
-    public void share(UUID postId) {
+    public void share(UUID postId, UUID userId) {
         Post p = getPost(postId);
         if (p != null) {
+            boolean isMember = p.getClub().getMembersList().stream()
+                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+            if (!isMember) {
+                return;
+            }
             p.setShares(p.getShares() + 1);
             postRepository.update(p);
         }
