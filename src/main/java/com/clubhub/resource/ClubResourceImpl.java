@@ -13,8 +13,12 @@ import jakarta.ws.rs.core.Response;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.PostMapper;
+import com.clubhub.entity.mapper.EventMapper;
+import com.clubhub.entity.Event;
+import com.clubhub.repository.EventService;
 import com.clubhub.service.ClubService;
 import com.clubhub.service.PostService;
 import com.clubhub.service.UserService;
@@ -25,11 +29,14 @@ public class ClubResourceImpl implements ClubResource {
 	@Inject
 	ClubService clubService;
 
-	@Inject
-	PostService postService;
+    @Inject
+    PostService postService;
 
-	@Inject
-	UserService userService;
+    @Inject
+    UserService userService;
+
+    @Inject
+    EventService eventService;
 
 	@Override
 	public List<ClubDTO> getAll() {
@@ -98,8 +105,8 @@ public class ClubResourceImpl implements ClubResource {
 		return club.getPosts().stream().map(ClubMapper::toDTO).toList();
 	}
 
-	@Override
-	public Response createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
+    @Override
+    public Response createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var user = userService.getUserById(userId);
 		if (user == null) {
@@ -119,7 +126,33 @@ public class ClubResourceImpl implements ClubResource {
 		if (post.getTime() == null) {
 			post.setTime(java.time.LocalDateTime.now());
 		}
-		postService.createPost(clubId, post);
-		return Response.created(URI.create("/api/clubs/" + clubId + "/posts/" + post.getId())).build();
-	}
+                postService.createPost(clubId, post);
+                return Response.created(URI.create("/api/clubs/" + clubId + "/posts/" + post.getId())).build();
+        }
+
+    @Override
+    public List<EventDTO> getClubEvents(UUID clubId, @Context ContainerRequestContext ctx) {
+        var club = clubService.getClubById(clubId);
+        UUID userId = (UUID) ctx.getProperty("userId");
+        boolean isMember = club.getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new jakarta.ws.rs.WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        return club.getEvents().stream().map(EventMapper::toDTO).toList();
+    }
+
+    @Override
+    public Response createEvent(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
+        var club = clubService.getClubById(clubId);
+        UUID userId = (UUID) ctx.getProperty("userId");
+        boolean isMember = club.getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        Event event = EventMapper.toEntity(eventDTO, club);
+        eventService.save(event);
+        return Response.created(URI.create("/api/clubs/" + clubId + "/events/" + event.getId())).build();
+    }
 }
