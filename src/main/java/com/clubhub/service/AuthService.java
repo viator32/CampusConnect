@@ -31,6 +31,12 @@ public class AuthService {
     }
 
     public String refreshToken(String token) {
+        if (token == null) {
+            return null;
+        }
+        if (token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
         TokenInfo info = tokens.get(token);
         if (info == null || info.expiresAt.isBefore(Instant.now())) {
             return null;

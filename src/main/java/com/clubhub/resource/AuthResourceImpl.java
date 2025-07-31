@@ -2,6 +2,7 @@ package com.clubhub.resource;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.AuthRequestDTO;
@@ -44,8 +45,15 @@ public class AuthResourceImpl implements AuthResource {
     }
 
     @Override
-    public Response refresh(AuthResponseDTO tokenDto) {
-        String newToken = authService.refreshToken(tokenDto.token);
+    public Response refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
+        String token = tokenDto != null ? tokenDto.token : null;
+        if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
+            token = authorization.substring("Bearer ".length());
+        }
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
+        String newToken = authService.refreshToken(token);
         if (newToken == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
