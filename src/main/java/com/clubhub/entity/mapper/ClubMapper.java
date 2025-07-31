@@ -21,35 +21,34 @@ import com.clubhub.entity.dto.PostDTO;
 
 public class ClubMapper {
 
-        public static ClubDTO toDTO(Club club) {
-                ClubDTO dto = toSummaryDTO(club);
+	public static ClubDTO toDTO(Club club) {
+		ClubDTO dto = toSummaryDTO(club);
 
-                dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
-                dto.posts = club.getPosts().stream().map(ClubMapper::toDTO).toList();
-                dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
-                dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
+		dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
+		dto.posts = club.getPosts().stream().map(ClubMapper::toDTO).toList();
+		dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
+		dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
 
-                return dto;
-        }
+		return dto;
+	}
 
-        public static ClubDTO toSummaryDTO(Club club) {
-                ClubDTO dto = new ClubDTO();
-                dto.id = club.getId();
-                dto.name = club.getName();
-                dto.description = club.getDescription();
-                dto.category = club.getCategory();
-                dto.image = club.getImage();
-                dto.isJoined = club.isJoined();
-                dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
-                dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
-                dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
-                return dto;
-        }
+	public static ClubDTO toSummaryDTO(Club club) {
+		ClubDTO dto = new ClubDTO();
+		dto.id = club.getId();
+		dto.name = club.getName();
+		dto.description = club.getDescription();
+		dto.category = club.getCategory();
+		dto.image = club.getImage();
+		dto.isJoined = club.isJoined();
+		dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
+		dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
+		dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
+		return dto;
+	}
 
 	public static Club toEntity(ClubDTO dto) {
 		Club club = new Club();
 
-		// id nur setzen, wenn sie vorhanden ist (z. B. bei PUT)
 		if (dto.id != null) {
 			club.setId(dto.id);
 		}
@@ -78,13 +77,13 @@ public class ClubMapper {
 		PostDTO dto = new PostDTO();
 		dto.id = p.getId();
 		dto.author = p.getAuthor();
-                dto.content = p.getContent();
-                dto.likes = p.getLikes();
-                dto.comments = p.getComments();
-                dto.bookmarks = p.getBookmarks();
-                dto.shares = p.getShares();
-                dto.time = p.getTime();
-                dto.photo = p.getPhoto();
+		dto.content = p.getContent();
+		dto.likes = p.getLikes();
+		dto.comments = p.getComments();
+		dto.bookmarks = p.getBookmarks();
+		dto.shares = p.getShares();
+		dto.time = p.getTime();
+		dto.photo = p.getPhoto();
 
 		dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
 		dto.commentsList = p.getCommentsList().stream().map(ClubMapper::toDTO).toList();
@@ -115,16 +114,16 @@ public class ClubMapper {
 		return dto;
 	}
 
-        public static MemberDTO toDTO(Member m) {
-                MemberDTO dto = new MemberDTO();
-                dto.id = m.getId();
-                dto.role = m.getRole();
-                dto.avatar = m.getAvatar();
-                dto.joinedAt = m.getJoinedAt();
+	public static MemberDTO toDTO(Member m) {
+		MemberDTO dto = new MemberDTO();
+		dto.id = m.getId();
+		dto.role = m.getRole();
+		dto.avatar = m.getAvatar();
+		dto.joinedAt = m.getJoinedAt();
 
-                if (m.getUser() != null) {
-                        dto.name = m.getUser().getUsername();
-                }
+		if (m.getUser() != null) {
+			dto.name = m.getUser().getUsername();
+		}
 
 		return dto;
 	}
