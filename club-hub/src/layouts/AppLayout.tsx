@@ -19,6 +19,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location  = useLocation();
   const { user }  = useProfile();
 
+  if (['/login', '/register'].includes(location.pathname)) {
+    return <>{children}</>;
+  }
+
   const sidebarItems = [
     { path: '/explore',       label: 'Explore',           icon: TrendingUp },
     { path: '/feed',          label: 'Feed',              icon: Home },

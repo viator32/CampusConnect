@@ -13,12 +13,13 @@ export class AuthService {
   static async register(
     name: string,
     email: string,
-    password: string
+    password: string,
+    studentId: string
   ): Promise<{ token: string }> {
     // TODO: replace '/register' with your backend registration endpoint
     return apiRequest('/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, password, studentId })
     });
   }
 }

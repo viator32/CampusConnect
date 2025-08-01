@@ -5,7 +5,12 @@ import { setAuthToken } from '../../../services/api';
 interface AuthContextValue {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    studentId: string
+  ) => Promise<void>;
   logout: () => void;
 }
 
@@ -20,8 +25,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthToken(result.token);
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    const result = await AuthService.register(name, email, password);
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    studentId: string
+  ) => {
+    const result = await AuthService.register(
+      name,
+      email,
+      password,
+      studentId
+    );
     setToken(result.token);
     setAuthToken(result.token);
   };

@@ -10,10 +10,11 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [studentId, setStudentId] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(name, email, password);
+    await register(name, email, password, studentId);
     navigate('/explore');
   };
 
@@ -34,6 +35,13 @@ export default function RegisterPage() {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full"
+          />
+          <Input
+            placeholder="Student ID"
+            value={studentId}
+            onChange={e => setStudentId(e.target.value)}
             required
             className="w-full"
           />
