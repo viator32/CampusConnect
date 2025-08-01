@@ -7,6 +7,8 @@ import FeedPage         from '../features/feed/pages/FeedPage';
 import ProfilePage      from '../features/profile/pages/ProfilePage';
 import SettingsPage     from '../features/settings/pages/SettingsPage';
 import SupportPage      from '../features/support/SupportPage';
+import LoginPage        from '../features/auth/pages/LoginPage';
+import RegisterPage     from '../features/auth/pages/RegisterPage';
 import MyClubsPage from '../features/clubs/pages/MyClubsPage';
 import BookmarksPage from '../features/bookmarks/pages/BookmarksPage';
 import NotificationsPage from '../features/notifications/pages/NotificationsPage';
@@ -21,8 +23,10 @@ export default function AppRoutes() {
     <BrowserRouter>
       <AppLayout>
         <Routes>
-            <Route path="/"                    element={<Navigate to="/explore" replace />} />
-            <Route path="/explore"             element={<ExplorePage />} />
+          <Route path="/"                    element={<Navigate to="/explore" replace />} />
+          <Route path="/login"               element={<LoginPage />} />
+          <Route path="/register"            element={<RegisterPage />} />
+          <Route path="/explore"             element={<ExplorePage />} />
             <Route path="/clubs/:clubId"       element={<ClubDetailPage />} />
             <Route path="/feed"                element={<FeedPage />} />
             <Route path="/profile"             element={<ProfilePage />} />

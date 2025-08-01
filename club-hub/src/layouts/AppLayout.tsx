@@ -52,6 +52,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  if (['/login', '/register'].includes(location.pathname)) {
+    return <>{children}</>;
+  }
+
   const sidebarItems = [
     { path: '/explore', label: 'Explore', icon: TrendingUp },
     { path: '/feed', label: 'Feed', icon: Home },
