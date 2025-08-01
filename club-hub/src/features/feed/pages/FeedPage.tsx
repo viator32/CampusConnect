@@ -8,9 +8,43 @@ import {
   MessageCircle,
   Share2,
   Bookmark,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import Button from '../../../components/Button';
+import type { Comment } from '../../clubs/types';
+
+type PostWithMeta = {
+  clubId: number;
+  clubName: string;
+  clubImage: string;
+  isJoined: boolean;
+} & {
+  id: number;
+  author: string;
+  content: string;
+  likes: number;
+  comments: number;
+  time: string;
+  commentsList?: Comment[];
+};
+
+type EventFeedItem = {
+  type: 'event';
+  clubId: number;
+  clubName: string;
+  clubImage: string;
+  isJoinedClub: boolean;
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  location?: string;
+  description?: string;
+  joinedCount: number;
+  participants?: { id: number; name: string; surname: string; email: string }[];
+};
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -18,7 +52,7 @@ export default function FeedPage() {
   const { user } = useProfile();
 
   // flatten posts with club info
-  const posts = useMemo(
+  const posts: PostWithMeta[] = useMemo(
     () =>
       clubs.flatMap(club =>
         club.posts.map(post => ({
@@ -32,30 +66,38 @@ export default function FeedPage() {
     [clubs]
   );
 
+  // build events feed separately
+  const events: EventFeedItem[] = useMemo(
+    () =>
+      clubs.flatMap(club =>
+        club.events.map(ev => ({
+          type: 'event' as const,
+          clubId: club.id,
+          clubName: club.name,
+          clubImage: club.image,
+          isJoinedClub: club.isJoined,
+          id: ev.id,
+          title: ev.title,
+          date: ev.date,
+          time: ev.time,
+          location: ev.location,
+          description: ev.description,
+          joinedCount: ev.joined ?? ev.participants?.length ?? 0,
+          participants: ev.participants
+        }))
+      ),
+    [clubs]
+  );
+
   // state
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'following'>('recent');
+  const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'events'>('recent');
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
-  const [newComments, setNewComments] = useState<Record<number,string>>({});
+  const [newComments, setNewComments] = useState<Record<number, string>>({});
+  const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
 
-  // filter & sort
-  const filteredPosts = useMemo(() => {
-    let arr = posts.filter(
-      p =>
-        p.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.clubName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.author.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (activeTab === 'following') {
-      arr = arr.filter(p => p.isJoined);
-    } else if (activeTab === 'popular') {
-      arr = [...arr].sort((a,b) => b.likes - a.likes);
-    }
-    return arr;
-  }, [posts, searchQuery, activeTab]);
-
-  // suggestions by interest
+  // suggestions by interest (clubs not yet joined)
   const suggestions = useMemo(() => {
     if (!user) return [];
     return clubs.filter(
@@ -65,7 +107,40 @@ export default function FeedPage() {
     );
   }, [clubs, user]);
 
-  const toggleBookmark = (postId:number) => {
+  // post filtering & sorting
+  const filteredPosts = useMemo(() => {
+    let arr = posts.filter(
+      p =>
+        p.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.clubName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.author.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (activeTab === 'popular') {
+      arr = [...arr].sort((a, b) => b.likes - a.likes);
+    }
+    return arr;
+  }, [posts, searchQuery, activeTab]);
+
+  // event filtering & sorting
+  const filteredEvents = useMemo(() => {
+    let evs = events.filter(e => {
+      const q = searchQuery.toLowerCase();
+      return (
+        e.title.toLowerCase().includes(q) ||
+        e.clubName.toLowerCase().includes(q) ||
+        (e.description?.toLowerCase().includes(q) ?? false)
+      );
+    });
+    if (activeTab === 'popular') {
+      evs = [...evs].sort((a, b) => b.joinedCount - a.joinedCount);
+    } else {
+      // recent by date ascending
+      evs = [...evs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+    return evs;
+  }, [events, searchQuery, activeTab]);
+
+  const toggleBookmark = (postId: number) => {
     setBookmarked(prev => {
       const next = new Set(prev);
       next.has(postId) ? next.delete(postId) : next.add(postId);
@@ -73,26 +148,32 @@ export default function FeedPage() {
     });
   };
 
-  const handleCommentChange = (postId:number, text:string) => {
+  const handleCommentChange = (postId: number, text: string) => {
     setNewComments(prev => ({ ...prev, [postId]: text }));
   };
-  const postComment = (postId:number) => {
-    // TODO: persist
+  const postComment = (postId: number) => {
     setNewComments(prev => ({ ...prev, [postId]: '' }));
+  };
+
+  const handleJoinEvent = (ev: EventFeedItem) => {
+    const key = `${ev.clubId}-${ev.id}`;
+    setJoinedEvents(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
   };
 
   return (
     <div className="flex space-x-6">
-
       {/* Main Column */}
       <main className="flex-1 space-y-6">
-
         {/* Search */}
         <div className="relative max-w-md">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search posts..."
+            placeholder={activeTab === 'events' ? 'Search events...' : 'Search posts...'}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -102,7 +183,7 @@ export default function FeedPage() {
         {/* Tabs */}
         <nav className="border-b border-gray-200">
           <ul className="flex space-x-4">
-            {(['recent','popular','following'] as const).map(tab => (
+            {(['recent', 'popular', 'events'] as const).map(tab => (
               <li key={tab}>
                 <button
                   onClick={() => setActiveTab(tab)}
@@ -112,97 +193,164 @@ export default function FeedPage() {
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'events' ? 'Events' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Posts */}
-        {filteredPosts.length === 0 && (
-          <p className="text-center text-gray-500">No posts to show.</p>
-        )}
-        <div className="space-y-4">
-          {filteredPosts.map(post => (
-            <div
-              key={`${post.clubId}-${post.id}`}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-            >
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-2">
-                <div className="text-lg">{post.clubImage}</div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{post.author}</p>
-                  <p className="text-sm text-gray-500">
-                    {post.clubName} • {post.time}
-                  </p>
-                </div>
-              </div>
-
-              {/* Content */}
-              <p className="text-gray-700 mb-3">{post.content}</p>
-
-              {/* Actions */}
-              <div className="flex items-center gap-6 text-gray-500 mb-2">
-                <button className="flex items-center gap-1 hover:text-orange-500">
-                  <Heart className="w-4 h-4" />
-                  <span className="text-sm">{post.likes}</span>
-                </button>
-                <button
-                  className="flex items-center gap-1 hover:text-orange-500"
-                  onClick={() =>
-                    setExpandedPostId(prev => (prev === post.id ? null : post.id))
-                  }
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm">{post.comments}</span>
-                </button>
-                <button className="flex items-center gap-1 hover:text-orange-500">
-                  <Share2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => toggleBookmark(post.id)}
-                  className="flex items-center gap-1 hover:text-orange-500"
-                >
-                  <Bookmark className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Comments */}
-              {expandedPostId === post.id && (
-                <div className="mt-4 space-y-4">
-                  {(post.commentsList ?? []).map(c => (
-                    <div key={c.id} className="bg-gray-50 rounded-lg p-3">
-                      <p className="font-medium text-gray-900">{c.author}</p>
-                      <p className="text-sm text-gray-700 mb-1">{c.content}</p>
-                      <p className="text-xs text-gray-500">{c.time}</p>
+        {/* Feed Content */}
+        {activeTab === 'events' ? (
+          <>
+            {filteredEvents.length === 0 && (
+              <p className="text-center text-gray-500">No events to show.</p>
+            )}
+            <div className="space-y-4">
+              {filteredEvents.map(ev => {
+                const key = `${ev.clubId}-${ev.id}`;
+                const joinedByUser = joinedEvents.has(key);
+                return (
+                  <div
+                    key={`event-${ev.clubId}-${ev.id}`}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">{ev.clubImage}</div>
+                        <div>
+                          <p className="font-medium text-gray-900">{ev.clubName}</p>
+                          <p className="text-sm text-gray-500">{ev.title}</p>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 flex gap-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{ev.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          <span>{ev.location || 'TBA'}</span>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <textarea
-                      rows={2}
-                      placeholder="Write a comment…"
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
-                      value={newComments[post.id] || ''}
-                      onChange={e => handleCommentChange(post.id, e.target.value)}
-                    />
-                    <div className="flex justify-end mt-2">
-                      <Button onClick={() => postComment(post.id)}>
-                        Post Comment
-                      </Button>
+                    {ev.description && (
+                      <p className="text-gray-700 mb-2">{ev.description}</p>
+                    )}
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="text-gray-500 flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <Share2 className="w-4 h-4" />
+                          <span className="text-sm">{ev.joinedCount} joined</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Button
+                          onClick={() => handleJoinEvent(ev)}
+                          className={`px-4 py-2 rounded-lg text-sm ${
+                            joinedByUser
+                              ? 'bg-gray-200 text-gray-700 cursor-default'
+                              : 'bg-orange-500 text-white hover:bg-orange-600'
+                          }`}
+                        >
+                          {joinedByUser ? 'Joined' : 'Join'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </>
+        ) : (
+          <>
+            {filteredPosts.length === 0 && (
+              <p className="text-center text-gray-500">No posts to show.</p>
+            )}
+            <div className="space-y-4">
+              {filteredPosts.map(post => (
+                <div
+                  key={`${post.clubId}-${post.id}`}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+                >
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="text-lg">{post.clubImage}</div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{post.author}</p>
+                      <p className="text-sm text-gray-500">
+                        {post.clubName} • {post.time}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-gray-700 mb-3">{post.content}</p>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-6 text-gray-500 mb-2">
+                    <button className="flex items-center gap-1 hover:text-orange-500">
+                      <Heart className="w-4 h-4" />
+                      <span className="text-sm">{post.likes}</span>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 hover:text-orange-500"
+                      onClick={() =>
+                        setExpandedPostId(prev => (prev === post.id ? null : post.id))
+                      }
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="text-sm">{post.comments}</span>
+                    </button>
+                    <button className="flex items-center gap-1 hover:text-orange-500">
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => toggleBookmark(post.id)}
+                      className="flex items-center gap-1 hover:text-orange-500"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Comments */}
+                  {expandedPostId === post.id && (
+                    <div className="mt-4 space-y-4">
+                      {(post.commentsList ?? []).map(c => (
+                        <div key={c.id} className="bg-gray-50 rounded-lg p-3">
+                          <p className="font-medium text-gray-900">{c.author}</p>
+                          <p className="text-sm text-gray-700 mb-1">{c.content}</p>
+                          <p className="text-xs text-gray-500">{c.time}</p>
+                        </div>
+                      ))}
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <textarea
+                          rows={2}
+                          placeholder="Write a comment…"
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
+                          value={newComments[post.id] || ''}
+                          onChange={e =>
+                            handleCommentChange(post.id, e.target.value)
+                          }
+                        />
+                        <div className="flex justify-end mt-2">
+                          <Button onClick={() => postComment(post.id)}>
+                            Post Comment
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </main>
 
       {/* Sidebar Suggestions */}
       <aside className="w-80 flex-shrink-0">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky ">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             You might like
           </h2>
@@ -215,10 +363,15 @@ export default function FeedPage() {
                   onClick={() => navigate(`/clubs/${c.id}`)}
                 >
                   <div className="text-2xl">{c.image}</div>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium text-gray-900">{c.name}</p>
                     <p className="text-sm text-gray-600">{c.category}</p>
                   </div>
+                  {c.isJoined && (
+                    <span className="ml-auto px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">
+                      Joined
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
