@@ -1,5 +1,5 @@
 // src/layouts/AppLayout.tsx
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   TrendingUp,
@@ -10,33 +10,67 @@ import {
   Settings,
   HelpCircle,
   Shield,
-  User as UserIcon
+  User as UserIcon,
+  Menu as MenuIcon,
+  X as XIcon
 } from 'lucide-react';
 import { useProfile } from '../features/profile/hooks/useProfile';
+import Button from '../components/Button';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const { user }  = useProfile();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useProfile();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
+
+  // close drawer on outside click
+  useEffect(() => {
+    const handle = (e: MouseEvent) => {
+      if (
+        mobileOpen &&
+        drawerRef.current &&
+        !drawerRef.current.contains(e.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [mobileOpen]);
+
+  // lock scroll when drawer open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [mobileOpen]);
+
+  if (['/login', '/register'].includes(location.pathname)) {
+    return <>{children}</>;
+  }
 
   const sidebarItems = [
-    { path: '/explore',       label: 'Explore',           icon: TrendingUp },
-    { path: '/feed',          label: 'Feed',              icon: Home },
-    { path: '/bookmarks',     label: 'Bookmarks',         icon: Bookmark },
-    { path: '/my-clubs',      label: 'My Clubs',          icon: Users },
-    { path: '/notifications', label: 'Notifications',     icon: Bell },
-    { path: '/settings',      label: 'Settings',          icon: Settings },
-    { path: '/support',       label: 'Support & Feedback',icon: HelpCircle },
-    // only show admin if role is 'admin' or 'moderator'
+    { path: '/explore', label: 'Explore', icon: TrendingUp },
+    { path: '/feed', label: 'Feed', icon: Home },
+    { path: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
+    { path: '/my-clubs', label: 'My Clubs', icon: Users },
+    { path: '/notifications', label: 'Notifications', icon: Bell },
+    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/support', label: 'Support & Feedback', icon: HelpCircle },
     ...(user && (user.role === 'admin' || user.role === 'moderator')
-      ? [{ path: '/admin',    label: 'Admin',             icon: Shield }]
+      ? [{ path: '/admin', label: 'Admin', icon: Shield }]
       : []),
   ];
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex w-64 bg-white shadow-sm border-r border-gray-200 flex-col">
         <div className="p-6">
           <h1 className="text-xl font-bold">CampusConnect</h1>
           <p className="text-sm text-gray-600">University Clubs Platform</p>
@@ -44,14 +78,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <nav className="flex-1 px-4 space-y-2">
           {sidebarItems.map(item => {
-            const Icon     = item.icon;
-            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
             return (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium
-                  ${isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-100'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium transition ${
+                  isActive(item.path)
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}
@@ -69,7 +105,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
                 <UserIcon className="w-4 h-4 text-orange-600" />
               </div>
-              <div>
+              <div className="truncate">
                 <p className="font-medium text-gray-900">{user.name}</p>
                 <p className="text-sm text-gray-600">Student</p>
               </div>
@@ -78,10 +114,108 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto p-6">
-        {children}
+      {/* Main area: mobile topbar + content */}
+      <div className="flex-1 flex flex-col overflow-auto">
+        {/* Mobile Top Bar */}
+        <div className="md:hidden flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <button
+              aria-label="Open menu"
+              onClick={() => setMobileOpen(true)}
+              className="p-2 rounded-md hover:bg-gray-100"
+            >
+              <MenuIcon className="w-6 h-6 text-gray-700" />
+            </button>
+            <div>
+              <h1 className="text-lg font-bold">CampusConnect</h1>
+              <p className="text-xs text-gray-500">Clubs Platform</p>
+            </div>
+          </div>
+          {user && (
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => navigate('/profile')}
+            >
+              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <UserIcon className="w-4 h-4 text-orange-600" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">{children}</div>
       </div>
+
+      {/* Mobile Drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 flex">
+          <div
+            className="fixed inset-0 bg-black/25"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div
+            ref={drawerRef}
+            className="relative w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col overflow-y-auto"
+          >
+            <div className="p-4 flex items-center justify-between">
+              <div>
+                <h1 className="text-lg font-bold">CampusConnect</h1>
+                <p className="text-xs text-gray-500">University Clubs</p>
+              </div>
+              <button
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+                className="p-2 rounded-md hover:bg-gray-100"
+              >
+                <XIcon className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+            <nav className="px-4 space-y-2 flex-1">
+              {sidebarItems.map(item => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => {
+                      navigate(item.path);
+                      setMobileOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium transition ${
+                      isActive(item.path)
+                        ? 'bg-orange-50 text-orange-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+            {user && (
+              <div
+                className="p-4 border-t border-gray-200 cursor-pointer"
+                onClick={() => {
+                  navigate('/profile');
+                  setMobileOpen(false);
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <div className="truncate">
+                    <p className="font-medium text-gray-900">{user.name}</p>
+                    <p className="text-sm text-gray-600">Student</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
