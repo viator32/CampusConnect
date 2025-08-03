@@ -12,6 +12,7 @@ import {
   MapPin
 } from 'lucide-react';
 import Button from '../../../components/Button';
+import SharePopup from '../../../components/SharePopup';
 import type { Comment } from '../../clubs/types';
 
 type PostWithMeta = {
@@ -92,6 +93,7 @@ export default function FeedPage() {
   const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'events'>('recent');
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
+  const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [newComments, setNewComments] = useState<Record<number, string>>({});
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
 
@@ -289,9 +291,22 @@ export default function FeedPage() {
                       <MessageCircle className="w-4 h-4" />
                       <span className="text-sm">{post.comments}</span>
                     </button>
-                    <button className="flex items-center gap-1 hover:text-orange-500">
-                      <Share2 className="w-4 h-4" />
-                    </button>
+                    <div className="relative">
+                      <button
+                        className="flex items-center gap-1 hover:text-orange-500"
+                        onClick={() =>
+                          setSharePostId(prev => (prev === post.id ? null : post.id))
+                        }
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                      {sharePostId === post.id && (
+                        <SharePopup
+                          url={`${window.location.origin}/clubs/${post.clubId}/posts/${post.id}`}
+                          onClose={() => setSharePostId(null)}
+                        />
+                      )}
+                    </div>
                     <button
                       onClick={() => toggleBookmark(post.id)}
                       className="flex items-center gap-1 hover:text-orange-500"
