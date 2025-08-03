@@ -9,6 +9,7 @@ import {
   Bookmark as BookmarkIcon
 } from 'lucide-react';
 import Button from '../../../components/Button';
+import SharePopup from '../../../components/SharePopup';
 
 interface PostsTabProps {
   club: Club;
@@ -24,6 +25,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [options, setOptions]   = useState<string[]>(['','']);
   const [error, setError]       = useState<string|null>(null);
   const [bookmarks, setBookmarks] = useState<number[]>([]);
+  const [sharePostId, setSharePostId] = useState<number | null>(null);
 
   const toggleBookmark = (id: number) =>
     setBookmarks(b => b.includes(id) ? b.filter(x=>x!==id) : [...b, id]);
@@ -181,9 +183,22 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
               >
                 <MessageCircle className="w-4 h-4" /><span className="text-sm">{post.comments}</span>
               </button>
-              <button className="flex items-center gap-1 hover:text-orange-500">
-                <Share2 className="w-4 h-4" />
-              </button>
+              <div className="relative">
+                <button
+                  className="flex items-center gap-1 hover:text-orange-500"
+                  onClick={() =>
+                    setSharePostId(prev => (prev === post.id ? null : post.id))
+                  }
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                {sharePostId === post.id && (
+                  <SharePopup
+                    url={`${window.location.origin}/clubs/${club.id}/posts/${post.id}`}
+                    onClose={() => setSharePostId(null)}
+                  />
+                )}
+              </div>
               <button
                 className="flex items-center gap-1 hover:text-orange-500"
                 onClick={() => toggleBookmark(post.id)}

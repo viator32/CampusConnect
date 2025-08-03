@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Users,
   BookOpen,
@@ -7,7 +7,7 @@ import {
   MessageSquare,
   MessageCircle
 } from 'lucide-react';
-import { Club, Thread, Post } from '../types';
+import { Club } from '../types';
 import { ClubService } from '../services/ClubService';
 
 import AboutTab     from '../components/AboutTab';
@@ -21,13 +21,12 @@ import PostDetail   from '../components/PostDetail';
 type TabId = 'about'|'events'|'forum'|'posts'|'members';
 
 export default function ClubDetailPage() {
-  const { clubId } = useParams<{ clubId: string }>();
+  const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [club, setClub]             = useState<Club|null>(null);
-  const [activeTab, setActiveTab]   = useState<TabId>('about');
-  const [selectedThread, setThread] = useState<Thread|null>(null);
-  const [selectedPost, setPost]     = useState<Post|null>(null);
+  const [club, setClub]           = useState<Club|null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('about');
 
   useEffect(() => {
     if (!clubId) return;
@@ -35,14 +34,33 @@ export default function ClubDetailPage() {
       .then(c => setClub(c ?? null));
   }, [clubId]);
 
+  useEffect(() => {
+    const t = searchParams.get('tab') as TabId | null;
+    if (t) setActiveTab(t);
+  }, [searchParams]);
+
   if (!club) return <div>Loading…</div>;
 
-  // single‑views override tabs
-  if (selectedThread) {
-    return <ThreadDetail thread={selectedThread} onBack={() => setThread(null)} />;
+  // single‑views via routing
+  if (threadId && club) {
+    const thread = club.forum_threads.find(t => t.id === Number(threadId));
+    if (thread)
+      return (
+        <ThreadDetail
+          thread={thread}
+          onBack={() => navigate(`/clubs/${clubId}?tab=forum`)}
+        />
+      );
   }
-  if (selectedPost) {
-    return <PostDetail   post={selectedPost}   onBack={() => setPost(null)}    />;
+  if (postId && club) {
+    const post = club.posts.find(p => p.id === Number(postId));
+    if (post)
+      return (
+        <PostDetail
+          post={post}
+          onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
+        />
+      );
   }
 
   const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = [
@@ -82,8 +100,7 @@ export default function ClubDetailPage() {
                 key={tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  setThread(null);
-                  setPost(null);
+                  setSearchParams({ tab: tab.id });
                 }}
                 className={`
                   flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm
@@ -107,14 +124,14 @@ export default function ClubDetailPage() {
         <ForumTab
           club={club}
           onClubUpdate={updateClub}
-          onSelectThread={setThread}
+          onSelectThread={thread => navigate(`/clubs/${club.id}/threads/${thread.id}`)}
         />
       )}
       {activeTab === 'posts'  && (
         <PostsTab
           club={club}
           onClubUpdate={updateClub}
-          onSelectPost={setPost}
+          onSelectPost={post => navigate(`/clubs/${club.id}/posts/${post.id}`)}
         />
       )}
       {activeTab === 'members' && <MembersTab club={club}                                    />}

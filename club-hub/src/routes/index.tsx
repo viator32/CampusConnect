@@ -27,12 +27,14 @@ export default function AppRoutes() {
           <Route path="/login"               element={<LoginPage />} />
           <Route path="/register"            element={<RegisterPage />} />
           <Route path="/explore"             element={<ExplorePage />} />
-            <Route path="/clubs/:clubId"       element={<ClubDetailPage />} />
-            <Route path="/feed"                element={<FeedPage />} />
-            <Route path="/profile"             element={<ProfilePage />} />
-            <Route path="/settings"            element={<SettingsPage />} />
-            <Route path="/support"             element={<SupportPage />} /> 
-            <Route path="/my-clubs"            element={<MyClubsPage />} />
+          <Route path="/clubs/:clubId"       element={<ClubDetailPage />} />
+          <Route path="/clubs/:clubId/posts/:postId" element={<ClubDetailPage />} />
+          <Route path="/clubs/:clubId/threads/:threadId" element={<ClubDetailPage />} />
+          <Route path="/feed"                element={<FeedPage />} />
+          <Route path="/profile"             element={<ProfilePage />} />
+          <Route path="/settings"            element={<SettingsPage />} />
+          <Route path="/support"             element={<SupportPage />} />
+          <Route path="/my-clubs"            element={<MyClubsPage />} />
             <Route path="/bookmarks"           element={<BookmarksPage />} />
             <Route path="/notifications"       element={<NotificationsPage />} />
             <Route path="/admin"               element={<AdminPage />} />

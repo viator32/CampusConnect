@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Thread, Comment } from '../types';
 import {
   User as UserIcon,
-  Heart
+  Heart,
+  Share2
 } from 'lucide-react';
 import Button from '../../../components/Button';
+import SharePopup from '../../../components/SharePopup';
 
 interface ThreadDetailProps {
   thread: Thread;
@@ -12,6 +14,8 @@ interface ThreadDetailProps {
 }
 
 export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
+  const [showShare, setShowShare] = useState(false);
+
   return (
     <div className="space-y-6">
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
@@ -33,6 +37,20 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{thread.replies} replies</span>
           <span>{thread.lastActivity}</span>
+          <div className="relative ml-auto">
+            <button
+              className="flex items-center gap-1 hover:text-orange-500"
+              onClick={() => setShowShare(s => !s)}
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            {showShare && (
+              <SharePopup
+                url={window.location.href}
+                onClose={() => setShowShare(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -55,7 +73,6 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
                 <Heart className="w-4 h-4" />
                 <span className="text-sm">{post.likes ?? 0}</span>
               </button>
-              <button className="text-gray-500 hover:text-orange-500 text-sm">Reply</button>
             </div>
           </div>
         ))}

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Post, Comment } from '../types';
 import {
   User as UserIcon,
   Heart,
-  MessageCircle
+  MessageCircle,
+  Share2
 } from 'lucide-react';
 import Button from '../../../components/Button';
+import SharePopup from '../../../components/SharePopup';
 
 interface PostDetailProps {
   post: Post;
@@ -13,6 +15,8 @@ interface PostDetailProps {
 }
 
 export default function PostDetail({ post, onBack }: PostDetailProps) {
+  const [showShare, setShowShare] = useState(false);
+
   return (
     <div className="space-y-6">
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
@@ -39,6 +43,20 @@ export default function PostDetail({ post, onBack }: PostDetailProps) {
             <MessageCircle className="w-4 h-4" />
             <span className="text-sm">{post.comments} comments</span>
           </span>
+          <div className="relative">
+            <button
+              className="flex items-center gap-1 hover:text-orange-500"
+              onClick={() => setShowShare(s => !s)}
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            {showShare && (
+              <SharePopup
+                url={window.location.href}
+                onClose={() => setShowShare(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -61,7 +79,6 @@ export default function PostDetail({ post, onBack }: PostDetailProps) {
                 <Heart className="w-4 h-4" />
                 <span className="text-sm">{c.likes ?? 0}</span>
               </button>
-              <button className="text-gray-500 hover:text-orange-500 text-sm">Reply</button>
             </div>
           </div>
         ))}
