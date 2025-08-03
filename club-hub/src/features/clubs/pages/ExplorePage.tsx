@@ -7,8 +7,7 @@ import {
   Grid as GridIcon,
   List as ListIcon,
   ChevronDown,
-  ChevronUp,
-  X as XIcon
+  ChevronUp
 } from 'lucide-react';
 import { useClubs } from '../hooks/useClubs';
 import ClubGrid from '../components/ClubGrid';
@@ -102,73 +101,75 @@ export default function ExplorePage() {
                 </button>
 
                 {showFilters && (
-                  <div className="absolute top-full left-0 mt-2 w-screen max-w-[760px] bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4 flex flex-col lg:flex-row gap-6">
-                    {/* Category */}
-                    <div className="flex-1 min-w-[140px]">
-                      <div className="mb-1 flex justify-between items-center">
-                        <h3 className="font-medium text-sm">Category</h3>
+                  <div className="absolute top-full left-0 mt-2 w-screen max-w-[760px] bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      {/* Category */}
+                      <div className="flex-1 min-w-[140px]">
+                        <div className="mb-1">
+                          <h3 className="font-medium text-sm">Category</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {categories.map(cat => (
+                            <button
+                              key={cat}
+                              onClick={() => setSelectedCategory(cat)}
+                              className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                                selectedCategory === cat
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
+                              }`}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {categories.map(cat => (
-                          <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                              selectedCategory === cat
-                                ? 'bg-orange-500 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
-                            }`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
+
+                      {/* Membership */}
+                      <div className="flex-1 min-w-[140px]">
+                        <div className="mb-1">
+                          <h3 className="font-medium text-sm">Membership</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {joinedStatuses.map(s => (
+                            <button
+                              key={s}
+                              onClick={() => setSelectedJoinedStatus(s)}
+                              className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                                selectedJoinedStatus === s
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Sort */}
+                      <div className="flex-1 min-w-[140px]">
+                        <div className="mb-1">
+                          <h3 className="font-medium text-sm">Sort By</h3>
+                        </div>
+                        <select
+                          value={sortKey}
+                          onChange={e => setSortKey(e.target.value as SortKey)}
+                          className="w-full border rounded-lg px-3 py-2 text-sm"
+                        >
+                          <option value="members_desc">Members (high → low)</option>
+                          <option value="members_asc">Members (low → high)</option>
+                          <option value="name_asc">Name (A → Z)</option>
+                          <option value="name_desc">Name (Z → A)</option>
+                        </select>
                       </div>
                     </div>
 
-                    {/* Membership */}
-                    <div className="flex-1 min-w-[140px]">
-                      <div className="mb-1 flex justify-between items-center">
-                        <h3 className="font-medium text-sm">Membership</h3>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {joinedStatuses.map(s => (
-                          <button
-                            key={s}
-                            onClick={() => setSelectedJoinedStatus(s)}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                              selectedJoinedStatus === s
-                                ? 'bg-orange-500 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Sort */}
-                    <div className="flex-1 min-w-[140px]">
-                      <div className="mb-1 flex justify-between items-center">
-                        <h3 className="font-medium text-sm">Sort By</h3>
-                      </div>
-                      <select
-                        value={sortKey}
-                        onChange={e => setSortKey(e.target.value as SortKey)}
-                        className="w-full border rounded-lg px-3 py-2 text-sm"
-                      >
-                        <option value="members_desc">Members (high → low)</option>
-                        <option value="members_asc">Members (low → high)</option>
-                        <option value="name_asc">Name (A → Z)</option>
-                        <option value="name_desc">Name (Z → A)</option>
-                      </select>
-                    </div>
-
-                    {/* Reset */}
-                    <div className="flex items-center gap-2 self-start">
+                    {/* Clear All on its own line */}
+                    <div className="mt-4">
                       <Button
                         onClick={resetFilters}
-                        className="text-sm px-4 py-2 border border-orange-500 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200"
+                        className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
                       >
                         Clear All
                       </Button>
@@ -204,10 +205,9 @@ export default function ExplorePage() {
             </div>
           </div>
         </div>
-
-        {/* Clubs listing */}
       </div>
 
+      {/* Clubs listing */}
       <div>
         {viewMode === 'grid' ? (
           <ClubGrid clubs={filtered} onSelect={c => navigate(`/clubs/${c.id}`)} />
