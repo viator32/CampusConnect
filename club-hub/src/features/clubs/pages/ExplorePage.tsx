@@ -77,8 +77,10 @@ export default function ExplorePage() {
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold mb-2">Explore</h1>
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-            <div className="relative flex-1 max-w-md w-full">
+
+          {/* search + toggles row */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="relative flex-1 min-w-[180px] max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 className="pl-10 pr-4 py-2 w-full"
@@ -88,10 +90,10 @@ export default function ExplorePage() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex gap-2 flex-shrink-0">
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:shadow-sm"
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:shadow-sm"
                   onClick={() => setShowFilters(f => !f)}
                   aria-label="Toggle filters"
                 >
@@ -99,10 +101,9 @@ export default function ExplorePage() {
                   <span className="hidden sm:inline">Filters</span>
                   {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
-
                 {showFilters && (
-                  <div className="absolute top-full left-0 mt-2 w-screen max-w-[760px] bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
-                    <div className="flex flex-col lg:flex-row gap-6">
+<div className="absolute top-full left-1/2 mt-2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
+                    <div className="flex flex-col lg:flex-row gap-8">
                       {/* Category */}
                       <div className="flex-1 min-w-[140px]">
                         <div className="mb-1">
@@ -145,11 +146,8 @@ export default function ExplorePage() {
                             </button>
                           ))}
                         </div>
-                      </div>
-
-                      {/* Sort */}
-                      <div className="flex-1 min-w-[140px]">
-                        <div className="mb-1">
+                         {/* Sort */}
+                        <div className="mb-1 mt-4">
                           <h3 className="font-medium text-sm">Sort By</h3>
                         </div>
                         <select
@@ -163,7 +161,10 @@ export default function ExplorePage() {
                           <option value="name_desc">Name (Z → A)</option>
                         </select>
                       </div>
-                    </div>
+                      </div>
+
+                     
+                  
 
                     {/* Clear All on its own line */}
                     <div className="mt-4">
