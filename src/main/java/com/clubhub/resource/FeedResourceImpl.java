@@ -23,13 +23,13 @@ public class FeedResourceImpl implements FeedResource {
     EventService eventService;
 
     @Override
-    public FeedDTO getFeed(@Context ContainerRequestContext ctx) {
+    public FeedDTO getFeed(@Context ContainerRequestContext ctx, int page, int size) {
         UUID userId = (UUID) ctx.getProperty("userId");
         FeedDTO feed = new FeedDTO();
-        feed.posts = postService.getFeedForUser(userId).stream()
+        feed.posts = postService.getFeedForUser(userId, page, size).stream()
                 .map(ClubMapper::toDTO)
                 .toList();
-        feed.events = eventService.getFeedForUser(userId).stream()
+        feed.events = eventService.getFeedForUser(userId, page, size).stream()
                 .map(EventMapper::toDTO)
                 .toList();
         return feed;

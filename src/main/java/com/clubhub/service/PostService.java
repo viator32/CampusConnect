@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Comparator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -102,7 +103,7 @@ public class PostService {
         return false;
     }
 
-    public List<Post> getFeedForUser(UUID userId) {
+    public List<Post> getFeedForUser(UUID userId, int page, int size) {
         User user = userService.getUserById(userId);
         List<Post> feed = new ArrayList<>();
         for (Member m : user.getMemberships()) {
@@ -114,6 +115,10 @@ public class PostService {
                 }
             }
         }
-        return feed;
+        return feed.stream()
+                .sorted(Comparator.comparing(Post::getTime).reversed())
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
     }
 }

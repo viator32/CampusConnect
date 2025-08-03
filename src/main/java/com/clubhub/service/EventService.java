@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Comparator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -59,7 +60,7 @@ public class EventService {
         return true;
     }
 
-    public List<Event> getFeedForUser(UUID userId) {
+    public List<Event> getFeedForUser(UUID userId, int page, int size) {
         User user = userService.getUserById(userId);
         List<Event> feed = new ArrayList<>();
         if (user == null) {
@@ -74,7 +75,11 @@ public class EventService {
                 }
             }
         }
-        return feed;
+        return feed.stream()
+                .sorted(Comparator.comparing(Event::getCreatedAt).reversed())
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
     }
 }
 
