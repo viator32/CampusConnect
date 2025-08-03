@@ -7,6 +7,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.DefaultValue;
 
 import com.clubhub.entity.dto.FeedDTO;
 
@@ -17,6 +19,8 @@ public interface FeedResource {
 
     @GET
     @Path("/feed")
-    FeedDTO getFeed(@Context ContainerRequestContext ctx);
+    FeedDTO getFeed(@Context ContainerRequestContext ctx,
+                    @QueryParam("page") @DefaultValue("0") int page,
+                    @QueryParam("size") @DefaultValue("10") int size);
 }
 
