@@ -1,6 +1,7 @@
 package com.clubhub.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
@@ -26,10 +27,11 @@ public class Event {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-	private String title;
-	private String description;
-	private LocalDate date;
-	private String time;
+        private String title;
+        private String description;
+        private LocalDate date;
+        private String time;
+        private LocalDateTime createdAt;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

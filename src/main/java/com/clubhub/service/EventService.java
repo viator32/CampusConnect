@@ -1,6 +1,5 @@
 package com.clubhub.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +25,9 @@ public class EventService {
 
     @Transactional
     public void save(Event event) {
+        if (event.getCreatedAt() == null) {
+            event.setCreatedAt(LocalDateTime.now());
+        }
         eventRepository.save(event);
     }
 
@@ -37,10 +39,9 @@ public class EventService {
         }
         for (Member m : user.getMemberships()) {
             LocalDateTime joined = m.getJoinedAt();
-            LocalDate joinedDate = joined != null ? joined.toLocalDate() : null;
             for (Event e : m.getClub().getEvents()) {
-                if (joinedDate != null && e.getDate() != null
-                        && !e.getDate().isBefore(joinedDate)) {
+                LocalDateTime created = e.getCreatedAt();
+                if (joined != null && created != null && !created.isBefore(joined)) {
                     feed.add(e);
                 }
             }
