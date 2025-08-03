@@ -37,7 +37,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{thread.replies} replies</span>
           <span>{thread.lastActivity}</span>
-          <div className="relative ml-auto">
+          <div className="relative">
             <button
               className="flex items-center gap-1 hover:text-orange-500"
               onClick={() => setShowShare(s => !s)}
