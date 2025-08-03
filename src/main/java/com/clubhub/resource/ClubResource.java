@@ -63,4 +63,8 @@ public interface ClubResource {
     @Path("/{clubId}/events")
     Response createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
 
+    @POST
+    @Path("/{clubId}/events/{eventId}/join")
+    Response joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId, @Context ContainerRequestContext ctx);
+
 }

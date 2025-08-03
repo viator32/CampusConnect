@@ -31,6 +31,34 @@ public class EventService {
         eventRepository.save(event);
     }
 
+    public Event getEventById(UUID id) {
+        return eventRepository.findById(id);
+    }
+
+    @Transactional
+    public boolean joinEvent(UUID eventId, UUID userId) {
+        Event event = eventRepository.findById(eventId);
+        if (event == null) {
+            return false;
+        }
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            return false;
+        }
+        boolean isMember = event.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            return false;
+        }
+        boolean alreadyJoined = event.getAttendees().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+        if (!alreadyJoined) {
+            event.getAttendees().add(user);
+            eventRepository.update(event);
+        }
+        return true;
+    }
+
     public List<Event> getFeedForUser(UUID userId) {
         User user = userService.getUserById(userId);
         List<Event> feed = new ArrayList<>();

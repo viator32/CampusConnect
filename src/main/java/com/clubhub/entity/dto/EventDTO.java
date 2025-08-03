@@ -12,4 +12,5 @@ public class EventDTO {
         public String time;
         public LocalDateTime createdAt;
         public UUID clubId;
+        public int attendees;
 }
