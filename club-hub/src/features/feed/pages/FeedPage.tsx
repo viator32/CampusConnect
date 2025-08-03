@@ -2,7 +2,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClubs } from '../../clubs/hooks/useClubs';
-import { useProfile } from '../../profile/hooks/useProfile';
 import {
   Heart,
   MessageCircle,
@@ -49,7 +48,6 @@ type EventFeedItem = {
 export default function FeedPage() {
   const navigate = useNavigate();
   const { clubs } = useClubs();
-  const { user } = useProfile();
 
   // flatten posts with club info
   const posts: PostWithMeta[] = useMemo(
@@ -97,16 +95,6 @@ export default function FeedPage() {
   const [newComments, setNewComments] = useState<Record<number, string>>({});
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
 
-  // suggestions by interest (clubs not yet joined)
-  const suggestions = useMemo(() => {
-    if (!user) return [];
-    return clubs.filter(
-      c =>
-        !c.isJoined &&
-        user.interests.some(i => c.category.toLowerCase() === i.toLowerCase())
-    );
-  }, [clubs, user]);
-
   // post filtering & sorting
   const filteredPosts = useMemo(() => {
     let arr = posts.filter(
@@ -134,7 +122,6 @@ export default function FeedPage() {
     if (activeTab === 'popular') {
       evs = [...evs].sort((a, b) => b.joinedCount - a.joinedCount);
     } else {
-      // recent by date ascending
       evs = [...evs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
     return evs;
@@ -347,39 +334,6 @@ export default function FeedPage() {
           </>
         )}
       </main>
-
-      {/* Sidebar Suggestions */}
-      <aside className="w-80 flex-shrink-0">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            You might like
-          </h2>
-          {suggestions.length > 0 ? (
-            <div className="space-y-4">
-              {suggestions.map(c => (
-                <div
-                  key={c.id}
-                  className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
-                  onClick={() => navigate(`/clubs/${c.id}`)}
-                >
-                  <div className="text-2xl">{c.image}</div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{c.name}</p>
-                    <p className="text-sm text-gray-600">{c.category}</p>
-                  </div>
-                  {c.isJoined && (
-                    <span className="ml-auto px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">
-                      Joined
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">No suggestions right now.</p>
-          )}
-        </div>
-      </aside>
     </div>
   );
 }
