@@ -15,6 +15,7 @@ public class EventMapper {
                 dto.time = event.getTime();
                 dto.createdAt = event.getCreatedAt();
                 dto.clubId = event.getClub().getId();
+                dto.attendees = event.getAttendees().size();
                 return dto;
         }
 

@@ -155,4 +155,18 @@ public class ClubResourceImpl implements ClubResource {
         eventService.save(event);
         return Response.created(URI.create("/api/clubs/" + clubId + "/events/" + event.getId())).build();
     }
+
+    @Override
+    public Response joinEvent(UUID clubId, UUID eventId, @Context ContainerRequestContext ctx) {
+        UUID userId = (UUID) ctx.getProperty("userId");
+        Event event = eventService.getEventById(eventId);
+        if (event == null || event.getClub() == null || !event.getClub().getId().equals(clubId)) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        boolean joined = eventService.joinEvent(eventId, userId);
+        if (!joined) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        return Response.ok().build();
+    }
 }
