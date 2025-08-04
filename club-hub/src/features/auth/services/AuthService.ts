@@ -1,25 +1,37 @@
 // src/features/auth/services/AuthService.ts
-import { environmentApi } from '../../../services/api';
+import { BaseService } from '../../../services/BaseService';
 
-export class AuthService {
-  static async login(email: string, password: string): Promise<{ token: string }> {
-    // TODO: replace '/login' with your backend login endpoint
-    return environmentApi.request('/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    });
+export class AuthService extends BaseService {
+  protected buildPayload(...args: unknown[]): unknown {
+    return Object.assign({}, ...args);
   }
 
-  static async register(
+  async login(email: string, password: string): Promise<{ token: string }> {
+    const payload = this.buildPayload({ email, password });
+    // TODO: replace '/login' with your backend login endpoint and return the response
+    await this.api.request('/login', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    // TODO: remove dummy token once API is integrated
+    return Promise.resolve({ token: 'mock-token' });
+  }
+
+  async register(
     name: string,
     email: string,
     password: string,
     studentId: string
   ): Promise<{ token: string }> {
-    // TODO: replace '/register' with your backend registration endpoint
-    return environmentApi.request('/register', {
+    const payload = this.buildPayload({ name, email, password, studentId });
+    // TODO: replace '/register' with your backend registration endpoint and return the response
+    await this.api.request('/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, studentId })
+      body: JSON.stringify(payload)
     });
+    // TODO: remove dummy token once API is integrated
+    return Promise.resolve({ token: 'mock-token' });
   }
 }
+
+export const authService = new AuthService();

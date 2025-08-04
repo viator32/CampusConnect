@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { AuthService } from '../services/AuthService';
+import { authService } from '../services/AuthService';
 import { setAuthToken } from '../../../services/api';
 
 interface AuthContextValue {
@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
 
   const login = async (email: string, password: string) => {
-    const result = await AuthService.login(email, password);
+    const result = await authService.login(email, password);
     setToken(result.token);
     setAuthToken(result.token);
   };
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     studentId: string
   ) => {
-    const result = await AuthService.register(
+    const result = await authService.register(
       name,
       email,
       password,

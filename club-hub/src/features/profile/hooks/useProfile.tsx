@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
-import { ProfileService } from '../services/ProfileService';
+import { profileService } from '../services/ProfileService';
 
 type ProfileContextValue = {
   user: User | null;
@@ -14,12 +14,12 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({ childre
 
   // fetch once on mount
   useEffect(() => {
-    ProfileService.getCurrent().then(setUser);
+    profileService.getCurrent().then(setUser);
   }, []);
 
   // updateUser calls service then updates context
   const updateUser = async (updated: User) => {
-    const saved = await ProfileService.updateCurrent(updated);
+    const saved = await profileService.updateCurrent(updated);
     setUser(saved);
   };
 

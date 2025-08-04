@@ -8,7 +8,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { Club } from '../types';
-import { ClubService } from '../services/ClubService';
+import { clubService } from '../services/ClubService';
 
 import AboutTab     from '../components/AboutTab';
 import EventsTab    from '../components/EventsTab';
@@ -30,7 +30,7 @@ export default function ClubDetailPage() {
 
   useEffect(() => {
     if (!clubId) return;
-    ClubService.getById(Number(clubId))
+    clubService.getById(Number(clubId))
       .then(c => setClub(c ?? null));
   }, [clubId]);
 

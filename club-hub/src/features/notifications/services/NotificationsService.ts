@@ -1,14 +1,29 @@
 // src/features/notifications/services/NotificationsService.ts
+import { BaseService } from '../../../services/BaseService';
 import { Notification, dummyNotifications } from './dummyData';
 
-export class NotificationsService {
-  static async getAll(): Promise<Notification[]> {
+export class NotificationsService extends BaseService {
+  protected buildPayload(...args: unknown[]): unknown {
+    return Object.assign({}, ...args);
+  }
+
+  async getAll(): Promise<Notification[]> {
+    // TODO: replace '/notifications' with backend endpoint
+    await this.api.request('/notifications');
+    // TODO: remove dummy data once API is integrated
     return new Promise(resolve =>
       setTimeout(() => resolve(dummyNotifications), 200)
     );
   }
 
-  static async markAsRead(id: number): Promise<void> {
+  async markAsRead(id: number): Promise<void> {
+    const payload = this.buildPayload({ id });
+    // TODO: replace '/notifications/mark-read' with backend endpoint
+    await this.api.request('/notifications/mark-read', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    // TODO: remove dummy mutation once API is integrated
     return new Promise(resolve =>
       setTimeout(() => {
         const note = dummyNotifications.find(n => n.id === id);
@@ -18,7 +33,10 @@ export class NotificationsService {
     );
   }
 
-  static async markAllAsRead(): Promise<void> {
+  async markAllAsRead(): Promise<void> {
+    // TODO: replace '/notifications/mark-all-read' with backend endpoint
+    await this.api.request('/notifications/mark-all-read', { method: 'POST' });
+    // TODO: remove dummy mutation once API is integrated
     return new Promise(resolve =>
       setTimeout(() => {
         dummyNotifications.forEach(n => (n.read = true));
@@ -27,3 +45,5 @@ export class NotificationsService {
     );
   }
 }
+
+export const notificationsService = new NotificationsService();
