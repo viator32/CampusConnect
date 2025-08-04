@@ -1,10 +1,10 @@
 // src/features/auth/services/AuthService.ts
-import { apiRequest } from '../../../services/api';
+import { environmentApi } from '../../../services/api';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<{ token: string }> {
     // TODO: replace '/login' with your backend login endpoint
-    return apiRequest('/login', {
+    return environmentApi.request('/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
     });
@@ -17,7 +17,7 @@ export class AuthService {
     studentId: string
   ): Promise<{ token: string }> {
     // TODO: replace '/register' with your backend registration endpoint
-    return apiRequest('/register', {
+    return environmentApi.request('/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password, studentId })
     });
