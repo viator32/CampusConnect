@@ -13,10 +13,6 @@ export class AdminService extends BaseService {
   private clubRequests: ClubRequest[] = [...initialClubRequests];
   private externalRequests: ExternalAccountRequest[] = [...initialExternalRequests];
 
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async getClubRequests(): Promise<ClubRequest[]> {
     // TODO: replace '/admin/club-requests' with backend endpoint and return API response
     await this.api.request('/admin/club-requests');

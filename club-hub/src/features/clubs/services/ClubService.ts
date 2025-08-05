@@ -3,10 +3,6 @@ import { Club } from '../types';
 import { dummyClubs } from './dummyData';
 
 export class ClubService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async getAll(): Promise<Club[]> {
     // TODO: replace '/clubs' with backend endpoint
     await this.api.request('/clubs');

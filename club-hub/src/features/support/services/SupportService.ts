@@ -2,10 +2,6 @@
 import { BaseService } from '../../../services/BaseService';
 
 export class SupportService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async sendFeedback(
     subject: string,
     email: string,

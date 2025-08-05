@@ -3,10 +3,6 @@ import { BaseService } from '../../../services/BaseService';
 import { Notification, dummyNotifications } from './dummyData';
 
 export class NotificationsService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async getAll(): Promise<Notification[]> {
     // TODO: replace '/notifications' with backend endpoint
     await this.api.request('/notifications');

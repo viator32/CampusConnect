@@ -2,10 +2,6 @@
 import { BaseService } from '../../../services/BaseService';
 
 export class AuthService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async login(email: string, password: string): Promise<{ token: string }> {
     const payload = this.buildPayload({ email, password });
     // TODO: replace '/login' with your backend login endpoint and return the response

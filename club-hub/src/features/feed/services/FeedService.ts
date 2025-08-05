@@ -4,10 +4,6 @@ import { Comment } from '../../clubs/types';
 import { FeedPost, dummyFeedPosts } from './dummyData';
 
 export class FeedService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async getAll(): Promise<FeedPost[]> {
     // TODO: replace '/feed' with backend endpoint
     await this.api.request('/feed');

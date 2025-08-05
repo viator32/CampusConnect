@@ -3,10 +3,6 @@ import { BaseService } from '../../../services/BaseService';
 import { BookmarkedPost, dummyBookmarks } from './dummyData';
 
 export class BookmarksService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   async getAll(): Promise<BookmarkedPost[]> {
     // TODO: replace '/bookmarks' with backend endpoint
     await this.api.request('/bookmarks');
