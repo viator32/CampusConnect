@@ -4,10 +4,6 @@ import { User } from '../types';
 import { initialUser } from './dummyData';
 
 export class ProfileService extends BaseService {
-  protected buildPayload(...args: unknown[]): unknown {
-    return Object.assign({}, ...args);
-  }
-
   /** fetch the “current” user */
   async getCurrent(): Promise<User> {
     // TODO: replace '/profile/current' with backend endpoint
