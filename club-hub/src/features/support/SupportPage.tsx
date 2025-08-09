@@ -1,11 +1,28 @@
 // src/features/support/SupportPage.tsx
 import React, { useState } from 'react';
 import Button from '../../components/Button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function SupportPage() {
   const [subject, setSubject]   = useState('');
   const [email, setEmail]       = useState('');
   const [message, setMessage]   = useState('');
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: 'How do I join a club?',
+      answer: 'Browse clubs on the Explore page and click Join to become a member.'
+    },
+    {
+      question: 'How do I create a new club?',
+      answer: 'Navigate to the Clubs section and use the Create Club form to start a new club.'
+    },
+    {
+      question: 'Where can I report a bug or issue?',
+      answer: 'Use the form above to send feedback or contact support@example.com.'
+    }
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +32,10 @@ export default function SupportPage() {
     setSubject('');
     setEmail('');
     setMessage('');
+  };
+
+  const toggle = (idx: number) => {
+    setOpenIndex(openIndex === idx ? null : idx);
   };
 
   return (
@@ -59,6 +80,32 @@ export default function SupportPage() {
             Submit
           </Button>
         </form>
+      </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="border border-gray-200 rounded-lg">
+              <button
+                type="button"
+                onClick={() => toggle(idx)}
+                className="w-full flex justify-between items-center p-4 text-left"
+              >
+                <span className="font-medium text-gray-900">{faq.question}</span>
+                {openIndex === idx ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+              {openIndex === idx && (
+                <div className="px-4 pb-4 text-gray-600">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
