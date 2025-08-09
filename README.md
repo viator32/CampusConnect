@@ -1,6 +1,19 @@
 # ClubHub
 
-This repository contains the **ClubHub** React application. The app was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and configured to use **Tailwind CSS** for styling.
+ClubHub is a social hub for organizations and interest groups. Members can discover new clubs, post updates, coordinate events and stay in touch with their communities from a single dashboard. This repository contains the client-side application written in TypeScript and React.
+
+## Features
+- Browse and search the club directory
+- View a personalized feed with posts and announcements
+- Bookmark clubs and content for quick access
+- Receive real-time notifications
+- Authenticate and manage user profiles
+- Administrative tools for managing club content
+
+## Tech Stack
+- **React** with **TypeScript** for the UI
+- **Tailwind CSS** for styling
+- Feature-first folder structure with dedicated service layer
 
 ## Getting Started
 
@@ -19,4 +32,7 @@ This repository contains the **ClubHub** React application. The app was bootstra
 
 The application will be available at [http://localhost:3000](http://localhost:3000).
 
-For additional scripts and information, see [`club-hub/README.md`](club-hub/README.md).
+## Screenshots
+<!-- TODO: Add screenshots of the platform -->
+
+For architecture and code details see [club-hub/README.md](club-hub/README.md).
