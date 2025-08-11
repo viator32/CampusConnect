@@ -5,10 +5,12 @@ import Button from '../../../components/Button';
 
 export default function ClubList({
   clubs,
-  onSelect
+  onSelect,
+  onJoin
 }: {
   clubs: Club[];
   onSelect: (club: Club) => void;
+  onJoin: (club: Club) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -29,7 +31,16 @@ export default function ClubList({
               <span className="px-2 py-1 rounded-full bg-gray-100">{club.category}</span>
             </div>
           </div>
-          <Button className="text-sm">{club.isJoined ? 'Joined' : 'Join'}</Button>
+          <Button
+            className="text-sm"
+            onClick={e => {
+              e.stopPropagation();
+              if (!club.isJoined) onJoin(club);
+            }}
+            disabled={club.isJoined}
+          >
+            {club.isJoined ? 'Joined' : 'Join'}
+          </Button>
         </div>
       ))}
     </div>

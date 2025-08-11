@@ -12,7 +12,7 @@ const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 
 export default function MyClubsPage() {
   const navigate = useNavigate();
-  const { clubs, addClub } = useClubs();
+  const { clubs, addClub, leaveClub } = useClubs();
   const joinedClubs = clubs.filter(c => c.isJoined);
 
   // modal + emoji state
@@ -89,9 +89,18 @@ export default function MyClubsPage() {
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-3">{club.description}</p>
-                <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">
-                  Joined
-                </span>
+                <div className="flex justify-between items-center">
+                  <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">Joined</span>
+                  <Button
+                    className="text-sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      leaveClub(club.id);
+                    }}
+                  >
+                    Leave
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
