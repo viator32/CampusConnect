@@ -12,6 +12,7 @@ import {
 import { useClubs } from '../hooks/useClubs';
 import ClubGrid from '../components/ClubGrid';
 import ClubList from '../components/ClubList';
+import type { Club } from '../types';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 
@@ -21,7 +22,7 @@ type JoinedStatus = typeof joinedStatuses[number];
 type SortKey = 'members_desc' | 'members_asc' | 'name_asc' | 'name_desc';
 
 export default function ExplorePage() {
-  const { clubs } = useClubs();
+  const { clubs, joinClub, leaveClub } = useClubs();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
@@ -70,6 +71,10 @@ export default function ExplorePage() {
 
     return arr;
   }, [clubs, search, selectedCategory, selectedJoinedStatus, sortKey]);
+
+  const handleJoin = (club: Club) => {
+    club.isJoined ? leaveClub(club.id) : joinClub(club.id);
+  };
 
   return (
     <div className="space-y-6">
@@ -211,9 +216,17 @@ export default function ExplorePage() {
       {/* Clubs listing */}
       <div>
         {viewMode === 'grid' ? (
-          <ClubGrid clubs={filtered} onSelect={c => navigate(`/clubs/${c.id}`)} />
+          <ClubGrid
+            clubs={filtered}
+            onSelect={c => navigate(`/clubs/${c.id}`)}
+            onJoin={handleJoin}
+          />
         ) : (
-          <ClubList clubs={filtered} onSelect={c => navigate(`/clubs/${c.id}`)} />
+          <ClubList
+            clubs={filtered}
+            onSelect={c => navigate(`/clubs/${c.id}`)}
+            onJoin={handleJoin}
+          />
         )}
       </div>
     </div>

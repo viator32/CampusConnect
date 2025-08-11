@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { Club } from '../types';
 import { clubService } from '../services/ClubService';
+import { useClubs } from '../hooks/useClubs';
+import Button from '../../../components/Button';
 
 import AboutTab     from '../components/AboutTab';
 import EventsTab    from '../components/EventsTab';
@@ -27,6 +29,7 @@ export default function ClubDetailPage() {
 
   const [club, setClub]           = useState<Club|null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('about');
+  const { joinClub, leaveClub }   = useClubs();
 
   useEffect(() => {
     if (!clubId) return;
@@ -73,20 +76,36 @@ export default function ClubDetailPage() {
 
   const updateClub = (updated: Club) => setClub(updated);
 
+  const toggleJoin = () => {
+    if (!club) return;
+    if (club.isJoined) {
+      leaveClub(club.id);
+      setClub({ ...club, isJoined: false, members: Math.max(0, club.members - 1) });
+    } else {
+      joinClub(club.id);
+      setClub({ ...club, isJoined: true, members: club.members + 1 });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-700">
-          ← Back
-        </button>
-        <div className="flex items-center gap-3">
-          <div className="text-3xl">{club.image}</div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
-            <p className="text-gray-600">{club.members} members</p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-700">
+            ← Back
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">{club.image}</div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
+              <p className="text-gray-600">{club.members} members</p>
+            </div>
           </div>
         </div>
+        <Button onClick={toggleJoin} className="text-sm">
+          {club.isJoined ? 'Leave Club' : 'Join Club'}
+        </Button>
       </div>
 
       {/* Tabs */}

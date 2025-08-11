@@ -5,10 +5,12 @@ import Button from '../../../components/Button';
 
 export default function ClubCard({
   club,
-  onClick
+  onClick,
+  onJoin
 }: {
   club: Club;
   onClick: () => void;
+  onJoin: () => void;
 }) {
   return (
     <div
@@ -35,7 +37,16 @@ export default function ClubCard({
         >
           {club.isJoined ? 'Joined' : 'Not Joined'}
         </span>
-        <Button className="text-sm">{club.isJoined ? 'Joined' : 'Join'}</Button>
+        <Button
+          className="text-sm"
+          onClick={e => {
+            e.stopPropagation();
+            if (!club.isJoined) onJoin();
+          }}
+          disabled={club.isJoined}
+        >
+          {club.isJoined ? 'Joined' : 'Join'}
+        </Button>
       </div>
     </div>
   );

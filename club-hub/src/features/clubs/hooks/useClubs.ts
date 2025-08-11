@@ -14,5 +14,23 @@ export function useClubs() {
     setClubs(prev => [...prev, newClub]);
   };
 
-  return { clubs, addClub };
+  const joinClub = (id: number) => {
+    setClubs(prev =>
+      prev.map(c =>
+        c.id === id ? { ...c, isJoined: true, members: c.members + 1 } : c
+      )
+    );
+  };
+
+  const leaveClub = (id: number) => {
+    setClubs(prev =>
+      prev.map(c =>
+        c.id === id
+          ? { ...c, isJoined: false, members: Math.max(0, c.members - 1) }
+          : c
+      )
+    );
+  };
+
+  return { clubs, addClub, joinClub, leaveClub };
 }
