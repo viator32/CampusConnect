@@ -46,12 +46,12 @@ export default function NotificationsPage() {
 
   const typeStyles: Record<
     NotificationType['type'],
-    { icon: React.ElementType; color: string }
+    { icon: React.ElementType; color: string; bg: string }
   > = {
-    info: { icon: Info, color: 'text-blue-500' },
-    success: { icon: CheckCircle, color: 'text-green-500' },
-    warning: { icon: AlertTriangle, color: 'text-yellow-500' },
-    error: { icon: XCircle, color: 'text-red-500' }
+    info: { icon: Info, color: 'text-blue-600', bg: 'bg-blue-50' },
+    success: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50' },
+    warning: { icon: AlertTriangle, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+    error: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50' }
   };
 
   return (
@@ -75,23 +75,21 @@ export default function NotificationsPage() {
       ) : notifications.length > 0 ? (
         <ul className="space-y-4">
           {notifications.map(note => {
-            const { icon: Icon, color } = typeStyles[note.type];
+            const { icon: Icon, color, bg } = typeStyles[note.type];
             return (
               <li
                 key={note.id}
-                className={`flex items-start bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${
+                className={`${bg} flex flex-col items-center text-center rounded-lg shadow-sm border border-gray-200 p-4 ${
                   note.read ? 'opacity-60' : ''
                 }`}
               >
-                <Icon className={`w-5 h-5 mr-3 ${color}`} />
-                <div className="flex-1">
-                  <p className="text-gray-900">{note.message}</p>
-                  <p className="text-xs text-gray-500 mt-1">{note.time}</p>
-                </div>
+                <Icon className={`w-6 h-6 mb-2 ${color}`} />
+                <p className="text-gray-900 font-medium">{note.message}</p>
+                <p className="text-xs text-gray-500 mt-1">{note.time}</p>
                 {!note.read && (
                   <button
                     onClick={() => handleMarkRead(note.id)}
-                    className="text-sm text-orange-600 hover:underline ml-4"
+                    className="mt-3 text-sm text-orange-600 hover:underline"
                   >
                     Mark as read
                   </button>
