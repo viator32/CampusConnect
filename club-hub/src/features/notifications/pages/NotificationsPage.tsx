@@ -56,6 +56,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
         {unreadCount > 0 && (
@@ -73,23 +74,30 @@ export default function NotificationsPage() {
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : notifications.length > 0 ? (
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {notifications.map(note => {
             const { icon: Icon, color, bg } = typeStyles[note.type];
             return (
               <li
                 key={note.id}
-                className={`${bg} flex flex-col items-center text-center rounded-lg shadow-sm border border-gray-200 p-4 ${
+                className={`${bg} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg shadow-sm border border-gray-200 p-4 ${
                   note.read ? 'opacity-60' : ''
                 }`}
               >
-                <Icon className={`w-6 h-6 mb-2 ${color}`} />
-                <p className="text-gray-900 font-medium">{note.message}</p>
-                <p className="text-xs text-gray-500 mt-1">{note.time}</p>
+                {/* Left: icon + text */}
+                <div className="flex items-start sm:items-center gap-3 flex-1">
+                  <Icon className={`w-6 h-6 flex-shrink-0 ${color}`} />
+                  <div>
+                    <p className="text-gray-900 font-medium">{note.message}</p>
+                    <p className="text-xs text-gray-500">{note.time}</p>
+                  </div>
+                </div>
+
+                {/* Right: action */}
                 {!note.read && (
                   <button
                     onClick={() => handleMarkRead(note.id)}
-                    className="mt-3 text-sm text-orange-600 hover:underline"
+                    className="text-sm text-orange-600 hover:underline"
                   >
                     Mark as read
                   </button>
