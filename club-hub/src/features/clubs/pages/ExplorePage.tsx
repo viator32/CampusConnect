@@ -7,7 +7,8 @@ import {
   Grid as GridIcon,
   List as ListIcon,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Loader2
 } from 'lucide-react';
 import { useClubs } from '../hooks/useClubs';
 import ClubGrid from '../components/ClubGrid';
@@ -22,7 +23,7 @@ type JoinedStatus = typeof joinedStatuses[number];
 type SortKey = 'members_desc' | 'members_asc' | 'name_asc' | 'name_desc';
 
 export default function ExplorePage() {
-  const { clubs, joinClub, leaveClub } = useClubs();
+  const { clubs, joinClub, leaveClub, loading, error } = useClubs();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
@@ -75,6 +76,18 @@ export default function ExplorePage() {
   const handleJoin = (club: Club) => {
     club.isJoined ? leaveClub(club.id) : joinClub(club.id);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
 
   return (
     <div className="space-y-6">

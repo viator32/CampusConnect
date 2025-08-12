@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClubs } from '../hooks/useClubs';
-import { Plus, Users, X, Smile } from 'lucide-react';
+import { Plus, Users, X, Smile, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import type { Club } from '../types';
 
@@ -12,8 +12,7 @@ const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 
 export default function MyClubsPage() {
   const navigate = useNavigate();
-  const { clubs, addClub, leaveClub } = useClubs();
-  const joinedClubs = clubs.filter(c => c.isJoined);
+  const { clubs, addClub, leaveClub, loading, error } = useClubs();
 
   // modal + emoji state
   const [showModal, setShowModal] = useState(false);
@@ -52,6 +51,20 @@ export default function MyClubsPage() {
     setShowEmojiPicker(false);
     setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
+
+  const joinedClubs = clubs.filter(c => c.isJoined);
 
   return (
     <div className="space-y-6">
