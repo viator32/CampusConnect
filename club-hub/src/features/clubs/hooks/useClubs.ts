@@ -4,9 +4,17 @@ import { clubService } from '../services/ClubService';
 
 export function useClubs() {
   const [clubs, setClubs] = useState<Club[]>([]);
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    clubService.getAll().then(setClubs);
+    setLoading(true);
+    setError(null);
+    clubService
+      .getAll()
+      .then(setClubs)
+      .catch(err => setError(err.message ?? 'Failed to load clubs'))
+      .finally(() => setLoading(false));
   }, []);
   
   /** locally adds a club; later you can call clubService.create() too */
@@ -32,5 +40,5 @@ export function useClubs() {
     );
   };
 
-  return { clubs, addClub, joinClub, leaveClub };
+  return { clubs, addClub, joinClub, leaveClub, loading, error };
 }

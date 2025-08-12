@@ -9,7 +9,8 @@ import {
   Bookmark,
   Search as SearchIcon,
   Calendar,
-  MapPin
+  MapPin,
+  Loader2
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
@@ -48,7 +49,7 @@ type EventFeedItem = {
 
 export default function FeedPage() {
   const navigate = useNavigate();
-  const { clubs } = useClubs();
+  const { clubs, loading, error } = useClubs();
 
   // flatten posts with club info
   const posts: PostWithMeta[] = useMemo(
@@ -152,6 +153,18 @@ export default function FeedPage() {
       return next;
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
 
   return (
     <div className="flex space-x-6">

@@ -5,7 +5,8 @@ import {
   BookOpen,
   Calendar,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
+  Loader2
 } from 'lucide-react';
 import { Club } from '../types';
 import { clubService } from '../services/ClubService';
@@ -29,7 +30,7 @@ export default function ClubDetailPage() {
 
   const [club, setClub]           = useState<Club|null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('about');
-  const { joinClub, leaveClub }   = useClubs();
+  const { joinClub, leaveClub, loading, error }   = useClubs();
 
   useEffect(() => {
     if (!clubId) return;
@@ -42,7 +43,17 @@ export default function ClubDetailPage() {
     if (t) setActiveTab(t);
   }, [searchParams]);
 
-  if (!club) return <div>Loading…</div>;
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
+
+  if (loading || !club) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
 
   // single‑views via routing
   if (threadId && club) {
