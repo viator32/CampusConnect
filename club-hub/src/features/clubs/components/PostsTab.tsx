@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
+import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 
 interface PostsTabProps {
   club: Club;
@@ -27,8 +28,25 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const [sharePostId, setSharePostId] = useState<number | null>(null);
 
-  const toggleBookmark = (id: number) =>
-    setBookmarks(b => b.includes(id) ? b.filter(x=>x!==id) : [...b, id]);
+  const toggleBookmark = async (post: Post) => {
+    if (bookmarks.includes(post.id)) {
+      await bookmarksService.remove(post.id);
+      setBookmarks(b => b.filter(x => x !== post.id));
+    } else {
+      await bookmarksService.add({
+        id: post.id,
+        author: post.author,
+        content: post.content,
+        time: post.time,
+        likes: post.likes,
+        comments: post.comments,
+        clubId: club.id,
+        clubName: club.name,
+        clubImage: club.image
+      });
+      setBookmarks(b => [...b, post.id]);
+    }
+  };
 
   const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setPhoto(e.target.files[0]);
@@ -201,7 +219,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
               </div>
               <button
                 className="flex items-center gap-1 hover:text-orange-500"
-                onClick={() => toggleBookmark(post.id)}
+                onClick={() => toggleBookmark(post)}
               >
                 <BookmarkIcon
                   className={`w-4 h-4 ${isBookmarked ? 'text-orange-500' : 'text-gray-500'}`}
