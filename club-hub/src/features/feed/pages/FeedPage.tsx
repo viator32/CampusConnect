@@ -11,6 +11,7 @@ import {
   Calendar,
   MapPin
 } from 'lucide-react';
+import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import type { Comment } from '../../clubs/types';
@@ -129,12 +130,28 @@ export default function FeedPage() {
     return evs;
   }, [events, searchQuery, activeTab]);
 
-  const toggleBookmark = (postId: number) => {
-    setBookmarked(prev => {
-      const next = new Set(prev);
-      next.has(postId) ? next.delete(postId) : next.add(postId);
-      return next;
-    });
+  const toggleBookmark = async (post: PostWithMeta) => {
+    if (bookmarked.has(post.id)) {
+      await bookmarksService.remove(post.id);
+      setBookmarked(prev => {
+        const next = new Set(prev);
+        next.delete(post.id);
+        return next;
+      });
+    } else {
+      await bookmarksService.add({
+        id: post.id,
+        author: post.author,
+        content: post.content,
+        time: post.time,
+        likes: post.likes,
+        comments: post.comments,
+        clubId: post.clubId,
+        clubName: post.clubName,
+        clubImage: post.clubImage
+      });
+      setBookmarked(prev => new Set(prev).add(post.id));
+    }
   };
 
   const handleCommentChange = (postId: number, text: string) => {
@@ -308,10 +325,10 @@ export default function FeedPage() {
                       )}
                     </div>
                     <button
-                      onClick={() => toggleBookmark(post.id)}
+                      onClick={() => toggleBookmark(post)}
                       className="flex items-center gap-1 hover:text-orange-500"
                     >
-                      <Bookmark className="w-4 h-4" />
+                      <Bookmark className={`w-4 h-4 ${bookmarked.has(post.id) ? 'text-orange-500' : ''}`} />
                     </button>
                   </div>
 

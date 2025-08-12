@@ -1,16 +1,19 @@
-import React from 'react';
-import { Bookmark } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bookmark, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { bookmarksService } from '../services/BookmarksService';
+import type { BookmarkedPost } from '../services/dummyData';
 
 export default function BookmarksPage() {
-  // TODO: replace with real bookmarked‑posts data
-  const bookmarks: Array<{
-    id: number;
-    author: string;
-    content: string;
-    time: string;
-    likes: number;
-    comments: number;
-  }> = [];
+  const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
+
+  useEffect(() => {
+    bookmarksService.getAll().then(setBookmarks);
+  }, []);
+
+  const handleRemove = async (id: number) => {
+    await bookmarksService.remove(id);
+    setBookmarks(prev => prev.filter(b => b.id !== id));
+  };
 
   return (
     <div className="space-y-6">
@@ -23,25 +26,38 @@ export default function BookmarksPage() {
               key={post.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                  👤
-                </div>
-                <div>
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-2">
+                <div className="text-lg">{post.clubImage ?? '👤'}</div>
+                <div className="flex-1">
                   <p className="font-medium text-gray-900">{post.author}</p>
-                  <p className="text-xs text-gray-500">{post.time}</p>
+                  <p className="text-sm text-gray-500">
+                    {post.clubName ? `${post.clubName} • ${post.time}` : post.time}
+                  </p>
                 </div>
               </div>
+
+              {/* Content */}
               <p className="text-gray-700 mb-3">{post.content}</p>
+
+              {/* Actions */}
               <div className="flex items-center gap-6 text-gray-500">
-                <button className="flex items-center gap-1 hover:text-orange-500">
-                  ❤️<span className="text-sm">{post.likes}</span>
-                </button>
-                <button className="flex items-center gap-1 hover:text-orange-500">
-                  💬<span className="text-sm">{post.comments}</span>
-                </button>
-                <button className="flex items-center gap-1 hover:text-orange-500">
-                  🔗
+                <div className="flex items-center gap-1">
+                  <Heart className="w-4 h-4" />
+                  <span className="text-sm">{post.likes}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-sm">{post.comments}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <button
+                  onClick={() => handleRemove(post.id)}
+                  className="ml-auto flex items-center gap-1 hover:text-orange-500"
+                >
+                  <Bookmark className="w-4 h-4 text-orange-500" />
                 </button>
               </div>
             </div>
