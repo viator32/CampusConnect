@@ -53,11 +53,11 @@ export default function BookmarksPage() {
                 <div className="flex items-center gap-1">
                   <Share2 className="w-4 h-4" />
                 </div>
-                <button
-                  onClick={() => handleRemove(post.id)}
-                  className="ml-auto flex items-center gap-1 hover:text-orange-500"
-                >
-                  <Bookmark className="w-4 h-4 text-orange-500" />
+                <button className="flex items-center gap-1 hover:text-orange-500">
+                  <Bookmark
+                    className="w-4 h-4 text-orange-500"
+                    onClick={() => handleRemove(post.id)}
+                  />
                 </button>
               </div>
             </div>
