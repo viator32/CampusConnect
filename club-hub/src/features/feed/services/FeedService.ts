@@ -1,60 +1,28 @@
-// src/features/feed/services/FeedService.ts
 import { BaseService } from '../../../services/BaseService';
-import { Comment } from '../../clubs/types';
-import { FeedPost, dummyFeedPosts } from './dummyData';
+import type { Comment } from '../../clubs/types';
+import type { FeedPost } from './dummyData'; // keep your type
 
 export class FeedService extends BaseService {
   async getAll(): Promise<FeedPost[]> {
-    // TODO: replace '/feed' with backend endpoint
-    await this.api.request('/feed');
-    // TODO: remove dummy data once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => resolve(dummyFeedPosts), 200)
-    );
+    // When your feed endpoint is ready, just return that:
+    // return this.api.request<FeedPost[]>('/feed');
+    // For now fall back to clubs posts aggregation if you want (optional):
+    return this.api.request<FeedPost[]>('/feed'); // will work once backend provides it
   }
 
   async addPost(post: Omit<FeedPost, 'id'>): Promise<FeedPost> {
     const payload = this.buildPayload(post);
-    // TODO: replace '/feed' with backend endpoint
-    await this.api.request('/feed', {
+    return this.api.request<FeedPost>('/feed', {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
-    // TODO: remove dummy data once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => {
-        const newPost: FeedPost = { ...post, id: Date.now() };
-        dummyFeedPosts.unshift(newPost);
-        resolve(newPost);
-      }, 200)
-    );
   }
 
-  async addComment(
-    postId: number,
-    comment: Omit<Comment, 'id'>
-  ): Promise<Comment | undefined> {
-    const payload = this.buildPayload({ postId, comment });
-    // TODO: replace `/feed/${postId}/comments` with backend endpoint
-    await this.api.request(`/feed/${postId}/comments`, {
+  async addComment(postId: number, comment: Omit<Comment, 'id'>) {
+    return this.api.request<Comment>(`/feed/${postId}/comments`, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(comment),
     });
-    // TODO: remove dummy data once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => {
-        const post = dummyFeedPosts.find(p => p.id === postId);
-        if (!post) return resolve(undefined);
-        const newComment: Comment = { ...comment, id: Date.now() };
-        if (post.commentsList) {
-          post.commentsList.push(newComment);
-        } else {
-          post.commentsList = [newComment];
-        }
-        post.comments += 1;
-        resolve(newComment);
-      }, 200)
-    );
   }
 }
 
