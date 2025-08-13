@@ -49,6 +49,10 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/clubs/${id}/join`, { method: 'POST' });
   }
 
+  async leaveClub(id: number): Promise<void> {
+    await this.api.request<void>(`/clubs/${id}/leave`, { method: 'POST' });
+  }
+
   // Posts inside a club
   async listPosts(clubId: number): Promise<Post[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts`);
