@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/AuthService';
 import { setAuthToken } from '../../../services/api';
 
@@ -17,12 +17,21 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('access_token');
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     const result = await authService.login(email, password);
     setToken(result.token);
-    setAuthToken(result.token);
   };
 
   const register = async (
@@ -38,12 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       studentId
     );
     setToken(result.token);
-    setAuthToken(result.token);
   };
 
   const logout = () => {
     setToken(null);
-    setAuthToken(null);
+    authService.logout();
   };
 
   return (

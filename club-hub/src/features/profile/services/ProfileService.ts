@@ -1,7 +1,6 @@
 import { BaseService } from '../../../services/BaseService';
 import type { User } from '../types';
-
-const CURRENT_USER_ID_KEY = 'current_user_id';
+import { CURRENT_USER_ID_KEY } from '../../../constants/storage';
 
 export class ProfileService extends BaseService {
   private getCurrentUserId(): number {

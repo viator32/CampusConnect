@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { profileService } from '../services/ProfileService';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 type ProfileContextValue = {
   user: User | null;
@@ -9,13 +10,29 @@ type ProfileContextValue = {
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
-export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const { token } = useAuth();
 
-  // fetch once on mount
+  // fetch user whenever token changes
   useEffect(() => {
-    profileService.getCurrent().then(setUser);
-  }, []);
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    let active = true;
+    profileService
+      .getCurrent()
+      .then(u => {
+        if (active) setUser(u);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
 
   // updateUser calls service then updates context
   const updateUser = async (updated: User) => {
