@@ -40,13 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     studentId: string
   ) => {
-    const result = await authService.register(
-      name,
-      email,
-      password,
-      studentId
-    );
-    setToken(result.token);
+    await authService.register(name, email, password, studentId);
   };
 
   const logout = () => {

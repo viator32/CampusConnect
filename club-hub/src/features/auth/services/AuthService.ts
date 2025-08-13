@@ -43,11 +43,6 @@ export class AuthService extends BaseService {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    setAuthToken(res.token);
-    const id = res.user?.id ?? res.userId ?? res.id;
-    if (id !== undefined) {
-      try { localStorage.setItem(CURRENT_USER_ID_KEY, String(id)); } catch {}
-    }
     return res;
   }
 
