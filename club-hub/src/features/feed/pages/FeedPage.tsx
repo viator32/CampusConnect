@@ -13,6 +13,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
+import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import type { Comment } from '../../clubs/types';
@@ -98,6 +99,7 @@ export default function FeedPage() {
   const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [newComments, setNewComments] = useState<Record<number, string>>({});
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
   // post filtering & sorting
   const filteredPosts = useMemo(() => {
@@ -132,26 +134,40 @@ export default function FeedPage() {
   }, [events, searchQuery, activeTab]);
 
   const toggleBookmark = async (post: PostWithMeta) => {
-    if (bookmarked.has(post.id)) {
-      await bookmarksService.remove(post.id);
-      setBookmarked(prev => {
-        const next = new Set(prev);
-        next.delete(post.id);
-        return next;
+    const prev = new Set(bookmarked);
+    const isBookmarked = prev.has(post.id);
+    if (isBookmarked) {
+      setBookmarked(next => {
+        const copy = new Set(next);
+        copy.delete(post.id);
+        return copy;
       });
     } else {
-      await bookmarksService.add({
-        id: post.id,
-        author: post.author,
-        content: post.content,
-        time: post.time,
-        likes: post.likes,
-        comments: post.comments,
-        clubId: post.clubId,
-        clubName: post.clubName,
-        clubImage: post.clubImage
+      setBookmarked(next => {
+        const copy = new Set(next);
+        copy.add(post.id);
+        return copy;
       });
-      setBookmarked(prev => new Set(prev).add(post.id));
+    }
+    try {
+      if (isBookmarked) {
+        await bookmarksService.remove(post.id);
+      } else {
+        await bookmarksService.add({
+          id: post.id,
+          author: post.author,
+          content: post.content,
+          time: post.time,
+          likes: post.likes,
+          comments: post.comments,
+          clubId: post.clubId,
+          clubName: post.clubName,
+          clubImage: post.clubImage
+        });
+      }
+    } catch (err) {
+      setBookmarked(prev);
+      setBookmarkError('Failed to update bookmark');
     }
   };
 
@@ -379,6 +395,9 @@ export default function FeedPage() {
           </>
         )}
       </main>
+      {bookmarkError && (
+        <Toast message={bookmarkError} onClose={() => setBookmarkError(null)} />
+      )}
     </div>
   );
 }

@@ -2,17 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { Bookmark, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { bookmarksService } from '../services/BookmarksService';
 import type { BookmarkedPost } from '../services/dummyData';
+import Toast from '../../../components/Toast';
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    bookmarksService.getAll().then(setBookmarks);
+    const fetchBookmarks = async () => {
+      try {
+        const data = await bookmarksService.getAll();
+        setBookmarks(data);
+      } catch (err) {
+        setError('Failed to load bookmarks');
+      }
+    };
+    fetchBookmarks();
   }, []);
 
   const handleRemove = async (id: number) => {
-    await bookmarksService.remove(id);
+    const prev = [...bookmarks];
     setBookmarks(prev => prev.filter(b => b.id !== id));
+    try {
+      await bookmarksService.remove(id);
+    } catch (err) {
+      setBookmarks(prev);
+      setError('Failed to remove bookmark');
+    }
   };
 
   return (
@@ -70,6 +86,7 @@ export default function BookmarksPage() {
           <p className="text-gray-600">Bookmark posts to find them here later</p>
         </div>
       )}
+      {error && <Toast message={error} onClose={() => setError(null)} />}
     </div>
   );
 }
