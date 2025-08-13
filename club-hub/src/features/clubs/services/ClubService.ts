@@ -7,7 +7,7 @@ export class ClubService extends BaseService {
     return arr.map(mapClub);
   }
 
-  async getById(id: number): Promise<Club> {
+  async getById(id: number | string): Promise<Club> {
     const dto = await this.api.request<any>(`/clubs/${id}`);
     return mapClub(dto);
   }
@@ -93,8 +93,10 @@ export const clubService = new ClubService();
 
 // ─── mappers ────────────────────────────────────────────────────────────────
 function mapClub(dto: any): Club {
+  const rawId = dto.id ?? dto.clubId ?? dto._id;
+  const id = typeof rawId === 'string' ? parseInt(rawId, 10) : rawId;
   return {
-    id: dto.id,
+    id: isNaN(id) ? rawId : id,
     name: dto.name,
     description: dto.description ?? '',
     category: dto.category ?? 'General',
