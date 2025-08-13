@@ -22,7 +22,7 @@ export function useClubs() {
     setClubs(prev => [...prev, newClub]);
   };
 
-  const joinClub = (id: number) => {
+  const joinClub = (id: string) => {
     setError(null);
     setClubs(prev =>
       prev.map(c =>
@@ -41,7 +41,7 @@ export function useClubs() {
     });
   };
 
-  const leaveClub = (id: number) => {
+  const leaveClub = (id: string) => {
     setError(null);
     setClubs(prev =>
       prev.map(c =>

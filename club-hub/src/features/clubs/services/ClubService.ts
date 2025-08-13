@@ -7,9 +7,9 @@ export class ClubService extends BaseService {
     return arr.map(mapClub);
   }
 
-  async getById(id: number | string): Promise<Club> {
-    const dto = await this.api.request<any>(`/clubs/${id}`);
-    return mapClub(dto);
+  async getById(id: string): Promise<Club | undefined> {
+    const clubs = await this.getAll();
+    return clubs.find(c => c.id === id);
   }
 
   async createClub(data: Partial<Club>): Promise<Club> {
@@ -27,7 +27,7 @@ export class ClubService extends BaseService {
     return mapClub(dto);
   }
 
-  async updateClub(id: number, data: Partial<Club>): Promise<Club> {
+  async updateClub(id: string, data: Partial<Club>): Promise<Club> {
     const payload: any = {};
     if (data.name !== undefined) payload.name = data.name;
     if (data.description !== undefined) payload.description = data.description;
@@ -41,25 +41,25 @@ export class ClubService extends BaseService {
     return mapClub(dto);
   }
 
-  async deleteClub(id: number): Promise<void> {
+  async deleteClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}`, { method: 'DELETE' });
   }
 
-  async joinClub(id: number): Promise<void> {
+  async joinClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}/join`, { method: 'POST' });
   }
 
-  async leaveClub(id: number): Promise<void> {
+  async leaveClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}/leave`, { method: 'POST' });
   }
 
   // Posts inside a club
-  async listPosts(clubId: number): Promise<Post[]> {
+  async listPosts(clubId: string): Promise<Post[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts`);
     return arr.map(mapPost);
   }
 
-  async createPost(clubId: number, content: string): Promise<Post> {
+  async createPost(clubId: string, content: string): Promise<Post> {
     const dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
       method: 'POST',
       body: JSON.stringify({ content }),
@@ -68,12 +68,12 @@ export class ClubService extends BaseService {
   }
 
   // Events inside a club
-  async listEvents(clubId: number): Promise<ClubEvent[]> {
+  async listEvents(clubId: string): Promise<ClubEvent[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/events`);
     return arr.map(mapEvent);
   }
 
-  async createEvent(clubId: number, ev: Partial<ClubEvent>): Promise<ClubEvent> {
+  async createEvent(clubId: string, ev: Partial<ClubEvent>): Promise<ClubEvent> {
     const payload: any = {};
     if (ev.title !== undefined) payload.title = ev.title;
     if (ev.description !== undefined) payload.description = ev.description;
@@ -94,9 +94,8 @@ export const clubService = new ClubService();
 // ─── mappers ────────────────────────────────────────────────────────────────
 function mapClub(dto: any): Club {
   const rawId = dto.id ?? dto.clubId ?? dto._id;
-  const id = typeof rawId === 'string' ? parseInt(rawId, 10) : rawId;
   return {
-    id: isNaN(id) ? rawId : id,
+    id: String(rawId),
     name: dto.name,
     description: dto.description ?? '',
     category: dto.category ?? 'General',

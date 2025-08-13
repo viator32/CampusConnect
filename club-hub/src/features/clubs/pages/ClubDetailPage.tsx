@@ -34,10 +34,7 @@ export default function ClubDetailPage() {
 
   useEffect(() => {
     if (!clubId) return;
-    const numericId = parseInt(clubId, 10);
-    clubService
-      .getById(isNaN(numericId) ? clubId : numericId)
-      .then(c => setClub(c ?? null));
+    clubService.getById(clubId).then(c => setClub(c ?? null));
   }, [clubId]);
 
   useEffect(() => {

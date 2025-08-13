@@ -2,7 +2,7 @@ import { Club } from '../types';
 
 export const dummyClubs: Club[] = [
   {
-    id: 1,
+    id: '1',
     name: "Computer Science Society",
     description: "A community for CS students to collaborate and learn",
     members: 245,
@@ -75,7 +75,7 @@ export const dummyClubs: Club[] = [
     ]
   },
   {
-    id: 2,
+    id: '2',
     name: "Photography Club",
     description: "Capture memories and improve your photography skills",
     members: 128,
@@ -120,7 +120,7 @@ export const dummyClubs: Club[] = [
     ]
   },
   {
-    id: 3,
+    id: '3',
     name: "Debate Society",
     description: "Sharpen your argumentation and public speaking skills",
     members: 87,

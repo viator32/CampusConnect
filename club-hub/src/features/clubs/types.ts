@@ -77,7 +77,7 @@ export interface Project {
 }
 
 export interface Club {
-  id: number;
+  id: string;
   name: string;
   description: string;
   members: number;
