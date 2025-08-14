@@ -59,4 +59,20 @@ public class AuthResourceImpl implements AuthResource {
         }
         return Response.ok(new AuthResponseDTO(newToken)).build();
     }
+
+    @Override
+    public Response logout(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
+        String token = tokenDto != null ? tokenDto.token : null;
+        if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
+            token = authorization.substring("Bearer ".length());
+        }
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
+        boolean success = authService.logout(token);
+        if (!success) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        return Response.noContent().build();
+    }
 }

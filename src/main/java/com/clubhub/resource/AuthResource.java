@@ -28,4 +28,8 @@ public interface AuthResource {
     @POST
     @Path("/refresh")
     Response refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO token);
+
+    @POST
+    @Path("/logout")
+    Response logout(@HeaderParam("Authorization") String authorization, AuthResponseDTO token);
 }
