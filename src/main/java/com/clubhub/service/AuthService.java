@@ -44,4 +44,14 @@ public class AuthService {
         tokens.remove(token);
         return createToken(info.userId);
     }
+
+    public boolean logout(String token) {
+        if (token == null) {
+            return false;
+        }
+        if (token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
+        return tokens.remove(token) != null;
+    }
 }
