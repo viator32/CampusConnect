@@ -71,12 +71,18 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   const handleAddComment = async () => {
     if (!commentText.trim()) return;
     try {
-      const newComment = await clubService.addComment(postData.id, commentText);
+      await clubService.addComment(postData.id, commentText);
+    } catch {
+      // ignore backend parse errors
+    }
+
+    try {
+      const comments = await clubService.listComments(postData.id);
       setPostData(p => {
         const next = {
           ...p,
-          comments: p.comments + 1,
-          commentsList: [...(p.commentsList ?? []), newComment],
+          comments: comments.length,
+          commentsList: comments,
         };
         onPostUpdate?.(next);
         return next;

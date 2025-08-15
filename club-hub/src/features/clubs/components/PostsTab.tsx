@@ -96,8 +96,6 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     try {
       const posts = await clubService.listPosts(club.id);
       onClubUpdate({ ...club, posts });
-      const refreshed = posts.find(p => p.id === post.id);
-      if (refreshed) onSelectPost(refreshed);
     } catch {}
   };
 
