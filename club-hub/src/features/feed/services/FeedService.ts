@@ -18,7 +18,7 @@ export class FeedService extends BaseService {
     });
   }
 
-  async addComment(postId: number, comment: Omit<Comment, 'id'>) {
+  async addComment(postId: string, comment: Omit<Comment, 'id'>) {
     return this.api.request<Comment>(`/feed/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify(comment),

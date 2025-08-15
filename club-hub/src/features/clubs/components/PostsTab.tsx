@@ -11,6 +11,8 @@ import {
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
+import { clubService } from '../services/ClubService';
+import { formatDateTime } from '../../../utils/date';
 
 interface PostsTabProps {
   club: Club;
@@ -25,8 +27,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [question, setQuestion] = useState('');
   const [options, setOptions]   = useState<string[]>(['','']);
   const [error, setError]       = useState<string|null>(null);
-  const [bookmarks, setBookmarks] = useState<number[]>([]);
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
 
   const toggleBookmark = async (post: Post) => {
     if (bookmarks.includes(post.id)) {
@@ -40,7 +42,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         time: post.time,
         likes: post.likes,
         comments: post.comments,
-        clubId: Number(club.id),
+        clubId: club.id,
         clubName: club.name,
         clubImage: club.image
       });
@@ -56,36 +58,47 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const changeOpt = (i: number, v: string) =>
     setOptions(o => o.map((x,idx) => idx===i? v:x));
 
-  const handlePost = () => {
+  const handlePost = async () => {
     setError(null);
-    if (!text.trim() && !photo && !isPoll) {
-      setError('Add text, photo or poll.');
+    if (!text.trim()) {
+      setError('Add some text to your post.');
       return;
     }
-    if (isPoll) {
-      if (!question.trim() || options.filter(o=>o.trim()).length<2) {
-        setError('Poll needs question + 2 options.');
-        return;
-      }
+
+    try {
+      await clubService.createPost(club.id, text);
+    } catch {
+      // backend may return 201 with empty body causing a parse error
+      // ignore to allow UI to refresh via listPosts
     }
-    const newPost: Post = {
-      id: Date.now(),
-      author: 'You',
-      content: text,
-      likes: 0,
-      comments: 0,
-      time: 'Just now',
-      commentsList: [],
-      photo: photo ? URL.createObjectURL(photo) : undefined,
-      poll: isPoll
-        ? {
-            question,
-            options: options.filter(o=>o.trim()).map(o => ({ text: o, votes: 0 }))
-          }
-        : undefined
-    } as any;
-    onClubUpdate({ ...club, posts: [ newPost, ...club.posts ] });
-    setText(''); setPhoto(null); setIsPoll(false); setQuestion(''); setOptions(['','']);
+
+    try {
+      const posts = await clubService.listPosts(club.id);
+      onClubUpdate({ ...club, posts });
+      setText('');
+      setPhoto(null);
+      setIsPoll(false);
+      setQuestion('');
+      setOptions(['', '']);
+      if (posts[0]) onSelectPost(posts[0]);
+    } catch {
+      setError('Failed to create post');
+    }
+  };
+
+  const handleLike = async (post: Post) => {
+    try {
+      await clubService.likePost(post.id);
+    } catch {
+      // ignore backend parse errors
+    }
+
+    try {
+      const posts = await clubService.listPosts(club.id);
+      onClubUpdate({ ...club, posts });
+      const refreshed = posts.find(p => p.id === post.id);
+      if (refreshed) onSelectPost(refreshed);
+    } catch {}
   };
 
   return (
@@ -165,7 +178,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
               </div>
               <div>
                 <p className="font-medium text-gray-900">{post.author}</p>
-                <p className="text-xs text-gray-500">{post.time}</p>
+                <p className="text-xs text-gray-500">{formatDateTime(post.time)}</p>
               </div>
             </div>
             <p className="text-gray-700 mb-2">{post.content}</p>
@@ -192,7 +205,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             )}
 
             <div className="flex items-center gap-6 text-gray-500">
-              <button className="flex items-center gap-1 hover:text-orange-500">
+              <button
+                className="flex items-center gap-1 hover:text-orange-500"
+                onClick={() => handleLike(post)}
+              >
                 <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
               </button>
               <button

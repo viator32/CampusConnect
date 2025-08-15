@@ -191,7 +191,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
       <div className="flex-1 space-y-4 overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Upcoming Events</h2>
-          {userRole && (userRole === 'ADMIN' || userRole === 'MODERATOR') && (
+          {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
             <Button
               onClick={() => (showForm ? setShowForm(false) : openForm())}
               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
@@ -277,7 +277,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                       {st.label}
                     </span>
                   </div>
-                  {userRole && (userRole === 'ADMIN' || userRole === 'MODERATOR') && (
+                  {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
                     <div className="flex gap-2">
                       <Button
                         onClick={() => openForm(ev)}

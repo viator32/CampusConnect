@@ -81,12 +81,19 @@ export default function ClubDetailPage() {
       );
   }
   if (postId && club) {
-    const post = club.posts.find(p => p.id === Number(postId));
+    const post = club.posts.find(p => p.id === postId);
     if (post)
       return (
         <PostDetail
           post={post}
           onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
+          onPostUpdate={updated =>
+            setClub(c =>
+              c
+                ? { ...c, posts: c.posts.map(p => (p.id === updated.id ? updated : p)) }
+                : c
+            )
+          }
         />
       );
   }

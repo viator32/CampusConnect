@@ -1,8 +1,8 @@
 import { Comment } from '../../clubs/types';
 
 export interface FeedPost {
-  id: number;
-  clubId: number;
+  id: string;
+  clubId: string;
   clubName: string;
   clubImage: string;
   author: string;
@@ -15,8 +15,8 @@ export interface FeedPost {
 
 export let dummyFeedPosts: FeedPost[] = [
   {
-    id: 1,
-    clubId: 1,
+    id: '1',
+    clubId: '1',
     clubName: 'Computer Science Society',
     clubImage: '🖥️',
     author: 'John Doe',
@@ -25,12 +25,12 @@ export let dummyFeedPosts: FeedPost[] = [
     comments: 3,
     time: '2h ago',
     commentsList: [
-      { id: 1, author: 'Alice Johnson', content: 'Great work!', time: '1h ago' }
+      { id: '1', author: 'Alice Johnson', content: 'Great work!', time: '1h ago' }
     ]
   },
   {
-    id: 2,
-    clubId: 2,
+    id: '2',
+    clubId: '2',
     clubName: 'Photography Club',
     clubImage: '📸',
     author: 'Emma Davis',
@@ -39,7 +39,7 @@ export let dummyFeedPosts: FeedPost[] = [
     comments: 7,
     time: '1h ago',
     commentsList: [
-      { id: 2, author: 'Frank Miller', content: 'The composition is perfect!', time: '50m ago' }
+      { id: '2', author: 'Frank Miller', content: 'The composition is perfect!', time: '50m ago' }
     ]
   }
 ];

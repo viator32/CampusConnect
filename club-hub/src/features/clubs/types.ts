@@ -22,7 +22,7 @@ export interface Event {
 }
 
 export interface Comment {
-  id: number;
+  id: string;
   author: string;
   content: string;
   time: string;
@@ -40,7 +40,7 @@ export interface Poll {
 }
 
 export interface Post {
-  id: number;
+  id: string;
   author: string;
   content: string;
   likes: number;
