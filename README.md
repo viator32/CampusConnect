@@ -162,6 +162,22 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        http://localhost:8080/api/clubs/<clubId>/join
   ```
 
+- **Leave club** – `POST /api/clubs/{clubId}/leave`
+
+  ```bash
+  curl -X POST -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/leave
+  ```
+
+- **Update member role** – `PUT /api/clubs/{clubId}/members/{memberId}/role`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/clubs/<clubId>/members/<memberId>/role \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"role":"ADMIN"}'
+  ```
+
 - **List posts of a club** – `GET /api/clubs/{clubId}/posts`
 
   ```bash
@@ -176,6 +192,22 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"content":"Hello Club!"}'
+  ```
+
+- **Update post in a club** – `PUT /api/clubs/{clubId}/posts/{postId}`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/clubs/<clubId>/posts/<postId> \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"content":"Updated content"}'
+  ```
+
+- **Delete post in a club** – `DELETE /api/clubs/{clubId}/posts/{postId}`
+
+  ```bash
+  curl -X DELETE -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/posts/<postId>
   ```
 
 ### Events
@@ -194,6 +226,22 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"18:00"}'
+  ```
+
+- **Update event in a club** – `PUT /api/clubs/{clubId}/events/{eventId}`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/clubs/<clubId>/events/<eventId> \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"19:00"}'
+  ```
+
+- **Delete event** – `DELETE /api/clubs/{clubId}/events/{eventId}`
+
+  ```bash
+  curl -X DELETE -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/events/<eventId>
   ```
 
 - **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join`
@@ -292,6 +340,10 @@ The following codes are currently in use:
 | `CLB-00-0000-0007` | Comment not found |
 | `CLB-00-0000-0008` | Event not found |
 | `CLB-00-0000-0009` | User already exists |
+| `CLB-00-0000-0010` | Member not found |
+| `CLB-00-0000-0011` | Insufficient permissions |
+| `CLB-00-0000-0012` | Last admin cannot leave |
+| `CLB-00-0000-0013` | Last admin cannot change own role |
 
 The `title` gives a brief summary while `details` can contain a human-readable
 description. `messageParameters` provides contextual values, and `sourcePointer`
