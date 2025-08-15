@@ -8,8 +8,8 @@ export class ClubService extends BaseService {
   }
 
   async getById(id: string): Promise<Club | undefined> {
-    const clubs = await this.getAll();
-    return clubs.find(c => c.id === id);
+    const dto = await this.api.request<any>(`/clubs/${id}`);
+    return mapClub(dto);
   }
 
   async createClub(data: Partial<Club>): Promise<Club> {
