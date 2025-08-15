@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 
 import com.clubhub.entity.Comment;
 import com.clubhub.entity.Member;
+import com.clubhub.entity.MemberRole;
 import com.clubhub.entity.Post;
 import com.clubhub.entity.User;
 import com.clubhub.exception.ClubHubErrorCode;
@@ -84,5 +85,69 @@ public class CommentService {
         Comment c = getComment(commentId);
         c.setLikes(c.getLikes() + 1);
         commentRepository.update(c);
+    }
+
+    @Transactional
+    public Comment updateComment(UUID commentId, UUID userId, String content) {
+        Comment comment = getComment(commentId);
+        User user = userService.getUserById(userId);
+        Post post = comment.getPost();
+        Member membership = post.getClub().getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                .findFirst().orElse(null);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to update comments.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        if (!comment.getAuthor().equals(user.getUsername())) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Only the author can update this comment.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        comment.setContent(content);
+        return commentRepository.update(comment);
+    }
+
+    @Transactional
+    public void deleteComment(UUID commentId, UUID userId) {
+        Comment comment = getComment(commentId);
+        User user = userService.getUserById(userId);
+        Post post = comment.getPost();
+        Member membership = post.getClub().getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                .findFirst().orElse(null);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to delete comments.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        boolean isAuthor = comment.getAuthor().equals(user.getUsername());
+        if (!isAuthor && membership.getRole() == MemberRole.MEMBER) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Only the author, moderators or admins can delete this comment.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        Post p = comment.getPost();
+        p.getCommentsList().remove(comment);
+        p.setComments(p.getComments() - 1);
+        commentRepository.delete(commentId);
+        em.merge(p);
     }
 }

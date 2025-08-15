@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Member;
+import com.clubhub.entity.MemberRole;
 import com.clubhub.entity.User;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
@@ -49,11 +50,32 @@ public class ClubService {
                 return club;
         }
 
-	@Transactional
-	public Club createClub(Club club) {
-		clubRepository.save(club);
-		return club;
-	}
+        @Transactional
+        public Club createClub(Club club, UUID creatorId) {
+                clubRepository.save(club);
+
+                User user = userService.getUserById(creatorId);
+
+                Member member = new Member();
+                member.setClub(club);
+                member.setUser(user);
+                member.setRole(MemberRole.ADMIN);
+                member.setAvatar("👤");
+                member.setJoinedAt(java.time.LocalDateTime.now());
+
+                em.persist(member);
+
+                club.getMembersList().add(member);
+                club.setMembers(club.getMembersList().size());
+
+                user.getJoinedClubs().add(club);
+                user.getMemberships().add(member);
+
+                em.merge(club);
+                em.merge(user);
+
+                return club;
+        }
 
 	@Transactional
         public Club updateClub(UUID id, Club updated) {
@@ -120,7 +142,7 @@ public class ClubService {
         Member member = new Member();
         member.setClub(club);
         member.setUser(user);
-        member.setRole("member");
+        member.setRole(MemberRole.MEMBER);
         member.setAvatar("👤");
         member.setJoinedAt(java.time.LocalDateTime.now());
 
@@ -134,6 +156,84 @@ public class ClubService {
 
         em.merge(club);
         em.merge(user);
+    }
+
+    @Transactional
+    public void leaveClub(UUID clubId, UUID userId) {
+        Club club = getClubById(clubId);
+        Member membership = club.getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                .findFirst()
+                .orElse(null);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User is not a member of this club.")
+                    .messageParameter("clubId", clubId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        if (membership.getRole() == MemberRole.ADMIN) {
+            long adminCount = club.getMembersList().stream()
+                    .filter(m -> m.getRole() == MemberRole.ADMIN)
+                    .count();
+            if (adminCount <= 1) {
+                throw new ValidationException(ErrorPayload.builder()
+                        .errorCode(ClubHubErrorCode.LAST_ADMIN_LEAVE)
+                        .title("Cannot leave club")
+                        .details("At least one admin must remain in the club.")
+                        .messageParameter("clubId", clubId.toString())
+                        .messageParameter("userId", userId.toString())
+                        .build());
+            }
+        }
+
+        User user = membership.getUser();
+
+        club.getMembersList().remove(membership);
+        club.setMembers(club.getMembersList().size());
+
+        user.getMemberships().remove(membership);
+        user.getJoinedClubs().remove(club);
+
+        em.remove(em.contains(membership) ? membership : em.merge(membership));
+        em.merge(club);
+        em.merge(user);
+    }
+
+    @Transactional
+    public void updateMemberRole(UUID clubId, UUID memberId, MemberRole newRole, UUID actingUserId) {
+        Club club = getClubById(clubId);
+        Member actingMember = club.getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))
+                .findFirst()
+                .orElse(null);
+        if (actingMember == null || actingMember.getRole() != MemberRole.ADMIN) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Only admins can change member roles.")
+                    .messageParameter("clubId", clubId.toString())
+                    .messageParameter("userId", actingUserId.toString())
+                    .build());
+        }
+
+        Member member = club.getMembersList().stream()
+                .filter(m -> m.getId().equals(memberId))
+                .findFirst()
+                .orElse(null);
+        if (member == null) {
+            throw new NotFoundException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.MEMBER_NOT_FOUND)
+                    .title("Member not found")
+                    .details("No member with id %s exists.".formatted(memberId))
+                    .messageParameter("memberId", memberId.toString())
+                    .build());
+        }
+
+        member.setRole(newRole);
+        em.merge(member);
     }
 
 }

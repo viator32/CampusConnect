@@ -25,5 +25,12 @@ public class EventRepository {
         public Event update(Event event) {
                 return em.merge(event);
         }
+
+        public void delete(UUID id) {
+                Event e = em.find(Event.class, id);
+                if (e != null) {
+                        em.remove(e);
+                }
+        }
 }
 

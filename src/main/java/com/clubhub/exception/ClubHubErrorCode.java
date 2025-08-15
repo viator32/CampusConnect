@@ -38,5 +38,14 @@ public final class ClubHubErrorCode {
 
     /** User already exists. */
     public static final String USER_ALREADY_EXISTS = "CLB-00-0000-0009";
+
+    /** Member not found. */
+    public static final String MEMBER_NOT_FOUND = "CLB-00-0000-0010";
+
+    /** Insufficient permissions. */
+    public static final String INSUFFICIENT_PERMISSIONS = "CLB-00-0000-0011";
+
+    /** Last admin cannot leave. */
+    public static final String LAST_ADMIN_LEAVE = "CLB-00-0000-0012";
 }
 
