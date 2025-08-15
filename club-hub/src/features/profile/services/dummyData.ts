@@ -15,7 +15,8 @@ export const initialUser: User = {
   postsCreated: 12,
   badges: ["Active Member", "Event Organizer", "Helpful Contributor"],
   interests: ["Programming", "Photography", "Debate", "Volunteering"],
-   joinedEvents: [
+  joinedClubIds: [],
+  joinedEvents: [
     {
       id: 101,
       clubId: 10,

@@ -39,7 +39,7 @@ export default function MembersTab({ club, onUpdate }: MembersTabProps) {
     );
   }, [members, search]);
 
-  const handleRoleChange = (id: number, newRole: Role) => {
+  const handleRoleChange = (id: number | string, newRole: Role) => {
     const updated = members.map(m =>
       m.id === id ? { ...m, role: newRole } : m
     );
