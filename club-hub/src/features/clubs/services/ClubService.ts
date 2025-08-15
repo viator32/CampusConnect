@@ -1,5 +1,5 @@
 import { BaseService } from '../../../services/BaseService';
-import type { Club, Event as ClubEvent, Post } from '../types';
+import type { Club, Event as ClubEvent, Post, Comment, Role } from '../types';
 
 export class ClubService extends BaseService {
   async getAll(): Promise<Club[]> {
@@ -67,6 +67,18 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
+  async updatePost(clubId: string, postId: number, content: string): Promise<Post> {
+    const dto = await this.api.request<any>(`/clubs/${clubId}/posts/${postId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    });
+    return mapPost(dto);
+  }
+
+  async deletePost(clubId: string, postId: number): Promise<void> {
+    await this.api.request<void>(`/clubs/${clubId}/posts/${postId}`, { method: 'DELETE' });
+  }
+
   // Events inside a club
   async listEvents(clubId: string): Promise<ClubEvent[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/events`);
@@ -86,6 +98,54 @@ export class ClubService extends BaseService {
       body: JSON.stringify(payload),
     });
     return mapEvent(dto);
+  }
+
+  async updateEvent(clubId: string, eventId: number, ev: Partial<ClubEvent>): Promise<ClubEvent> {
+    const payload: any = {};
+    if (ev.title !== undefined) payload.title = ev.title;
+    if (ev.description !== undefined) payload.description = ev.description;
+    if (ev.date !== undefined) payload.date = ev.date;
+    if (ev.time !== undefined) payload.time = ev.time;
+    if (ev.location !== undefined) payload.location = ev.location;
+
+    const dto = await this.api.request<any>(`/clubs/${clubId}/events/${eventId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return mapEvent(dto);
+  }
+
+  async deleteEvent(clubId: string, eventId: number): Promise<void> {
+    await this.api.request<void>(`/clubs/${clubId}/events/${eventId}`, { method: 'DELETE' });
+  }
+
+  async joinEvent(clubId: string, eventId: number): Promise<void> {
+    await this.api.request<void>(`/clubs/${clubId}/events/${eventId}/join`, { method: 'POST' });
+  }
+
+  async updateMemberRole(clubId: string, memberId: number | string, role: Role): Promise<void> {
+    await this.api.request<void>(`/clubs/${clubId}/members/${memberId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  // Comments on a post
+  async listComments(postId: number): Promise<Comment[]> {
+    const arr = await this.api.request<any[]>(`/posts/${postId}/comments`);
+    return arr.map(mapComment);
+  }
+
+  async addComment(postId: number, content: string): Promise<Comment> {
+    const dto = await this.api.request<any>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+    return mapComment(dto);
+  }
+
+  async likeComment(commentId: number): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/like`, { method: 'POST' });
   }
 }
 
@@ -140,5 +200,15 @@ function mapPost(dto: any): Post {
     commentsList: dto.commentsList ?? [],
     photo: dto.photo,
     poll: dto.poll,
+  };
+}
+
+function mapComment(dto: any): Comment {
+  return {
+    id: dto.id,
+    author: dto.author ?? dto.username ?? 'Unknown',
+    content: dto.content ?? '',
+    time: dto.time ?? dto.createdAt ?? '',
+    likes: dto.likes ?? 0,
   };
 }

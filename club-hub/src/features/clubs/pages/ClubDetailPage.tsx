@@ -8,7 +8,7 @@ import {
   MessageCircle,
   Loader2
 } from 'lucide-react';
-import { Club } from '../types';
+import { Club, Role } from '../types';
 import { clubService } from '../services/ClubService';
 import Button from '../../../components/Button';
 import { useProfile } from '../../profile/hooks/useProfile';
@@ -99,7 +99,7 @@ export default function ClubDetailPage() {
     { id: 'members', label: 'Members',icon: Users         },
   ];
 
-  const userRole = club?.members_list.find(m => String(m.id) === String(user?.id))?.role;
+  const userRole: Role | undefined = club?.members_list.find(m => String(m.id) === String(user?.id))?.role as Role | undefined;
 
   const updateClub = (updated: Club) => setClub(updated);
 
@@ -180,7 +180,13 @@ export default function ClubDetailPage() {
 
       {/* Tab contents */}
       {activeTab === 'about'  && <AboutTab   club={club} onUpdate={updateClub}               />}
-      {activeTab === 'events' && <EventsTab  club={club} onClubUpdate={updateClub}           />}
+      {activeTab === 'events' && (
+        <EventsTab
+          club={club}
+          onClubUpdate={updateClub}
+          userRole={userRole}
+        />
+      )}
       {activeTab === 'forum'  && (
         <ForumTab
           club={club}
@@ -195,7 +201,13 @@ export default function ClubDetailPage() {
           onSelectPost={post => navigate(`/clubs/${club.id}/posts/${post.id}`)}
         />
       )}
-      {activeTab === 'members' && <MembersTab club={club}                                    />}
+      {activeTab === 'members' && (
+        <MembersTab
+          club={club}
+          currentUserRole={userRole}
+          onUpdate={members => updateClub({ ...club, members_list: members })}
+        />
+      )}
     </div>
   );
 }

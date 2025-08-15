@@ -41,10 +41,10 @@ export const dummyClubs: Club[] = [
       }
     ],
     members_list: [
-      { id: 1, name: "Alice Johnson", role: "President", avatar: "👩‍💼" },
-      { id: 2, name: "Bob Wilson", role: "Vice President", avatar: "👨‍💻" },
-      { id: 3, name: "Carol Brown", role: "Treasurer", avatar: "👩‍🎓" },
-      { id: 4, name: "David Lee", role: "Member", avatar: "👨‍🎓" }
+      { id: 1, name: "Alice Johnson", role: "ADMIN", avatar: "👩‍💼" },
+      { id: 2, name: "Bob Wilson", role: "MODERATOR", avatar: "👨‍💻" },
+      { id: 3, name: "Carol Brown", role: "MEMBER", avatar: "👩‍🎓" },
+      { id: 4, name: "David Lee", role: "MEMBER", avatar: "👨‍🎓" }
     ],
     forum_threads: [
       {
@@ -101,8 +101,8 @@ export const dummyClubs: Club[] = [
       }
     ],
     members_list: [
-      { id: 5, name: "Emma Davis", role: "President", avatar: "👩‍🎨" },
-      { id: 6, name: "Frank Miller", role: "Event Coordinator", avatar: "👨‍🎨" }
+      { id: 5, name: "Emma Davis", role: "ADMIN", avatar: "👩‍🎨" },
+      { id: 6, name: "Frank Miller", role: "MODERATOR", avatar: "👨‍🎨" }
     ],
     forum_threads: [
       {
@@ -129,7 +129,7 @@ export const dummyClubs: Club[] = [
     isJoined: true,
     events: [{ id: 5, title: "Weekly Debate Night",description:"some top event", date: "2025-07-11", time: "7:00 PM" }],
     posts: [],
-    members_list: [{ id: 7, name: "Grace Lee", role: "President", avatar: "👩‍⚖️" }],
+    members_list: [{ id: 7, name: "Grace Lee", role: "ADMIN", avatar: "👩‍⚖️" }],
     forum_threads: []
   }
 ];

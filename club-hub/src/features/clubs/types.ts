@@ -51,10 +51,12 @@ export interface Post {
   poll?: Poll;
 }
 
+export type Role = 'ADMIN' | 'MODERATOR' | 'MEMBER';
+
 export interface Member {
   id: number | string;
   name: string;
-  role: string;
+  role: Role;
   avatar: string;
 }
 
