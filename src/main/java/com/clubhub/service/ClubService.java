@@ -232,6 +232,21 @@ public class ClubService {
                     .build());
         }
 
+        if (actingMember.getId().equals(member.getId())) {
+            long adminCount = club.getMembersList().stream()
+                    .filter(m -> m.getRole() == MemberRole.ADMIN)
+                    .count();
+            if (adminCount <= 1 && newRole != MemberRole.ADMIN) {
+                throw new ValidationException(ErrorPayload.builder()
+                        .errorCode(ClubHubErrorCode.LAST_ADMIN_ROLE_CHANGE)
+                        .title("Cannot change role")
+                        .details("At least one admin must remain in the club.")
+                        .messageParameter("clubId", clubId.toString())
+                        .messageParameter("memberId", memberId.toString())
+                        .build());
+            }
+        }
+
         member.setRole(newRole);
         em.merge(member);
     }

@@ -47,5 +47,8 @@ public final class ClubHubErrorCode {
 
     /** Last admin cannot leave. */
     public static final String LAST_ADMIN_LEAVE = "CLB-00-0000-0012";
+
+    /** Last admin cannot change own role. */
+    public static final String LAST_ADMIN_ROLE_CHANGE = "CLB-00-0000-0013";
 }
 
