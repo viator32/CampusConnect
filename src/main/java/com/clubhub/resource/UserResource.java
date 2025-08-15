@@ -22,17 +22,16 @@ import com.clubhub.entity.dto.UserDTO;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface UserResource {
 
-        @GET
-        List<UserDTO> getAll();
+	@GET
+	List<UserDTO> getAll();
 
-        @GET
-        @Path("/me")
-        Response getCurrent(@Context ContainerRequestContext ctx);
+	@GET
+	@Path("/me")
+	Response getCurrent(@Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{id}")
-        Response getById(@PathParam("id") UUID id);
-
+	@GET
+	@Path("/{id}")
+	Response getById(@PathParam("id") UUID id);
 
 	@PUT
 	@Path("/{id}")

@@ -21,15 +21,15 @@ import com.clubhub.entity.dto.CommentDTO;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface CommentResource {
 
-    @GET
-    @Path("/posts/{postId}/comments")
-    List<CommentDTO> getComments(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/posts/{postId}/comments")
+	List<CommentDTO> getComments(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-    @POST
-    @Path("/posts/{postId}/comments")
-    Response addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/posts/{postId}/comments")
+	Response addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
 
-    @POST
-    @Path("/comments/{commentId}/like")
-    Response likeComment(@PathParam("commentId") UUID commentId);
+	@POST
+	@Path("/comments/{commentId}/like")
+	Response likeComment(@PathParam("commentId") UUID commentId);
 }

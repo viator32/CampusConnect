@@ -11,14 +11,14 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.ClubDTO;
-import com.clubhub.entity.dto.PostDTO;
 import com.clubhub.entity.dto.EventDTO;
+import com.clubhub.entity.dto.PostDTO;
 
 @Path("/api/clubs")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,9 +28,9 @@ public interface ClubResource {
 	@GET
 	List<ClubDTO> getAll();
 
-    @GET
-    @Path("/{id}")
-    Response getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{id}")
+	Response getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
 
 	@POST
 	Response create(ClubDTO clubDTO);
@@ -43,28 +43,29 @@ public interface ClubResource {
 	@Path("/{id}")
 	Response delete(@PathParam("id") UUID id);
 
-    @POST
-    @Path("/{clubId}/join")
-    public Response joinClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/join")
+	Response joinClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-    @GET
-    @Path("/{clubId}/posts")
-    List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/posts")
+	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-    @POST
-    @Path("/{clubId}/posts")
-    Response createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/posts")
+	Response createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
 
-    @GET
-    @Path("/{clubId}/events")
-    List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/events")
+	List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-    @POST
-    @Path("/{clubId}/events")
-    Response createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/events")
+	Response createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
 
-    @POST
-    @Path("/{clubId}/events/{eventId}/join")
-    Response joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/events/{eventId}/join")
+	Response joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+			@Context ContainerRequestContext ctx);
 
 }

@@ -4,9 +4,9 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -20,36 +20,36 @@ import com.clubhub.service.PostService;
 @Consumes(MediaType.APPLICATION_JSON)
 public class PostResourceImpl implements PostResource {
 
-    @Inject
-    PostService postService;
+	@Inject
+	PostService postService;
 
-    @Override
-    public Response likePost(UUID postId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        boolean success = postService.like(postId, userId);
-        if (!success) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
-        return Response.ok().build();
-    }
+	@Override
+	public Response likePost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		boolean success = postService.like(postId, userId);
+		if (!success) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+		return Response.ok().build();
+	}
 
-    @Override
-    public Response bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        boolean success = postService.bookmark(postId, userId);
-        if (!success) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
-        return Response.ok().build();
-    }
+	@Override
+	public Response bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		boolean success = postService.bookmark(postId, userId);
+		if (!success) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+		return Response.ok().build();
+	}
 
-    @Override
-    public Response sharePost(UUID postId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        boolean success = postService.share(postId, userId);
-        if (!success) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
-        return Response.ok().build();
-    }
+	@Override
+	public Response sharePost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		boolean success = postService.share(postId, userId);
+		if (!success) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+		return Response.ok().build();
+	}
 }

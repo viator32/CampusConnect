@@ -18,19 +18,19 @@ public class UserResourceImpl implements UserResource {
 	UserService userService;
 
 	@Override
-        public List<UserDTO> getAll() {
-                return userService.getAllUsers().stream()
-                                .map(UserMapper::toDTO)
-                                .toList();
-        }
+	public List<UserDTO> getAll() {
+		return userService.getAllUsers().stream()
+				.map(UserMapper::toDTO)
+				.toList();
+	}
 
-        @Override
-        public Response getCurrent(@Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var user = userService.getUserById(userId);
-                return user != null ? Response.ok(UserMapper.toDTO(user)).build()
-                                : Response.status(Response.Status.NOT_FOUND).build();
-        }
+	@Override
+	public Response getCurrent(@Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var user = userService.getUserById(userId);
+		return user != null ? Response.ok(UserMapper.toDTO(user)).build()
+				: Response.status(Response.Status.NOT_FOUND).build();
+	}
 
 	@Override
 	public Response getById(UUID id) {
@@ -38,7 +38,6 @@ public class UserResourceImpl implements UserResource {
 		return user != null ? Response.ok(UserMapper.toDTO(user)).build()
 				: Response.status(Response.Status.NOT_FOUND).build();
 	}
-
 
 	@Override
 	public Response update(UUID id, UserDTO userDto) {

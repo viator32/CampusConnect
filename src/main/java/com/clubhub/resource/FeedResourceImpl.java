@@ -16,23 +16,22 @@ import com.clubhub.service.PostService;
 @RequestScoped
 public class FeedResourceImpl implements FeedResource {
 
-    @Inject
-    PostService postService;
+	@Inject
+	PostService postService;
 
-    @Inject
-    EventService eventService;
+	@Inject
+	EventService eventService;
 
-    @Override
-    public FeedDTO getFeed(@Context ContainerRequestContext ctx, int page, int size) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        FeedDTO feed = new FeedDTO();
-        feed.posts = postService.getFeedForUser(userId, page, size).stream()
-                .map(ClubMapper::toDTO)
-                .toList();
-        feed.events = eventService.getFeedForUser(userId, page, size).stream()
-                .map(EventMapper::toDTO)
-                .toList();
-        return feed;
-    }
+	@Override
+	public FeedDTO getFeed(@Context ContainerRequestContext ctx, int page, int size) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		FeedDTO feed = new FeedDTO();
+		feed.posts = postService.getFeedForUser(userId, page, size).stream()
+				.map(ClubMapper::toDTO)
+				.toList();
+		feed.events = eventService.getFeedForUser(userId, page, size).stream()
+				.map(EventMapper::toDTO)
+				.toList();
+		return feed;
+	}
 }
-
