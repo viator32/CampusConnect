@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.UserDTO;
@@ -16,11 +18,19 @@ public class UserResourceImpl implements UserResource {
 	UserService userService;
 
 	@Override
-	public List<UserDTO> getAll() {
-		return userService.getAllUsers().stream()
-				.map(UserMapper::toDTO)
-				.toList();
-	}
+        public List<UserDTO> getAll() {
+                return userService.getAllUsers().stream()
+                                .map(UserMapper::toDTO)
+                                .toList();
+        }
+
+        @Override
+        public Response getCurrent(@Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var user = userService.getUserById(userId);
+                return user != null ? Response.ok(UserMapper.toDTO(user)).build()
+                                : Response.status(Response.Status.NOT_FOUND).build();
+        }
 
 	@Override
 	public Response getById(UUID id) {
