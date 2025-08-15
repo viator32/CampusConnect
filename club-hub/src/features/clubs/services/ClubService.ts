@@ -172,7 +172,7 @@ function mapClub(dto: any): Club {
     events: (dto.events ?? []).map(mapEvent),
     posts: (dto.posts ?? [])
       .map(mapPost)
-      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()),
+      .sort((a: Post, b: Post) => new Date(b.time).getTime() - new Date(a.time).getTime()),
     members_list: dto.membersList ?? dto.members_list ?? [],
     forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
 
