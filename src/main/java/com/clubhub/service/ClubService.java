@@ -11,6 +11,10 @@ import jakarta.transaction.Transactional;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Member;
 import com.clubhub.entity.User;
+import com.clubhub.exception.ClubHubErrorCode;
+import com.clubhub.exception.ErrorPayload;
+import com.clubhub.exception.NotFoundException;
+import com.clubhub.exception.ValidationException;
 import com.clubhub.repository.ClubRepository;
 
 @ApplicationScoped
@@ -31,9 +35,19 @@ public class ClubService {
 		return clubRepository.findAll();
 	}
 
-	public Club getClubById(UUID id) {
-		return clubRepository.findById(id);
-	}
+        public Club getClubById(UUID id) {
+                Club club = clubRepository.findById(id);
+                if (club == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+                                        .title("Club not found")
+                                        .details("No club with id %s exists.".formatted(id))
+                                        .messageParameter("clubId", id.toString())
+                                        .sourcePointer("clubId")
+                                        .build());
+                }
+                return club;
+        }
 
 	@Transactional
 	public Club createClub(Club club) {
@@ -42,44 +56,65 @@ public class ClubService {
 	}
 
 	@Transactional
-	public Club updateClub(UUID id, Club updated) {
-		Club existing = clubRepository.findById(id);
-		if (existing == null) {
-			return null;
-		}
-		existing.setName(updated.getName());
-		existing.setDescription(updated.getDescription());
-		existing.setLocation(updated.getLocation());
+        public Club updateClub(UUID id, Club updated) {
+                Club existing = clubRepository.findById(id);
+                if (existing == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+                                        .title("Club not found")
+                                        .details("No club with id %s exists.".formatted(id))
+                                        .messageParameter("clubId", id.toString())
+                                        .sourcePointer("clubId")
+                                        .build());
+                }
+                existing.setName(updated.getName());
+                existing.setDescription(updated.getDescription());
+                existing.setLocation(updated.getLocation());
 
-		return clubRepository.update(existing);
-	}
+                return clubRepository.update(existing);
+        }
 
 	@Transactional
-	public boolean deleteClub(UUID id) {
-		Club existing = clubRepository.findById(id);
-		if (existing == null) {
-			return false;
-		}
-		clubRepository.delete(id);
-		return true;
-	}
+        public boolean deleteClub(UUID id) {
+                Club existing = clubRepository.findById(id);
+                if (existing == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+                                        .title("Club not found")
+                                        .details("No club with id %s exists.".formatted(id))
+                                        .messageParameter("clubId", id.toString())
+                                        .sourcePointer("clubId")
+                                        .build());
+                }
+                clubRepository.delete(id);
+                return true;
+        }
 
     @Transactional
     public void joinClub(UUID clubId, UUID userId) {
         Club club = em.find(Club.class, clubId);
         if (club == null) {
-                throw new IllegalArgumentException("Club not found");
+                throw new NotFoundException(ErrorPayload.builder()
+                                .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+                                .title("Club not found")
+                                .details("No club with id %s exists.".formatted(clubId))
+                                .messageParameter("clubId", clubId.toString())
+                                .sourcePointer("clubId")
+                                .build());
         }
 
         User user = userService.getUserById(userId);
-        if (user == null) {
-                throw new IllegalArgumentException("User not found");
-        }
 
         boolean alreadyMember = club.getMembersList().stream()
                         .anyMatch(member -> member.getUser() != null && member.getUser().getId().equals(user.getId()));
         if (alreadyMember) {
-                return;
+                throw new ValidationException(ErrorPayload.builder()
+                                .errorCode(ClubHubErrorCode.ALREADY_MEMBER)
+                                .title("Already a member")
+                                .details("User is already a member of this club.")
+                                .messageParameter("clubId", clubId.toString())
+                                .messageParameter("userId", userId.toString())
+                                .build());
         }
 
         Member member = new Member();

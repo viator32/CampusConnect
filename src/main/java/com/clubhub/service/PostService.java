@@ -15,6 +15,10 @@ import com.clubhub.entity.Club;
 import com.clubhub.entity.Member;
 import com.clubhub.entity.Post;
 import com.clubhub.entity.User;
+import com.clubhub.exception.ClubHubErrorCode;
+import com.clubhub.exception.ErrorPayload;
+import com.clubhub.exception.NotFoundException;
+import com.clubhub.exception.ValidationException;
 import com.clubhub.repository.PostRepository;
 
 @ApplicationScoped
@@ -43,64 +47,77 @@ public class PostService {
     }
 
     public Post getPost(UUID id) {
-        return postRepository.findById(id);
-    }
-
-    @Transactional
-    public boolean like(UUID postId, UUID userId) {
-        Post p = getPost(postId);
-        if (p != null) {
-            User user = userService.getUserById(userId);
-            if (user == null) {
-                return false;
-            }
-            boolean isMember = p.getClub().getMembersList().stream()
-                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-            if (!isMember) {
-                return false;
-            }
-            boolean alreadyLiked = p.getLikedBy().stream()
-                    .anyMatch(u -> u.getId().equals(userId));
-            if (!alreadyLiked) {
-                p.getLikedBy().add(user);
-                p.setLikes(p.getLikedBy().size());
-                postRepository.update(p);
-            }
-            return true;
+        Post post = postRepository.findById(id);
+        if (post == null) {
+            throw new NotFoundException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.POST_NOT_FOUND)
+                    .title("Post not found")
+                    .details("No post with id %s exists.".formatted(id))
+                    .messageParameter("postId", id.toString())
+                    .sourcePointer("postId")
+                    .build());
         }
-        return false;
+        return post;
     }
 
     @Transactional
-    public boolean bookmark(UUID postId, UUID userId) {
+    public void like(UUID postId, UUID userId) {
         Post p = getPost(postId);
-        if (p != null) {
-            boolean isMember = p.getClub().getMembersList().stream()
-                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-            if (!isMember) {
-                return false;
-            }
-            p.setBookmarks(p.getBookmarks() + 1);
+        User user = userService.getUserById(userId);
+        boolean isMember = p.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to like posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        boolean alreadyLiked = p.getLikedBy().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+        if (!alreadyLiked) {
+            p.getLikedBy().add(user);
+            p.setLikes(p.getLikedBy().size());
             postRepository.update(p);
-            return true;
         }
-        return false;
     }
 
     @Transactional
-    public boolean share(UUID postId, UUID userId) {
+    public void bookmark(UUID postId, UUID userId) {
         Post p = getPost(postId);
-        if (p != null) {
-            boolean isMember = p.getClub().getMembersList().stream()
-                    .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-            if (!isMember) {
-                return false;
-            }
-            p.setShares(p.getShares() + 1);
-            postRepository.update(p);
-            return true;
+        boolean isMember = p.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to bookmark posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
         }
-        return false;
+        p.setBookmarks(p.getBookmarks() + 1);
+        postRepository.update(p);
+    }
+
+    @Transactional
+    public void share(UUID postId, UUID userId) {
+        Post p = getPost(postId);
+        boolean isMember = p.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to share posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        p.setShares(p.getShares() + 1);
+        postRepository.update(p);
     }
 
     public List<Post> getFeedForUser(UUID userId, int page, int size) {
