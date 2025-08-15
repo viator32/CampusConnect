@@ -7,13 +7,12 @@ import jakarta.ws.rs.core.Response.Status;
  */
 public class NotFoundException extends ClubHubException {
 
-    public NotFoundException(ErrorPayload payload) {
-        super(payload);
-    }
+	public NotFoundException(ErrorPayload payload) {
+		super(payload);
+	}
 
-    @Override
-    public Status getStatus() {
-        return Status.NOT_FOUND;
-    }
+	@Override
+	public Status getStatus() {
+		return Status.NOT_FOUND;
+	}
 }
-

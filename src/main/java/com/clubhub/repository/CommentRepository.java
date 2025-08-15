@@ -11,25 +11,25 @@ import com.clubhub.entity.Comment;
 @ApplicationScoped
 public class CommentRepository {
 
-    @Inject
-    EntityManager em;
+	@Inject
+	EntityManager em;
 
-    public void save(Comment comment) {
-        em.persist(comment);
-    }
+	public void save(Comment comment) {
+		em.persist(comment);
+	}
 
-    public Comment findById(UUID id) {
-        return em.find(Comment.class, id);
-    }
+	public Comment findById(UUID id) {
+		return em.find(Comment.class, id);
+	}
 
-    public Comment update(Comment comment) {
-        return em.merge(comment);
-    }
+	public Comment update(Comment comment) {
+		return em.merge(comment);
+	}
 
-    public void delete(UUID id) {
-        Comment c = em.find(Comment.class, id);
-        if (c != null) {
-            em.remove(c);
-        }
-    }
+	public void delete(UUID id) {
+		Comment c = em.find(Comment.class, id);
+		if (c != null) {
+			em.remove(c);
+		}
+	}
 }

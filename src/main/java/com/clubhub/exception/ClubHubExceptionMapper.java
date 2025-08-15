@@ -10,11 +10,10 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class ClubHubExceptionMapper implements ExceptionMapper<ClubHubException> {
 
-    @Override
-    public Response toResponse(ClubHubException exception) {
-        return Response.status(exception.getStatus())
-                       .entity(exception.getPayload())
-                       .build();
-    }
+	@Override
+	public Response toResponse(ClubHubException exception) {
+		return Response.status(exception.getStatus())
+				.entity(exception.getPayload())
+				.build();
+	}
 }
-

@@ -25,36 +25,36 @@ public class AuthResourceImpl implements AuthResource {
 
 	@Override
 	public Response register(RegisterDTO register) {
-                if (register.email == null || !register.email.endsWith("@study.thws.de")) {
-                        throw new ValidationException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
-                                        .title("Invalid email")
-                                        .details("Email must end with @study.thws.de")
-                                        .messageParameter("email", register.email)
-                                        .sourcePointer("email")
-                                        .build());
-                }
-                if (userService.getUserByEmail(register.email) != null) {
-                        throw new ValidationException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.USER_ALREADY_EXISTS)
-                                        .title("User already exists")
-                                        .details("A user with this email already exists.")
-                                        .messageParameter("email", register.email)
-                                        .sourcePointer("email")
-                                        .build());
-                }
-                var user = UserMapper.toEntity(register);
-                userService.createUser(user, register.password);
-                String token = authService.createToken(user.getId());
-                return Response.status(Response.Status.CREATED).entity(new AuthResponseDTO(token)).build();
-        }
+		if (register.email == null || !register.email.endsWith("@study.thws.de")) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+					.title("Invalid email")
+					.details("Email must end with @study.thws.de")
+					.messageParameter("email", register.email)
+					.sourcePointer("email")
+					.build());
+		}
+		if (userService.getUserByEmail(register.email) != null) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_ALREADY_EXISTS)
+					.title("User already exists")
+					.details("A user with this email already exists.")
+					.messageParameter("email", register.email)
+					.sourcePointer("email")
+					.build());
+		}
+		var user = UserMapper.toEntity(register);
+		userService.createUser(user, register.password);
+		String token = authService.createToken(user.getId());
+		return Response.status(Response.Status.CREATED).entity(new AuthResponseDTO(token)).build();
+	}
 
 	@Override
 	public Response login(AuthRequestDTO request) {
-                var user = userService.authenticate(request.email, request.password);
-                String token = authService.createToken(user.getId());
-                return Response.ok(new AuthResponseDTO(token)).build();
-        }
+		var user = userService.authenticate(request.email, request.password);
+		String token = authService.createToken(user.getId());
+		return Response.ok(new AuthResponseDTO(token)).build();
+	}
 
 	@Override
 	public Response refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {

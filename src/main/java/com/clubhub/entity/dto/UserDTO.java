@@ -10,5 +10,4 @@ public class UserDTO {
 	public String username;
 	public String studentId;
 	public List<UUID> joinedClubIds;
-
 }

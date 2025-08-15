@@ -36,46 +36,46 @@ public class CommentResourceImpl implements CommentResource {
 
 	@Override
 	public List<CommentDTO> getComments(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var post = postService.getPost(postId);
-                boolean isMember = post.getClub().getMembersList().stream()
-                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-                if (!isMember) {
-                        throw new ValidationException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-                                        .title("User not a member")
-                                        .details("User must be a member of the club to view comments.")
-                                        .messageParameter("postId", postId.toString())
-                                        .messageParameter("userId", userId.toString())
-                                        .build());
-                }
-                return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
-        }
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var post = postService.getPost(postId);
+		boolean isMember = post.getClub().getMembersList().stream()
+				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+		if (!isMember) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+					.title("User not a member")
+					.details("User must be a member of the club to view comments.")
+					.messageParameter("postId", postId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+	}
 
 	@Override
 	public Response addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var comment = commentService.addComment(postId, userId, dto.content);
-                return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
-        }
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var comment = commentService.addComment(postId, userId, dto.content);
+		return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
+	}
 
 	@Override
-        public Response likeComment(UUID commentId) {
-                commentService.like(commentId);
-                return Response.ok().build();
-        }
+	public Response likeComment(UUID commentId) {
+		commentService.like(commentId);
+		return Response.ok().build();
+	}
 
-        @Override
-        public Response updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                commentService.updateComment(commentId, userId, dto.content);
-                return Response.ok().build();
-        }
+	@Override
+	public Response updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		commentService.updateComment(commentId, userId, dto.content);
+		return Response.ok().build();
+	}
 
-        @Override
-        public Response deleteComment(UUID commentId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                commentService.deleteComment(commentId, userId);
-                return Response.noContent().build();
-        }
+	@Override
+	public Response deleteComment(UUID commentId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		commentService.deleteComment(commentId, userId);
+		return Response.noContent().build();
+	}
 }

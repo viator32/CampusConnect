@@ -8,9 +8,9 @@ public class EventDTO {
 	public UUID id;
 	public String title;
 	public String description;
-        public LocalDate date;
-        public String time;
-        public LocalDateTime createdAt;
-        public UUID clubId;
-        public int attendees;
+	public LocalDate date;
+	public String time;
+	public LocalDateTime createdAt;
+	public UUID clubId;
+	public int attendees;
 }

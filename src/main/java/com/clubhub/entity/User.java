@@ -39,10 +39,10 @@ public class User {
 	private String email; // z. B. max.mustermann@uni.de
 
 	@Column(nullable = false)
-        private String username; // z. B. MaxM
+	private String username; // z. B. MaxM
 
-        @Column(nullable = false)
-        private String passwordHash;
+	@Column(nullable = false)
+	private String passwordHash;
 
 	@Column(nullable = true)
 	private String studentId; // Optional: Matrikelnummer oder Ähnliches

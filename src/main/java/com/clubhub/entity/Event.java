@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-
 @Entity
 @Getter
 @Setter
@@ -32,20 +31,17 @@ public class Event {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-        private String title;
-        private String description;
-        private LocalDate date;
-        private String time;
-        private LocalDateTime createdAt;
+	private String title;
+	private String description;
+	private LocalDate date;
+	private String time;
+	private LocalDateTime createdAt;
 
-        @ManyToOne
-        @JoinColumn(name = "club_id")
-        private Club club;
+	@ManyToOne
+	@JoinColumn(name = "club_id")
+	private Club club;
 
-        @ManyToMany
-        @JoinTable(
-                        name = "event_user",
-                        joinColumns = @JoinColumn(name = "event_id"),
-                        inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> attendees = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "event_user", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> attendees = new HashSet<>();
 }

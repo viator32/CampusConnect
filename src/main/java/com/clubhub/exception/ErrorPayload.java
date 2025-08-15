@@ -13,20 +13,19 @@ import lombok.Singular;
 @Builder
 public class ErrorPayload {
 
-    /** Specific error code. */
-    private final String errorCode;
+	/** Specific error code. */
+	private final String errorCode;
 
-    /** Short title describing the error. */
-    private final String title;
+	/** Short title describing the error. */
+	private final String title;
 
-    /** Detailed description. */
-    private final String details;
+	/** Detailed description. */
+	private final String details;
 
-    /** Additional parameters helpful to compose messages. */
-    @Singular("messageParameter")
-    private final Map<String, String> messageParameters;
+	/** Additional parameters helpful to compose messages. */
+	@Singular("messageParameter")
+	private final Map<String, String> messageParameters;
 
-    /** Pointer to the source of the error (e.g. field name). */
-    private final String sourcePointer;
+	/** Pointer to the source of the error (e.g. field name). */
+	private final String sourcePointer;
 }
-

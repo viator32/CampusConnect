@@ -7,13 +7,12 @@ import jakarta.ws.rs.core.Response.Status;
  */
 public class ValidationException extends ClubHubException {
 
-    public ValidationException(ErrorPayload payload) {
-        super(payload);
-    }
+	public ValidationException(ErrorPayload payload) {
+		super(payload);
+	}
 
-    @Override
-    public Status getStatus() {
-        return Status.BAD_REQUEST;
-    }
+	@Override
+	public Status getStatus() {
+		return Status.BAD_REQUEST;
+	}
 }
-

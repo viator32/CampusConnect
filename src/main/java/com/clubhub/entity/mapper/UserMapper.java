@@ -4,8 +4,8 @@ import java.util.stream.Collectors;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.User;
-import com.clubhub.entity.dto.UserDTO;
 import com.clubhub.entity.dto.RegisterDTO;
+import com.clubhub.entity.dto.UserDTO;
 
 public class UserMapper {
 
@@ -22,20 +22,20 @@ public class UserMapper {
 		return dto;
 	}
 
-        public static User toEntity(UserDTO dto) {
-                User user = new User();
-                user.setId(dto.id);
-                user.setEmail(dto.email);
-                user.setUsername(dto.username);
-                user.setStudentId(dto.studentId);
-                return user;
-        }
+	public static User toEntity(UserDTO dto) {
+		User user = new User();
+		user.setId(dto.id);
+		user.setEmail(dto.email);
+		user.setUsername(dto.username);
+		user.setStudentId(dto.studentId);
+		return user;
+	}
 
-        public static User toEntity(RegisterDTO dto) {
-                User user = new User();
-                user.setEmail(dto.email);
-                user.setUsername(dto.username);
-                user.setStudentId(dto.studentId);
-                return user;
-        }
+	public static User toEntity(RegisterDTO dto) {
+		User user = new User();
+		user.setEmail(dto.email);
+		user.setUsername(dto.username);
+		user.setStudentId(dto.studentId);
+		return user;
+	}
 }

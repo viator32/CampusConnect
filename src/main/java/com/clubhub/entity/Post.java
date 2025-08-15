@@ -37,22 +37,22 @@ public class Post {
 
 	private String author;
 	private String content;
-        private int likes;
-        private int comments;
-        private int bookmarks;
-        private int shares;
-        private LocalDateTime time;
-        private String photo;
+	private int likes;
+	private int comments;
+	private int bookmarks;
+	private int shares;
+	private LocalDateTime time;
+	private String photo;
 
 	@Embedded
 	private Poll poll;
 
-        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-        private List<Comment> commentsList = new ArrayList<>();
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+	private List<Comment> commentsList = new ArrayList<>();
 
-        @ManyToMany
-        @JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> likedBy = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> likedBy = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

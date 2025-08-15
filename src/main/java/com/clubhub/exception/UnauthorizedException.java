@@ -7,13 +7,12 @@ import jakarta.ws.rs.core.Response.Status;
  */
 public class UnauthorizedException extends ClubHubException {
 
-    public UnauthorizedException(ErrorPayload payload) {
-        super(payload);
-    }
+	public UnauthorizedException(ErrorPayload payload) {
+		super(payload);
+	}
 
-    @Override
-    public Status getStatus() {
-        return Status.UNAUTHORIZED;
-    }
+	@Override
+	public Status getStatus() {
+		return Status.UNAUTHORIZED;
+	}
 }
-

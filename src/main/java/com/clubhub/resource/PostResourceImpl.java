@@ -25,22 +25,22 @@ public class PostResourceImpl implements PostResource {
 
 	@Override
 	public Response likePost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.like(postId, userId);
-                return Response.ok().build();
-        }
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.like(postId, userId);
+		return Response.ok().build();
+	}
 
 	@Override
 	public Response bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.bookmark(postId, userId);
-                return Response.ok().build();
-        }
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.bookmark(postId, userId);
+		return Response.ok().build();
+	}
 
 	@Override
 	public Response sharePost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.share(postId, userId);
-                return Response.ok().build();
-        }
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.share(postId, userId);
+		return Response.ok().build();
+	}
 }

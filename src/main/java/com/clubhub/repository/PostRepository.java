@@ -11,25 +11,25 @@ import com.clubhub.entity.Post;
 @ApplicationScoped
 public class PostRepository {
 
-    @Inject
-    EntityManager em;
+	@Inject
+	EntityManager em;
 
-    public void save(Post post) {
-        em.persist(post);
-    }
+	public void save(Post post) {
+		em.persist(post);
+	}
 
-    public Post findById(UUID id) {
-        return em.find(Post.class, id);
-    }
+	public Post findById(UUID id) {
+		return em.find(Post.class, id);
+	}
 
-    public Post update(Post post) {
-        return em.merge(post);
-    }
+	public Post update(Post post) {
+		return em.merge(post);
+	}
 
-    public void delete(UUID id) {
-        Post p = em.find(Post.class, id);
-        if (p != null) {
-            em.remove(p);
-        }
-    }
+	public void delete(UUID id) {
+		Post p = em.find(Post.class, id);
+		if (p != null) {
+			em.remove(p);
+		}
+	}
 }
