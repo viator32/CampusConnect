@@ -16,8 +16,8 @@ import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
-import type { Comment } from '../../clubs/types';
 import { clubService } from '../../clubs/services/ClubService';
+import { formatDateTime } from '../../../utils/date';
 
 type PostWithMeta = {
   clubId: number;
@@ -31,7 +31,6 @@ type PostWithMeta = {
   likes: number;
   comments: number;
   time: string;
-  commentsList?: Comment[];
 };
 
 type EventFeedItem = {
@@ -96,9 +95,7 @@ export default function FeedPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'events'>('recent');
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
-  const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
   const [sharePostId, setSharePostId] = useState<number | null>(null);
-  const [newComments, setNewComments] = useState<Record<number, string>>({});
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
@@ -187,28 +184,6 @@ export default function FeedPage() {
     }
   };
 
-  const handleCommentChange = (postId: number, text: string) => {
-    setNewComments(prev => ({ ...prev, [postId]: text }));
-  };
-  const postComment = async (postId: number) => {
-    const content = newComments[postId];
-    if (!content?.trim()) return;
-    try {
-      const comment = await clubService.addComment(postId, content);
-      setPosts(prev =>
-        prev.map(p =>
-          p.id === postId
-            ? {
-                ...p,
-                comments: p.comments + 1,
-                commentsList: [...(p.commentsList ?? []), comment],
-              }
-            : p
-        )
-      );
-      setNewComments(prev => ({ ...prev, [postId]: '' }));
-    } catch {}
-  };
 
   const handleJoinEvent = (ev: EventFeedItem) => {
     const key = `${ev.clubId}-${ev.id}`;
@@ -346,7 +321,7 @@ export default function FeedPage() {
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{post.author}</p>
                       <p className="text-sm text-gray-500">
-                        {post.clubName} • {post.time}
+                        {post.clubName} • {formatDateTime(post.time)}
                       </p>
                     </div>
                   </div>
@@ -358,16 +333,17 @@ export default function FeedPage() {
                   <div className="flex items-center gap-6 text-gray-500 mb-2">
                     <button
                       className="flex items-center gap-1 hover:text-orange-500"
-                      onClick={() => likePost(post.id)}
+                      onClick={() => {
+                        likePost(post.id);
+                        navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                      }}
                     >
                       <Heart className="w-4 h-4" />
                       <span className="text-sm">{post.likes}</span>
                     </button>
                     <button
                       className="flex items-center gap-1 hover:text-orange-500"
-                      onClick={() =>
-                        setExpandedPostId(prev => (prev === post.id ? null : post.id))
-                      }
+                      onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span className="text-sm">{post.comments}</span>
@@ -397,33 +373,7 @@ export default function FeedPage() {
                   </div>
 
                   {/* Comments */}
-                  {expandedPostId === post.id && (
-                    <div className="mt-4 space-y-4">
-                      {(post.commentsList ?? []).map(c => (
-                        <div key={c.id} className="bg-gray-50 rounded-lg p-3">
-                          <p className="font-medium text-gray-900">{c.author}</p>
-                          <p className="text-sm text-gray-700 mb-1">{c.content}</p>
-                          <p className="text-xs text-gray-500">{c.time}</p>
-                        </div>
-                      ))}
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
-                        <textarea
-                          rows={2}
-                          placeholder="Write a comment…"
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 resize-none"
-                          value={newComments[post.id] || ''}
-                          onChange={e =>
-                            handleCommentChange(post.id, e.target.value)
-                          }
-                        />
-                        <div className="flex justify-end mt-2">
-                          <Button onClick={() => postComment(post.id)}>
-                            Post Comment
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Comments are handled in PostDetail view */}
                 </div>
               ))}
             </div>

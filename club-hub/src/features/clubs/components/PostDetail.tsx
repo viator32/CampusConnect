@@ -9,6 +9,7 @@ import {
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../services/ClubService';
+import { formatDateTime } from '../../../utils/date';
 
 interface PostDetailProps {
   post: Post;
@@ -97,7 +98,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
           </div>
           <div>
             <p className="font-medium text-gray-900">{postData.author}</p>
-            <p className="text-sm text-gray-500">{postData.time}</p>
+            <p className="text-sm text-gray-500">{formatDateTime(postData.time)}</p>
           </div>
         </div>
         <p className="text-gray-700 mb-4">{postData.content}</p>
@@ -140,7 +141,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
               </div>
               <div>
                 <p className="font-medium text-gray-900">{c.author}</p>
-                <p className="text-sm text-gray-500">{c.time}</p>
+                <p className="text-sm text-gray-500">{formatDateTime(c.time)}</p>
               </div>
             </div>
             <p className="text-gray-700 mb-3">{c.content}</p>

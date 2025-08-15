@@ -12,6 +12,7 @@ import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import { clubService } from '../services/ClubService';
+import { formatDateTime } from '../../../utils/date';
 
 interface PostsTabProps {
   club: Club;
@@ -71,6 +72,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       setIsPoll(false);
       setQuestion('');
       setOptions(['', '']);
+      onSelectPost(newPost);
     } catch (err) {
       setError('Failed to create post');
     }
@@ -163,7 +165,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
               </div>
               <div>
                 <p className="font-medium text-gray-900">{post.author}</p>
-                <p className="text-xs text-gray-500">{post.time}</p>
+                <p className="text-xs text-gray-500">{formatDateTime(post.time)}</p>
               </div>
             </div>
             <p className="text-gray-700 mb-2">{post.content}</p>
@@ -192,7 +194,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             <div className="flex items-center gap-6 text-gray-500">
               <button
                 className="flex items-center gap-1 hover:text-orange-500"
-                onClick={() => handleLike(post)}
+                onClick={() => {
+                  handleLike(post);
+                  onSelectPost({ ...post, likes: post.likes + 1 });
+                }}
               >
                 <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
               </button>
