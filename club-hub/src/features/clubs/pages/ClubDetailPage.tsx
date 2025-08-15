@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { Club } from '../types';
 import { clubService } from '../services/ClubService';
-import { useClubs } from '../hooks/useClubs';
 import Button from '../../../components/Button';
 
 import AboutTab     from '../components/AboutTab';
@@ -30,11 +29,18 @@ export default function ClubDetailPage() {
 
   const [club, setClub]           = useState<Club|null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('about');
-  const { joinClub, leaveClub, loading, error }   = useClubs();
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
     if (!clubId) return;
-    clubService.getById(clubId).then(c => setClub(c ?? null));
+    setLoading(true);
+    setError(null);
+    clubService
+      .getById(clubId)
+      .then(c => setClub(c ?? null))
+      .catch(err => setError(err.message ?? 'Failed to load club'))
+      .finally(() => setLoading(false));
   }, [clubId]);
 
   useEffect(() => {
@@ -86,14 +92,26 @@ export default function ClubDetailPage() {
 
   const updateClub = (updated: Club) => setClub(updated);
 
-  const toggleJoin = () => {
+  const toggleJoin = async () => {
     if (!club) return;
+    setError(null);
+    const prev = club;
     if (club.isJoined) {
-      leaveClub(club.id);
       setClub({ ...club, isJoined: false, members: Math.max(0, club.members - 1) });
+      try {
+        await clubService.leaveClub(club.id);
+      } catch (err: any) {
+        setClub(prev);
+        setError(err.message ?? 'Failed to leave club');
+      }
     } else {
-      joinClub(club.id);
       setClub({ ...club, isJoined: true, members: club.members + 1 });
+      try {
+        await clubService.joinClub(club.id);
+      } catch (err: any) {
+        setClub(prev);
+        setError(err.message ?? 'Failed to join club');
+      }
     }
   };
 
