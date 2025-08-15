@@ -11,6 +11,7 @@ import {
 import { Club } from '../types';
 import { clubService } from '../services/ClubService';
 import Button from '../../../components/Button';
+import { useProfile } from '../../profile/hooks/useProfile';
 
 import AboutTab     from '../components/AboutTab';
 import EventsTab    from '../components/EventsTab';
@@ -26,6 +27,7 @@ export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useProfile();
 
   const [club, setClub]           = useState<Club|null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('about');
@@ -38,10 +40,17 @@ export default function ClubDetailPage() {
     setError(null);
     clubService
       .getById(clubId)
-      .then(c => setClub(c ?? null))
+      .then(c => {
+        if (!c) return setClub(null);
+        const joined =
+          c.isJoined ||
+          !!user?.joinedClubIds.includes(c.id) ||
+          c.members_list.some(m => String(m.id) === String(user?.id));
+        setClub({ ...c, isJoined: joined });
+      })
       .catch(err => setError(err.message ?? 'Failed to load club'))
       .finally(() => setLoading(false));
-  }, [clubId]);
+  }, [clubId, user]);
 
   useEffect(() => {
     const t = searchParams.get('tab') as TabId | null;
@@ -90,6 +99,8 @@ export default function ClubDetailPage() {
     { id: 'members', label: 'Members',icon: Users         },
   ];
 
+  const userRole = club?.members_list.find(m => String(m.id) === String(user?.id))?.role;
+
   const updateClub = (updated: Club) => setClub(updated);
 
   const toggleJoin = async () => {
@@ -127,10 +138,13 @@ export default function ClubDetailPage() {
             <div className="text-3xl">{club.image}</div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
-              <p className="text-gray-600">{club.members} members</p>
+              <p className="text-gray-600">
+                {club.members} members
+                {club.isJoined && userRole ? ` • Your role: ${userRole}` : ''}
+              </p>
+              </div>
             </div>
           </div>
-        </div>
         <Button onClick={toggleJoin} className="text-sm">
           {club.isJoined ? 'Leave Club' : 'Join Club'}
         </Button>

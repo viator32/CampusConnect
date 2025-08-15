@@ -50,6 +50,7 @@ export interface User {
   postsCreated: number;
   badges: string[];
   interests: string[];
+  joinedClubIds: string[];
   settings: Settings;
 
   // ← newly added

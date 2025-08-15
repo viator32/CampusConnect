@@ -1,11 +1,11 @@
 // src/features/clubs/pages/MyClubsPage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClubs } from '../hooks/useClubs';
 import { Plus, Users, X, Smile, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import type { Club } from '../types';
 import { clubService } from '../services/ClubService';
+import { useProfile } from '../../profile/hooks/useProfile';
 
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 
@@ -13,9 +13,38 @@ const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 
 export default function MyClubsPage() {
   const navigate = useNavigate();
-  const { clubs, addClub, leaveClub, loading, error } = useClubs();
+  const { user } = useProfile();
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    Promise.all((user.joinedClubIds || []).map(id => clubService.getById(id)))
+      .then(results => {
+        const valid = results.filter((c): c is Club => Boolean(c));
+        setClubs(valid.map(c => ({ ...c, isJoined: true })));
+      })
+      .catch(err => setError(err?.message ?? 'Failed to load clubs'))
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  const handleLeaveClub = async (id: string) => {
+    setError(null);
+    try {
+      await clubService.leaveClub(id);
+      setClubs(prev => prev.filter(c => c.id !== id));
+    } catch (err: any) {
+      setError(err?.message ?? 'Failed to leave club');
+    }
+  };
 
   // modal + emoji state
   const [showModal, setShowModal] = useState(false);
@@ -44,11 +73,14 @@ export default function MyClubsPage() {
     try {
       const created = await clubService.createClub(form);
       // ensure newly created club appears joined for the creator
-      addClub({
-        ...created,
-        isJoined: true,
-        members: created.members || 1,
-      });
+      setClubs(prev => [
+        ...prev,
+        {
+          ...created,
+          isJoined: true,
+          members: created.members || 1,
+        },
+      ]);
       setShowModal(false);
       setShowEmojiPicker(false);
       setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
@@ -71,8 +103,6 @@ export default function MyClubsPage() {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
-  const joinedClubs = clubs.filter(c => c.isJoined);
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -88,9 +118,9 @@ export default function MyClubsPage() {
       </div>
 
       {/* Joined Clubs List */}
-      {joinedClubs.length > 0 ? (
+      {clubs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {joinedClubs.map(club => (
+          {clubs.map(club => (
             <div
               key={club.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
@@ -115,7 +145,7 @@ export default function MyClubsPage() {
                     className="text-sm"
                     onClick={e => {
                       e.stopPropagation();
-                      leaveClub(club.id);
+                      handleLeaveClub(club.id);
                     }}
                   >
                     Leave

@@ -37,6 +37,7 @@ function mapUser(dto: any): User {
     postsCreated: dto.postsCreated ?? 0,
     badges: dto.badges ?? [],
     interests: dto.interests ?? [],
+    joinedClubIds: dto.joinedClubIds ?? [],
     joinedEvents:
       dto.joinedEvents?.map((e: any) => ({
         id: e.id,

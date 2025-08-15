@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch {
         setToken(null);
       }
-    }, 15 * 60 * 1000);
+    }, 13 * 60 * 1000);
     return () => clearInterval(handle);
   }, [token]);
 
