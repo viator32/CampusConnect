@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Club, Event as ClubEvent, Participant } from '../types';
+import { Club, Event as ClubEvent, Participant, Role } from '../types';
 import { ChevronLeft, ChevronRight, Users as UsersIcon } from 'lucide-react';
 import Button from '../../../components/Button';
 import { useProfile } from '../../profile/hooks/useProfile';
+import { clubService } from '../services/ClubService';
 
 interface EventsTabProps {
   club: Club;
   onClubUpdate: (c: Club) => void;
+  userRole?: Role;
 }
 
 const STATUSES = [
@@ -16,7 +18,7 @@ const STATUSES = [
 ] as const;
 type Status = typeof STATUSES[number]['value'];
 
-export default function EventsTab({ club, onClubUpdate }: EventsTabProps) {
+export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabProps) {
   const { user } = useProfile();
   const today = new Date();
   const [year, setYear]       = useState(today.getFullYear());
@@ -69,62 +71,77 @@ export default function EventsTab({ club, onClubUpdate }: EventsTabProps) {
     setShowForm(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError(null);
     if (!title.trim() || !date || !time) {
       setError('Title, date & time are required.');
       return;
     }
 
-    let updated: ClubEvent[];
-    if (editingId != null) {
-      // editing existing: preserve participants array
-      updated = club.events.map(ev =>
-        ev.id === editingId
-          ? { ...ev, title, date, time, description: desc, status, location }
-          : ev
-      );
-    } else {
-      // new event starts with no participants
-      const newEv: ClubEvent = {
-        id: Date.now(),
-        title,
-        date,
-        time,
-        description: desc,
-        status,
-        location,
-        participants: []
-      } as ClubEvent;
-      updated = [newEv, ...club.events];
+    try {
+      let updated: ClubEvent[];
+      if (editingId != null) {
+        const dto = await clubService.updateEvent(club.id, editingId, {
+          title,
+          date,
+          time,
+          description: desc,
+          status,
+          location,
+        });
+        updated = club.events.map(ev => (ev.id === editingId ? dto : ev));
+      } else {
+        const dto = await clubService.createEvent(club.id, {
+          title,
+          date,
+          time,
+          description: desc,
+          status,
+          location,
+        });
+        updated = [dto, ...club.events];
+      }
+      onClubUpdate({ ...club, events: updated });
+      setShowForm(false);
+    } catch (err) {
+      setError('Failed to save event');
     }
-
-    onClubUpdate({ ...club, events: updated });
-    setShowForm(false);
   };
 
-  const handleJoinToggle = (ev: ClubEvent) => {
+  const handleDelete = async (id: number) => {
+    try {
+      await clubService.deleteEvent(club.id, id);
+      const updated = club.events.filter(e => e.id !== id);
+      onClubUpdate({ ...club, events: updated });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleJoinToggle = async (ev: ClubEvent) => {
     if (!user) return;
     const updated = club.events.map(e => {
       if (e.id !== ev.id) return e;
       const parts = e.participants ? [...e.participants] : [];
       const exists = parts.find(p => p.email === user.email);
       if (exists) {
-        // leave
         const filtered = parts.filter(p => p.email !== user.email);
         return { ...e, participants: filtered };
       } else {
-        // join
         const next: Participant = {
           id: user.id,
           name: user.name,
           surname: (user as any).surname || '',
-          email: user.email
+          email: user.email,
         };
         return { ...e, participants: [...parts, next] };
       }
     });
     onClubUpdate({ ...club, events: updated });
+    const exists = ev.participants?.find(p => p.email === user.email);
+    if (!exists) {
+      try { await clubService.joinEvent(club.id, ev.id); } catch {}
+    }
   };
 
   const downloadCSV = (ev: ClubEvent) => {
@@ -174,12 +191,14 @@ export default function EventsTab({ club, onClubUpdate }: EventsTabProps) {
       <div className="flex-1 space-y-4 overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Upcoming Events</h2>
-          <Button
-            onClick={() => showForm ? setShowForm(false) : openForm()}
-            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
-          >
-            {showForm ? 'Cancel' : 'Create Event'}
-          </Button>
+          {userRole && (userRole === 'ADMIN' || userRole === 'MODERATOR') && (
+            <Button
+              onClick={() => (showForm ? setShowForm(false) : openForm())}
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+            >
+              {showForm ? 'Cancel' : 'Create Event'}
+            </Button>
+          )}
         </div>
 
         {/* Create / Edit Form */}
@@ -258,12 +277,22 @@ export default function EventsTab({ club, onClubUpdate }: EventsTabProps) {
                       {st.label}
                     </span>
                   </div>
-                  <Button
-                    onClick={() => openForm(ev)}
-                    className="bg-blue-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-600"
-                  >
-                    Edit
-                  </Button>
+                  {userRole && (userRole === 'ADMIN' || userRole === 'MODERATOR') && (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => openForm(ev)}
+                        className="bg-blue-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-600"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(ev.id)}
+                        className="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600 mb-1">
                   {ev.date} at {ev.time} · {ev.location}

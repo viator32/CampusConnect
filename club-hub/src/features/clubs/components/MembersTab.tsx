@@ -2,24 +2,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, List } from 'lucide-react';
-import { Club, Member } from '../types';
-
-type Role = 'Owner' | 'Admin' | 'Moderator' | 'Member' | 'Guest';
+import { Club, Member, Role } from '../types';
+import { clubService } from '../services/ClubService';
 
 const ROLE_OPTIONS: { value: Role; label: string; description: string }[] = [
-  { value: 'Owner',     label: 'Owner',     description: 'Full control over club settings, members, and content.' },
-  { value: 'Admin',     label: 'Admin',     description: 'Can manage members, approve events, and moderate content.' },
-  { value: 'Moderator', label: 'Moderator', description: 'Can moderate forum/posts and assist Admins.' },
-  { value: 'Member',    label: 'Member',    description: 'Regular member; can post, join events, and comment.' },
-  { value: 'Guest',     label: 'Guest',     description: 'Read‑only access; cannot post or join events.' },
+  { value: 'MEMBER',    label: 'Member',    description: 'Regular member; can post, join events, and comment.' },
+  { value: 'MODERATOR', label: 'Moderator', description: 'Can create and manage events, and moderate content.' },
+  { value: 'ADMIN',     label: 'Admin',     description: 'Can change roles of other members and manage everything.' },
 ];
 
 interface MembersTabProps {
   club: Club;
   onUpdate?: (updated: Member[]) => void;
+  currentUserRole?: Role;
 }
 
-export default function MembersTab({ club, onUpdate }: MembersTabProps) {
+export default function MembersTab({ club, onUpdate, currentUserRole }: MembersTabProps) {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>(club.members_list);
   const [view, setView]     = useState<'grid'|'list'>('grid');
@@ -39,12 +37,23 @@ export default function MembersTab({ club, onUpdate }: MembersTabProps) {
     );
   }, [members, search]);
 
-  const handleRoleChange = (id: number | string, newRole: Role) => {
-    const updated = members.map(m =>
-      m.id === id ? { ...m, role: newRole } : m
-    );
-    setMembers(updated);
-    onUpdate?.(updated);
+  const handleRoleChange = async (id: number | string, newRole: Role) => {
+    const target = members.find(m => m.id === id);
+    if (!target) return;
+    const admins = members.filter(m => m.role === 'ADMIN');
+    if (target.role === 'ADMIN' && newRole !== 'ADMIN' && admins.length <= 1) {
+      return; // must keep at least one admin
+    }
+    try {
+      await clubService.updateMemberRole(club.id, id, newRole);
+      const updated = members.map(m =>
+        m.id === id ? { ...m, role: newRole } : m
+      );
+      setMembers(updated);
+      onUpdate?.(updated);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -91,20 +100,25 @@ export default function MembersTab({ club, onUpdate }: MembersTabProps) {
 
               <p className="font-medium text-gray-900">{member.name}</p>
 
-              {/* Role selector with click isolation */}
-              <select
-                value={member.role}
-                onChange={e => handleRoleChange(member.id, e.target.value as Role)}
-                onClick={e => e.stopPropagation()}
-                title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                className="border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
-              >
-                {ROLE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              {currentUserRole === 'ADMIN' ? (
+                <select
+                  value={member.role}
+                  onChange={e => handleRoleChange(member.id, e.target.value as Role)}
+                  onClick={e => e.stopPropagation()}
+                  title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
+                  className="border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
+                >
+                  {ROLE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="text-sm text-gray-600">
+                  {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -127,19 +141,25 @@ export default function MembersTab({ club, onUpdate }: MembersTabProps) {
                 <p className="font-medium text-gray-900">{member.name}</p>
               </div>
 
-              <select
-                value={member.role}
-                onChange={e => handleRoleChange(member.id, e.target.value as Role)}
-                onClick={e => e.stopPropagation()}
-                title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                className="mr-4 border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
-              >
-                {ROLE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              {currentUserRole === 'ADMIN' ? (
+                <select
+                  value={member.role}
+                  onChange={e => handleRoleChange(member.id, e.target.value as Role)}
+                  onClick={e => e.stopPropagation()}
+                  title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
+                  className="mr-4 border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
+                >
+                  {ROLE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="mr-4 text-sm text-gray-600">
+                  {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
+                </span>
+              )}
 
               <button
                 onClick={() => navigate(`/users/${member.id}`)}
