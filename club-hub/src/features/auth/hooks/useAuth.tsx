@@ -11,7 +11,7 @@ interface AuthContextValue {
     password: string,
     studentId: string
   ) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -57,9 +57,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.register(name, email, password, studentId);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (token) {
+      try {
+        await authService.logout(token);
+      } catch {}
+    }
     setToken(null);
-    authService.logout();
   };
 
   return (

@@ -50,7 +50,11 @@ export class AuthService extends BaseService {
     return res;
   }
 
-  logout() {
+  async logout(currentToken: string): Promise<void> {
+    await this.api.request('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ token: currentToken }),
+    });
     setAuthToken(null);
   }
 }

@@ -12,15 +12,17 @@ import {
   Shield,
   User as UserIcon,
   Menu as MenuIcon,
-  X as XIcon
+  X as XIcon,
+  LogOut as LogOutIcon
 } from 'lucide-react';
 import { useProfile } from '../features/profile/hooks/useProfile';
-import Button from '../components/Button';
+import { useAuth } from '../features/auth/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useProfile();
+  const { logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
@@ -71,6 +73,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Desktop Sidebar */}
@@ -101,20 +108,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {user && (
-          <div
-            className="p-4 border-t border-gray-200 cursor-pointer"
-            onClick={() => navigate('/profile')}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-orange-600" />
-              </div>
-              <div className="truncate">
-                <p className="font-medium text-gray-900">{user.name}</p>
-                <p className="text-sm text-gray-600">Student</p>
+          <>
+            <div
+              className="p-4 border-t border-gray-200 cursor-pointer"
+              onClick={() => navigate('/profile')}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <UserIcon className="w-4 h-4 text-orange-600" />
+                </div>
+                <div className="truncate">
+                  <p className="font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm text-gray-600">Student</p>
+                </div>
               </div>
             </div>
-          </div>
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium text-red-600 hover:bg-red-50"
+              >
+                <LogOutIcon className="w-5 h-5" />
+                Logout
+              </button>
+            </div>
+          </>
         )}
       </div>
 
@@ -199,23 +217,37 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               })}
             </nav>
             {user && (
-              <div
-                className="p-4 border-t border-gray-200 cursor-pointer"
-                onClick={() => {
-                  navigate('/profile');
-                  setMobileOpen(false);
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <UserIcon className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <div className="truncate">
-                    <p className="font-medium text-gray-900">{user.name}</p>
-                    <p className="text-sm text-gray-600">Student</p>
+              <>
+                <div
+                  className="p-4 border-t border-gray-200 cursor-pointer"
+                  onClick={() => {
+                    navigate('/profile');
+                    setMobileOpen(false);
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <UserIcon className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <div className="truncate">
+                      <p className="font-medium text-gray-900">{user.name}</p>
+                      <p className="text-sm text-gray-600">Student</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+                <div className="p-4 border-t border-gray-200">
+                  <button
+                    onClick={async () => {
+                      await handleLogout();
+                      setMobileOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <LogOutIcon className="w-5 h-5" />
+                    Logout
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
