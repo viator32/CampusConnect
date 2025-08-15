@@ -2,12 +2,16 @@ import { BaseService } from '../../../services/BaseService';
 import type { Comment } from '../../clubs/types';
 import type { FeedPost } from './dummyData'; // keep your type
 
+export interface FeedEventItem {
+  type: 'event';
+  [key: string]: any;
+}
+
+export type FeedItem = FeedPost | FeedEventItem;
+
 export class FeedService extends BaseService {
-  async getAll(): Promise<FeedPost[]> {
-    // When your feed endpoint is ready, just return that:
-    // return this.api.request<FeedPost[]>('/feed');
-    // For now fall back to clubs posts aggregation if you want (optional):
-    return this.api.request<FeedPost[]>('/feed'); // will work once backend provides it
+  async getPage(page = 0, size = 10): Promise<FeedItem[]> {
+    return this.api.request<FeedItem[]>(`/feed?page=${page}&size=${size}`);
   }
 
   async addPost(post: Omit<FeedPost, 'id'>): Promise<FeedPost> {

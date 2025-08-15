@@ -1,7 +1,6 @@
 // src/features/feed/pages/FeedPage.tsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClubs } from '../../clubs/hooks/useClubs';
 import {
   Heart,
   MessageCircle,
@@ -17,6 +16,7 @@ import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../../clubs/services/ClubService';
+import { feedService } from '../services/FeedService';
 import { formatDateTime } from '../../../utils/date';
 
 type PostWithMeta = {
@@ -51,46 +51,54 @@ type EventFeedItem = {
 
 export default function FeedPage() {
   const navigate = useNavigate();
-  const { clubs, loading, error } = useClubs();
 
   const [posts, setPosts] = useState<PostWithMeta[]>([]);
-  useEffect(() => {
-    setPosts(
-      clubs
-        .flatMap(club =>
-          club.posts.map(post => ({
-            ...post,
-            clubId: club.id,
-            clubName: club.name,
-            clubImage: club.image,
-            isJoined: club.isJoined,
-          }))
-        )
-        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-    );
-  }, [clubs]);
+  const [events, setEvents] = useState<EventFeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  // build events feed separately
-  const events: EventFeedItem[] = useMemo(
-    () =>
-      clubs.flatMap(club =>
-        club.events.map(ev => ({
-          type: 'event' as const,
-          clubId: club.id,
-          clubName: club.name,
-          clubImage: club.image,
-          isJoinedClub: club.isJoined,
-          id: ev.id,
-          title: ev.title,
-          date: ev.date,
-          time: ev.time,
-          location: ev.location,
-          description: ev.description,
-          joinedCount: ev.joined ?? ev.participants?.length ?? 0,
-          participants: ev.participants
-        }))
-      ),
-    [clubs]
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const items = await feedService.getPage(page, 10);
+      const newPosts = items.filter((i: any) => i.type !== 'event') as PostWithMeta[];
+      const newEvents = items.filter((i: any) => i.type === 'event') as EventFeedItem[];
+      setPosts(prev => [...prev, ...newPosts]);
+      setEvents(prev => [...prev, ...newEvents]);
+      setPage(p => p + 1);
+      if (items.length < 10) setHasMore(false);
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to load feed');
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [page, hasMore, loadingMore]);
+
+  useEffect(() => {
+    loadMore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const loaderRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loadingMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMore();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loadingMore, hasMore, loadMore]
   );
 
   // state
@@ -109,8 +117,12 @@ export default function FeedPage() {
         p.clubName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.author.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    if (activeTab === 'popular') {
+    if (activeTab === 'recent') {
       arr = [...arr].sort((a, b) => b.likes - a.likes);
+    } else if (activeTab === 'popular') {
+      arr = [...arr].sort(
+        (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+      );
     }
     return arr;
   }, [posts, searchQuery, activeTab]);
@@ -376,6 +388,12 @@ export default function FeedPage() {
               ))}
             </div>
           </>
+        )}
+        <div ref={loaderRef} />
+        {loadingMore && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+          </div>
         )}
       </main>
       {bookmarkError && (
