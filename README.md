@@ -69,12 +69,27 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"token":"<jwt>"}'
   ```
 
+- **Logout** – `POST /api/auth/logout`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/logout \
+       -H "Content-Type: application/json" \
+       -d '{"token":"<jwt>"}'
+  ```
+
 ### Users
 
 - **List users** – `GET /api/users`
 
   ```bash
   curl -H "Authorization: Bearer <token>" http://localhost:8080/api/users
+  ```
+
+- **Get current user** – `GET /api/users/me`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/users/me
   ```
 
 - **Get user** – `GET /api/users/{id}`
@@ -179,6 +194,13 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"18:00"}'
+  ```
+
+- **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join`
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
+       -H "Authorization: Bearer <token>"
   ```
 
 ### Comments
