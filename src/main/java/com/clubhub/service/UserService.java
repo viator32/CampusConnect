@@ -13,6 +13,10 @@ import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.clubhub.entity.User;
+import com.clubhub.exception.ClubHubErrorCode;
+import com.clubhub.exception.ErrorPayload;
+import com.clubhub.exception.NotFoundException;
+import com.clubhub.exception.UnauthorizedException;
 import com.clubhub.repository.UserRepository;
 
 @ApplicationScoped
@@ -28,9 +32,19 @@ public class UserService {
 		return userRepository.findAll();
 	}
 
-	public User getUserById(UUID id) {
-		return userRepository.findById(id);
-	}
+        public User getUserById(UUID id) {
+                User user = userRepository.findById(id);
+                if (user == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_FOUND)
+                                        .title("User not found")
+                                        .details("No user with id %s exists.".formatted(id))
+                                        .messageParameter("userId", id.toString())
+                                        .sourcePointer("userId")
+                                        .build());
+                }
+                return user;
+        }
 
         public User getUserByEmail(String email) {
                 return userRepository.findByEmail(email);
@@ -55,13 +69,25 @@ public class UserService {
         public User authenticate(String email, String password) {
                 User user = getUserByEmail(email);
                 if (user == null) {
-                        return null;
+                        throw new UnauthorizedException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+                                        .title("Invalid credentials")
+                                        .details("Email or password is incorrect.")
+                                        .messageParameter("email", email)
+                                        .sourcePointer("email")
+                                        .build());
                 }
                 String hashed = hash(password);
                 if (hashed.equals(user.getPasswordHash())) {
                         return user;
                 }
-                return null;
+                throw new UnauthorizedException(ErrorPayload.builder()
+                                .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+                                .title("Invalid credentials")
+                                .details("Email or password is incorrect.")
+                                .messageParameter("email", email)
+                                .sourcePointer("password")
+                                .build());
         }
 
 
@@ -71,8 +97,18 @@ public class UserService {
 	}
 
 	@Transactional
-	public void deleteUser(UUID id) {
-		userRepository.delete(id);
-	}
+        public void deleteUser(UUID id) {
+                User user = userRepository.findById(id);
+                if (user == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_FOUND)
+                                        .title("User not found")
+                                        .details("No user with id %s exists.".formatted(id))
+                                        .messageParameter("userId", id.toString())
+                                        .sourcePointer("userId")
+                                        .build());
+                }
+                userRepository.delete(id);
+        }
 
 }

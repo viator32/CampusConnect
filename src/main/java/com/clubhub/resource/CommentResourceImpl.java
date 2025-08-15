@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -17,6 +16,9 @@ import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.mapper.ClubMapper;
+import com.clubhub.exception.ClubHubErrorCode;
+import com.clubhub.exception.ErrorPayload;
+import com.clubhub.exception.ValidationException;
 import com.clubhub.service.CommentService;
 import com.clubhub.service.PostService;
 
@@ -34,26 +36,28 @@ public class CommentResourceImpl implements CommentResource {
 
 	@Override
 	public List<CommentDTO> getComments(UUID postId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		var post = postService.getPost(postId);
-		boolean isMember = post.getClub().getMembersList().stream()
-				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-		if (!isMember) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
-		}
-		return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
-	}
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var post = postService.getPost(postId);
+                boolean isMember = post.getClub().getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to view comments.")
+                                        .messageParameter("postId", postId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+        }
 
 	@Override
 	public Response addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		try {
-			var comment = commentService.addComment(postId, userId, dto.content);
-			return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
-		} catch (IllegalArgumentException e) {
-			return Response.status(Response.Status.FORBIDDEN).build();
-		}
-	}
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var comment = commentService.addComment(postId, userId, dto.content);
+                return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
+        }
 
 	@Override
 	public Response likeComment(UUID commentId) {
