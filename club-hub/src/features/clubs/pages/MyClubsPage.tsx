@@ -5,6 +5,7 @@ import { useClubs } from '../hooks/useClubs';
 import { Plus, Users, X, Smile, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import type { Club } from '../types';
+import { clubService } from '../services/ClubService';
 
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 
@@ -13,6 +14,8 @@ const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 export default function MyClubsPage() {
   const navigate = useNavigate();
   const { clubs, addClub, leaveClub, loading, error } = useClubs();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // modal + emoji state
   const [showModal, setShowModal] = useState(false);
@@ -34,22 +37,26 @@ export default function MyClubsPage() {
     setShowEmojiPicker(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newClub: Club = {
-      id: Date.now(),
-      ...form,
-      members: 1,
-      isJoined: true,
-      events: [],
-      posts: [],
-      members_list: [],
-      forum_threads: []
-    };
-    addClub(newClub);
-    setShowModal(false);
-    setShowEmojiPicker(false);
-    setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const created = await clubService.createClub(form);
+      // ensure newly created club appears joined for the creator
+      addClub({
+        ...created,
+        isJoined: true,
+        members: created.members || 1,
+      });
+      setShowModal(false);
+      setShowEmojiPicker(false);
+      setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
+    } catch (err: any) {
+      setSubmitError(err?.message ?? 'Failed to create club');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -208,6 +215,9 @@ export default function MyClubsPage() {
                 </select>
               </div>
 
+              {submitError && (
+                <p className="text-sm text-red-500 text-center">{submitError}</p>
+              )}
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   type="button"
@@ -218,8 +228,12 @@ export default function MyClubsPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-orange-500 text-white hover:bg-orange-600">
-                  Create
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {submitting ? 'Creating...' : 'Create'}
                 </Button>
               </div>
             </form>
