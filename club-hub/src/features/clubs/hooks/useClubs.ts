@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Club } from '../types';
 import { clubService } from '../services/ClubService';
+import { useProfile } from '../../profile/hooks/useProfile';
 
 export function useClubs() {
+  const { user } = useProfile();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,10 +14,17 @@ export function useClubs() {
     setError(null);
     clubService
       .getAll()
-      .then(setClubs)
+      .then(arr =>
+        setClubs(
+          arr.map(c => ({
+            ...c,
+            isJoined: c.isJoined || !!user?.joinedClubIds.includes(c.id)
+          }))
+        )
+      )
       .catch(err => setError(err.message ?? 'Failed to load clubs'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
   
   /** locally adds a club; later you can call clubService.create() too */
   const addClub = (newClub: Club) => {
