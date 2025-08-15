@@ -12,8 +12,11 @@ import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Event;
+import com.clubhub.entity.Member;
+import com.clubhub.entity.MemberRole;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.EventDTO;
+import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.EventMapper;
@@ -61,13 +64,14 @@ public class ClubResourceImpl implements ClubResource {
 		return Response.ok(ClubMapper.toSummaryDTO(club)).build();
 	}
 
-	@Override
-	public Response create(ClubDTO clubDto) {
-		Club created = clubService.createClub(ClubMapper.toEntity(clubDto));
-		return Response.status(Response.Status.CREATED)
-				.entity(ClubMapper.toDTO(created))
-				.build();
-	}
+        @Override
+        public Response create(ClubDTO clubDto, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                Club created = clubService.createClub(ClubMapper.toEntity(clubDto), userId);
+                return Response.status(Response.Status.CREATED)
+                                .entity(ClubMapper.toDTO(created))
+                                .build();
+        }
 
 	@Override
 	public Response update(UUID id, ClubDTO clubDto) {
@@ -81,12 +85,26 @@ public class ClubResourceImpl implements ClubResource {
                 return Response.noContent().build();
         }
 
-	@Override
-	public Response joinClub(UUID clubId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		clubService.joinClub(clubId, userId);
-		return Response.ok().build();
-	}
+        @Override
+        public Response joinClub(UUID clubId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                clubService.joinClub(clubId, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response leaveClub(UUID clubId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                clubService.leaveClub(clubId, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response updateRole(UUID clubId, UUID memberId, MemberDTO dto, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                clubService.updateMemberRole(clubId, memberId, MemberRole.valueOf(dto.role.toUpperCase()), userId);
+                return Response.ok().build();
+        }
 
 	@Override
 	public List<PostDTO> getClubPosts(UUID clubId, @Context ContainerRequestContext ctx) {
@@ -107,13 +125,14 @@ public class ClubResourceImpl implements ClubResource {
         }
 
 	@Override
-	public Response createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
+        public Response createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 var user = userService.getUserById(userId);
                 var club = clubService.getClubById(clubId);
-                boolean isMember = club.getMembersList().stream()
-                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-                if (!isMember) {
+                Member membership = club.getMembersList().stream()
+                                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                                .findFirst().orElse(null);
+                if (membership == null) {
                         throw new ValidationException(ErrorPayload.builder()
                                         .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
                                         .title("User not a member")
@@ -127,9 +146,23 @@ public class ClubResourceImpl implements ClubResource {
 		if (post.getTime() == null) {
 			post.setTime(java.time.LocalDateTime.now());
 		}
-		postService.createPost(clubId, post);
-		return Response.created(URI.create("/api/clubs/" + clubId + "/posts/" + post.getId())).build();
-	}
+                postService.createPost(clubId, post);
+                return Response.created(URI.create("/api/clubs/" + clubId + "/posts/" + post.getId())).build();
+        }
+
+        @Override
+        public Response updatePost(UUID clubId, UUID postId, PostDTO dto, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.updatePost(clubId, postId, dto, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response deletePost(UUID clubId, UUID postId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.deletePost(clubId, postId, userId);
+                return Response.noContent().build();
+        }
 
 	@Override
 	public List<EventDTO> getClubEvents(UUID clubId, @Context ContainerRequestContext ctx) {
@@ -150,12 +183,13 @@ public class ClubResourceImpl implements ClubResource {
         }
 
 	@Override
-	public Response createEvent(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
+        public Response createEvent(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
                 var club = clubService.getClubById(clubId);
                 UUID userId = (UUID) ctx.getProperty("userId");
-                boolean isMember = club.getMembersList().stream()
-                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-                if (!isMember) {
+                Member membership = club.getMembersList().stream()
+                                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                                .findFirst().orElse(null);
+                if (membership == null) {
                         throw new ValidationException(ErrorPayload.builder()
                                         .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
                                         .title("User not a member")
@@ -164,9 +198,32 @@ public class ClubResourceImpl implements ClubResource {
                                         .messageParameter("userId", userId.toString())
                                         .build());
                 }
+                if (membership.getRole() == MemberRole.MEMBER) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                                        .title("Insufficient permissions")
+                                        .details("User lacks permission to create events.")
+                                        .messageParameter("clubId", clubId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
                 Event event = EventMapper.toEntity(eventDTO, club);
                 eventService.save(event);
                 return Response.created(URI.create("/api/clubs/" + clubId + "/events/" + event.getId())).build();
+        }
+
+        @Override
+        public Response updateEvent(UUID clubId, UUID eventId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                eventService.updateEvent(clubId, eventId, eventDTO, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response deleteEvent(UUID clubId, UUID eventId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                eventService.deleteEvent(clubId, eventId, userId);
+                return Response.noContent().build();
         }
 
 	@Override

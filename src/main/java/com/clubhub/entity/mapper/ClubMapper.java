@@ -117,7 +117,7 @@ public class ClubMapper {
 	public static MemberDTO toDTO(Member m) {
 		MemberDTO dto = new MemberDTO();
 		dto.id = m.getId();
-		dto.role = m.getRole();
+                dto.role = m.getRole() != null ? m.getRole().name() : null;
 		dto.avatar = m.getAvatar();
 		dto.joinedAt = m.getJoinedAt();
 

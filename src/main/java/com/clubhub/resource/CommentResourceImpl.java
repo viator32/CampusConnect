@@ -60,8 +60,22 @@ public class CommentResourceImpl implements CommentResource {
         }
 
 	@Override
-	public Response likeComment(UUID commentId) {
-		commentService.like(commentId);
-		return Response.ok().build();
-	}
+        public Response likeComment(UUID commentId) {
+                commentService.like(commentId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                commentService.updateComment(commentId, userId, dto.content);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response deleteComment(UUID commentId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                commentService.deleteComment(commentId, userId);
+                return Response.noContent().build();
+        }
 }

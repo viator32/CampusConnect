@@ -13,8 +13,10 @@ import jakarta.transaction.Transactional;
 
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Member;
+import com.clubhub.entity.MemberRole;
 import com.clubhub.entity.Post;
 import com.clubhub.entity.User;
+import com.clubhub.entity.dto.PostDTO;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
 import com.clubhub.exception.NotFoundException;
@@ -137,5 +139,86 @@ public class PostService {
                 .skip((long) page * size)
                 .limit(size)
                 .toList();
+    }
+
+    @Transactional
+    public void updatePost(UUID clubId, UUID postId, PostDTO dto, UUID userId) {
+        Post post = getPost(postId);
+        if (post.getClub() == null || !post.getClub().getId().equals(clubId)) {
+            throw new NotFoundException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.POST_NOT_FOUND)
+                    .title("Post not found")
+                    .details("No post %s for club %s found.".formatted(postId, clubId))
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("clubId", clubId.toString())
+                    .build());
+        }
+        User user = userService.getUserById(userId);
+        Member membership = post.getClub().getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                .findFirst().orElse(null);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to update posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().equals(user.getUsername());
+        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Members can only update their own posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        post.setContent(dto.content);
+        post.setPhoto(dto.photo);
+        postRepository.update(post);
+    }
+
+    @Transactional
+    public void deletePost(UUID clubId, UUID postId, UUID userId) {
+        Post post = getPost(postId);
+        if (post.getClub() == null || !post.getClub().getId().equals(clubId)) {
+            throw new NotFoundException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.POST_NOT_FOUND)
+                    .title("Post not found")
+                    .details("No post %s for club %s found.".formatted(postId, clubId))
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("clubId", clubId.toString())
+                    .build());
+        }
+        User user = userService.getUserById(userId);
+        Member membership = post.getClub().getMembersList().stream()
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                .findFirst().orElse(null);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to delete posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().equals(user.getUsername());
+        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Members can only delete their own posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        Club club = post.getClub();
+        club.getPosts().remove(post);
+        postRepository.delete(postId);
+        em.merge(club);
     }
 }

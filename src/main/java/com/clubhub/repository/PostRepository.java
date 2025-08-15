@@ -25,4 +25,11 @@ public class PostRepository {
     public Post update(Post post) {
         return em.merge(post);
     }
+
+    public void delete(UUID id) {
+        Post p = em.find(Post.class, id);
+        if (p != null) {
+            em.remove(p);
+        }
+    }
 }

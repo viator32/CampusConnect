@@ -25,4 +25,11 @@ public class CommentRepository {
     public Comment update(Comment comment) {
         return em.merge(comment);
     }
+
+    public void delete(UUID id) {
+        Comment c = em.find(Comment.class, id);
+        if (c != null) {
+            em.remove(c);
+        }
+    }
 }
