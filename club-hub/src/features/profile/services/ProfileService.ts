@@ -1,25 +1,16 @@
 import { BaseService } from '../../../services/BaseService';
 import type { User } from '../types';
-import { CURRENT_USER_ID_KEY } from '../../../constants/storage';
 
 export class ProfileService extends BaseService {
-  private getCurrentUserId(): number {
-    const raw = localStorage.getItem(CURRENT_USER_ID_KEY);
-    if (!raw) throw new Error('No current user id found');
-    return Number(raw);
-  }
-
-  /** Fetch the current user (by stored id) */
+  /** Fetch the current user via the `/users/me` endpoint */
   async getCurrent(): Promise<User> {
-    const id = this.getCurrentUserId();
-    const dto = await this.api.request<any>(`/users/${id}`);
+    const dto = await this.api.request<any>('/users/me');
     return mapUser(dto);
   }
 
   /** Update the current user (partial PUT is fine) */
   async updateCurrent(partial: Partial<User>): Promise<User> {
-    const id = this.getCurrentUserId();
-    const dto = await this.api.request<any>(`/users/${id}`, {
+    const dto = await this.api.request<any>('/users/me', {
       method: 'PUT',
       body: JSON.stringify(mapUserToDto(partial)),
     });

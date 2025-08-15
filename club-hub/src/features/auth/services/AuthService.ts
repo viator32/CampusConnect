@@ -1,6 +1,5 @@
 import { BaseService } from '../../../services/BaseService';
 import { setAuthToken } from '../../../services/api';
-import { CURRENT_USER_ID_KEY } from '../../../constants/storage';
 
 type LoginRes = {
   token: string;
@@ -25,10 +24,6 @@ export class AuthService extends BaseService {
       body: JSON.stringify(payload),
     });
     setAuthToken(res.token);
-    const id = res.user?.id ?? res.userId ?? res.id;
-    if (id !== undefined) {
-      try { localStorage.setItem(CURRENT_USER_ID_KEY, String(id)); } catch {}
-    }
     return res;
   }
 
@@ -57,7 +52,6 @@ export class AuthService extends BaseService {
 
   logout() {
     setAuthToken(null);
-    try { localStorage.removeItem(CURRENT_USER_ID_KEY); } catch {}
   }
 }
 
