@@ -40,7 +40,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         time: post.time,
         likes: post.likes,
         comments: post.comments,
-        clubId: club.id,
+        clubId: Number(club.id),
         clubName: club.name,
         clubImage: club.image
       });
