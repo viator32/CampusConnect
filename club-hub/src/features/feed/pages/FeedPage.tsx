@@ -1,5 +1,5 @@
 // src/features/feed/pages/FeedPage.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClubs } from '../../clubs/hooks/useClubs';
 import {
@@ -17,6 +17,7 @@ import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import type { Comment } from '../../clubs/types';
+import { clubService } from '../../clubs/services/ClubService';
 
 type PostWithMeta = {
   clubId: number;
@@ -53,20 +54,20 @@ export default function FeedPage() {
   const navigate = useNavigate();
   const { clubs, loading, error } = useClubs();
 
-  // flatten posts with club info
-  const posts: PostWithMeta[] = useMemo(
-    () =>
+  const [posts, setPosts] = useState<PostWithMeta[]>([]);
+  useEffect(() => {
+    setPosts(
       clubs.flatMap(club =>
         club.posts.map(post => ({
           ...post,
           clubId: Number(club.id),
           clubName: club.name,
           clubImage: club.image,
-          isJoined: club.isJoined
+          isJoined: club.isJoined,
         }))
-      ),
-    [clubs]
-  );
+      )
+    );
+  }, [clubs]);
 
   // build events feed separately
   const events: EventFeedItem[] = useMemo(
@@ -171,11 +172,42 @@ export default function FeedPage() {
     }
   };
 
+  const likePost = async (postId: number) => {
+    setPosts(prev =>
+      prev.map(p => (p.id === postId ? { ...p, likes: p.likes + 1 } : p))
+    );
+    try {
+      await clubService.likePost(postId);
+    } catch {
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === postId ? { ...p, likes: Math.max(0, p.likes - 1) } : p
+        )
+      );
+    }
+  };
+
   const handleCommentChange = (postId: number, text: string) => {
     setNewComments(prev => ({ ...prev, [postId]: text }));
   };
-  const postComment = (postId: number) => {
-    setNewComments(prev => ({ ...prev, [postId]: '' }));
+  const postComment = async (postId: number) => {
+    const content = newComments[postId];
+    if (!content?.trim()) return;
+    try {
+      const comment = await clubService.addComment(postId, content);
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === postId
+            ? {
+                ...p,
+                comments: p.comments + 1,
+                commentsList: [...(p.commentsList ?? []), comment],
+              }
+            : p
+        )
+      );
+      setNewComments(prev => ({ ...prev, [postId]: '' }));
+    } catch {}
   };
 
   const handleJoinEvent = (ev: EventFeedItem) => {
@@ -324,7 +356,10 @@ export default function FeedPage() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-6 text-gray-500 mb-2">
-                    <button className="flex items-center gap-1 hover:text-orange-500">
+                    <button
+                      className="flex items-center gap-1 hover:text-orange-500"
+                      onClick={() => likePost(post.id)}
+                    >
                       <Heart className="w-4 h-4" />
                       <span className="text-sm">{post.likes}</span>
                     </button>

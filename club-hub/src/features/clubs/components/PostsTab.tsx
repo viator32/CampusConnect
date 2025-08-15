@@ -11,6 +11,7 @@ import {
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
+import { clubService } from '../services/ClubService';
 
 interface PostsTabProps {
   club: Club;
@@ -56,36 +57,33 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const changeOpt = (i: number, v: string) =>
     setOptions(o => o.map((x,idx) => idx===i? v:x));
 
-  const handlePost = () => {
+  const handlePost = async () => {
     setError(null);
-    if (!text.trim() && !photo && !isPoll) {
-      setError('Add text, photo or poll.');
+    if (!text.trim()) {
+      setError('Add some text to your post.');
       return;
     }
-    if (isPoll) {
-      if (!question.trim() || options.filter(o=>o.trim()).length<2) {
-        setError('Poll needs question + 2 options.');
-        return;
-      }
+    try {
+      const newPost = await clubService.createPost(club.id, text);
+      onClubUpdate({ ...club, posts: [newPost, ...club.posts] });
+      setText('');
+      setPhoto(null);
+      setIsPoll(false);
+      setQuestion('');
+      setOptions(['', '']);
+    } catch (err) {
+      setError('Failed to create post');
     }
-    const newPost: Post = {
-      id: Date.now(),
-      author: 'You',
-      content: text,
-      likes: 0,
-      comments: 0,
-      time: 'Just now',
-      commentsList: [],
-      photo: photo ? URL.createObjectURL(photo) : undefined,
-      poll: isPoll
-        ? {
-            question,
-            options: options.filter(o=>o.trim()).map(o => ({ text: o, votes: 0 }))
-          }
-        : undefined
-    } as any;
-    onClubUpdate({ ...club, posts: [ newPost, ...club.posts ] });
-    setText(''); setPhoto(null); setIsPoll(false); setQuestion(''); setOptions(['','']);
+  };
+
+  const handleLike = async (post: Post) => {
+    const updated = { ...post, likes: post.likes + 1 };
+    onClubUpdate({ ...club, posts: club.posts.map(p => p.id === post.id ? updated : p) });
+    try {
+      await clubService.likePost(post.id);
+    } catch {
+      onClubUpdate({ ...club, posts: club.posts });
+    }
   };
 
   return (
@@ -192,7 +190,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             )}
 
             <div className="flex items-center gap-6 text-gray-500">
-              <button className="flex items-center gap-1 hover:text-orange-500">
+              <button
+                className="flex items-center gap-1 hover:text-orange-500"
+                onClick={() => handleLike(post)}
+              >
                 <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
               </button>
               <button

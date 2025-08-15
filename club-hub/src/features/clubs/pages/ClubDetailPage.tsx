@@ -87,6 +87,13 @@ export default function ClubDetailPage() {
         <PostDetail
           post={post}
           onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
+          onPostUpdate={updated =>
+            setClub(c =>
+              c
+                ? { ...c, posts: c.posts.map(p => (p.id === updated.id ? updated : p)) }
+                : c
+            )
+          }
         />
       );
   }
