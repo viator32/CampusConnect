@@ -59,7 +59,7 @@ export default function FeedPage() {
       clubs.flatMap(club =>
         club.posts.map(post => ({
           ...post,
-          clubId: club.id,
+          clubId: Number(club.id),
           clubName: club.name,
           clubImage: club.image,
           isJoined: club.isJoined
@@ -74,7 +74,7 @@ export default function FeedPage() {
       clubs.flatMap(club =>
         club.events.map(ev => ({
           type: 'event' as const,
-          clubId: club.id,
+          clubId: Number(club.id),
           clubName: club.name,
           clubImage: club.image,
           isJoinedClub: club.isJoined,
