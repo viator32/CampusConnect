@@ -28,7 +28,7 @@ export class BookmarksService extends BaseService {
     );
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const payload = this.buildPayload({ id });
     // TODO: replace `/bookmarks/${id}` with backend endpoint
     await this.api.request(`/bookmarks/${id}`, {

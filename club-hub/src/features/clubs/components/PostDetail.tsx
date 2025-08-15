@@ -50,7 +50,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     }
   };
 
-  const handleLikeComment = async (commentId: number) => {
+  const handleLikeComment = async (commentId: string) => {
     setPostData(p => {
       const next = {
         ...p,

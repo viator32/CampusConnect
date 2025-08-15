@@ -20,12 +20,12 @@ import { clubService } from '../../clubs/services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 
 type PostWithMeta = {
-  clubId: number;
+  clubId: string;
   clubName: string;
   clubImage: string;
   isJoined: boolean;
 } & {
-  id: number;
+  id: string;
   author: string;
   content: string;
   likes: number;
@@ -35,7 +35,7 @@ type PostWithMeta = {
 
 type EventFeedItem = {
   type: 'event';
-  clubId: number;
+  clubId: string;
   clubName: string;
   clubImage: string;
   isJoinedClub: boolean;
@@ -56,15 +56,17 @@ export default function FeedPage() {
   const [posts, setPosts] = useState<PostWithMeta[]>([]);
   useEffect(() => {
     setPosts(
-      clubs.flatMap(club =>
-        club.posts.map(post => ({
-          ...post,
-          clubId: Number(club.id),
-          clubName: club.name,
-          clubImage: club.image,
-          isJoined: club.isJoined,
-        }))
-      )
+      clubs
+        .flatMap(club =>
+          club.posts.map(post => ({
+            ...post,
+            clubId: club.id,
+            clubName: club.name,
+            clubImage: club.image,
+            isJoined: club.isJoined,
+          }))
+        )
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     );
   }, [clubs]);
 
@@ -74,7 +76,7 @@ export default function FeedPage() {
       clubs.flatMap(club =>
         club.events.map(ev => ({
           type: 'event' as const,
-          clubId: Number(club.id),
+          clubId: club.id,
           clubName: club.name,
           clubImage: club.image,
           isJoinedClub: club.isJoined,
@@ -94,8 +96,8 @@ export default function FeedPage() {
   // state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'events'>('recent');
-  const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
+  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
@@ -169,7 +171,7 @@ export default function FeedPage() {
     }
   };
 
-  const likePost = async (postId: number) => {
+  const likePost = async (postId: string) => {
     setPosts(prev =>
       prev.map(p => (p.id === postId ? { ...p, likes: p.likes + 1 } : p))
     );

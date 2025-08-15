@@ -20,7 +20,7 @@ export default function BookmarksPage() {
     fetchBookmarks();
   }, []);
 
-  const handleRemove = async (id: number) => {
+  const handleRemove = async (id: string) => {
     const prev = [...bookmarks];
     setBookmarks(prev => prev.filter(b => b.id !== id));
     try {

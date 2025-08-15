@@ -56,7 +56,9 @@ export class ClubService extends BaseService {
   // Posts inside a club
   async listPosts(clubId: string): Promise<Post[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts`);
-    return arr.map(mapPost);
+    return arr
+      .map(mapPost)
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
   }
 
   async createPost(clubId: string, content: string): Promise<Post> {
@@ -67,7 +69,7 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
-  async updatePost(clubId: string, postId: number, content: string): Promise<Post> {
+  async updatePost(clubId: string, postId: string, content: string): Promise<Post> {
     const dto = await this.api.request<any>(`/clubs/${clubId}/posts/${postId}`, {
       method: 'PUT',
       body: JSON.stringify({ content }),
@@ -75,11 +77,11 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
-  async deletePost(clubId: string, postId: number): Promise<void> {
+  async deletePost(clubId: string, postId: string): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/posts/${postId}`, { method: 'DELETE' });
   }
 
-  async likePost(postId: number): Promise<void> {
+  async likePost(postId: string): Promise<void> {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'POST' });
   }
 
@@ -135,12 +137,12 @@ export class ClubService extends BaseService {
   }
 
   // Comments on a post
-  async listComments(postId: number): Promise<Comment[]> {
+  async listComments(postId: string): Promise<Comment[]> {
     const arr = await this.api.request<any[]>(`/posts/${postId}/comments`);
     return arr.map(mapComment);
   }
 
-  async addComment(postId: number, content: string): Promise<Comment> {
+  async addComment(postId: string, content: string): Promise<Comment> {
     const dto = await this.api.request<any>(`/posts/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify({ content }),
@@ -148,7 +150,7 @@ export class ClubService extends BaseService {
     return mapComment(dto);
   }
 
-  async likeComment(commentId: number): Promise<void> {
+  async likeComment(commentId: string): Promise<void> {
     await this.api.request<void>(`/comments/${commentId}/like`, { method: 'POST' });
   }
 }
@@ -168,7 +170,9 @@ function mapClub(dto: any): Club {
     isJoined: !!dto.isJoined,
 
     events: (dto.events ?? []).map(mapEvent),
-    posts: (dto.posts ?? []).map(mapPost),
+    posts: (dto.posts ?? [])
+      .map(mapPost)
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()),
     members_list: dto.membersList ?? dto.members_list ?? [],
     forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
 

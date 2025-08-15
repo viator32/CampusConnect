@@ -81,7 +81,7 @@ export default function ClubDetailPage() {
       );
   }
   if (postId && club) {
-    const post = club.posts.find(p => p.id === Number(postId));
+    const post = club.posts.find(p => p.id === postId);
     if (post)
       return (
         <PostDetail

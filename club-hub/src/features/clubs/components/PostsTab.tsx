@@ -27,8 +27,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [question, setQuestion] = useState('');
   const [options, setOptions]   = useState<string[]>(['','']);
   const [error, setError]       = useState<string|null>(null);
-  const [bookmarks, setBookmarks] = useState<number[]>([]);
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
 
   const toggleBookmark = async (post: Post) => {
     if (bookmarks.includes(post.id)) {
@@ -42,7 +42,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         time: post.time,
         likes: post.likes,
         comments: post.comments,
-        clubId: Number(club.id),
+        clubId: club.id,
         clubName: club.name,
         clubImage: club.image
       });
