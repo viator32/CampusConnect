@@ -39,6 +39,14 @@ Alternatively, start the application directly (requires a running PostgreSQL ins
 ./mvnw quarkus:dev
 ```
 
+## Roles and Permissions
+
+Each club member is assigned one of the following roles, which determine what actions are allowed inside a club:
+
+- **Member** – Default role for new members. Can view club content, create posts and comments, interact with posts (like, share, bookmark) and comments (like), update or delete only their own posts and comments, and join events. Members cannot create, update or delete events, and they cannot modify other members' roles.
+- **Moderator** – Inherits all member abilities and can additionally create, update and delete events, update or delete any post, and delete any comment.
+- **Admin** – Highest privilege level. In addition to moderator capabilities, admins can change the roles of other members. At least one admin must remain in every club.
+
 ## API Endpoints
 
 Unless noted otherwise, requests require an `Authorization: Bearer <token>` header.
