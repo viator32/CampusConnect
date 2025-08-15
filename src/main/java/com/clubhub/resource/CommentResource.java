@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -29,15 +31,16 @@ public interface CommentResource {
 	@Path("/posts/{postId}/comments")
 	Response addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/comments/{commentId}/like")
-        Response likeComment(@PathParam("commentId") UUID commentId);
+	@POST
+	@Path("/comments/{commentId}/like")
+	Response likeComment(@PathParam("commentId") UUID commentId);
 
-        @PUT
-        @Path("/comments/{commentId}")
-        Response updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
+	@PUT
+	@Path("/comments/{commentId}")
+	Response updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO,
+			@Context ContainerRequestContext ctx);
 
-        @DELETE
-        @Path("/comments/{commentId}")
-        Response deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	@DELETE
+	@Path("/comments/{commentId}")
+	Response deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 }
