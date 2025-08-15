@@ -206,6 +206,17 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Authorization: Bearer <token>"
   ```
 
+### Feed
+
+- **Get feed** – `GET /api/feed`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       "http://localhost:8080/api/feed?page=0&size=10"
+  ```
+  Returns posts and events from clubs the user follows. Pagination is controlled
+  via `page` (default `0`) and `size` (default `10`) query parameters.
+
 ### Post actions
 
 - **Like post** – `POST /api/posts/{postId}/like`
@@ -228,4 +239,39 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   curl -X POST http://localhost:8080/api/posts/<postId>/share \
        -H "Authorization: Bearer <token>"
   ```
+
+## Error Codes
+
+All API errors return a structured JSON payload. A typical error looks like:
+
+```json
+{
+  "errorCode": "CLB-00-0000-0001",
+  "title": "User not found",
+  "details": "The specified user does not exist",
+  "messageParameters": {
+    "userId": "123"
+  },
+  "sourcePointer": "/api/users/123"
+}
+```
+
+The `errorCode` format is `CLB-XX-XXXX-XXXX` where `CLB` identifies the ClubHub module.
+The following codes are currently in use:
+
+| Code | Meaning |
+|------|---------|
+| `CLB-00-0000-0001` | User not found |
+| `CLB-00-0000-0002` | Club not found |
+| `CLB-00-0000-0003` | Post not found |
+| `CLB-00-0000-0004` | User is not a member of the club |
+| `CLB-00-0000-0005` | User is already a member of the club |
+| `CLB-00-0000-0006` | Invalid credentials provided |
+| `CLB-00-0000-0007` | Comment not found |
+| `CLB-00-0000-0008` | Event not found |
+| `CLB-00-0000-0009` | User already exists |
+
+The `title` gives a brief summary while `details` can contain a human-readable
+description. `messageParameters` provides contextual values, and `sourcePointer`
+points to the request element that caused the error.
 
