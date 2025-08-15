@@ -64,28 +64,41 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       setError('Add some text to your post.');
       return;
     }
+
     try {
-      const newPost = await clubService.createPost(club.id, text);
-      onClubUpdate({ ...club, posts: [newPost, ...club.posts] });
+      await clubService.createPost(club.id, text);
+    } catch {
+      // backend may return 201 with empty body causing a parse error
+      // ignore to allow UI to refresh via listPosts
+    }
+
+    try {
+      const posts = await clubService.listPosts(club.id);
+      onClubUpdate({ ...club, posts });
       setText('');
       setPhoto(null);
       setIsPoll(false);
       setQuestion('');
       setOptions(['', '']);
-      onSelectPost(newPost);
-    } catch (err) {
+      if (posts[0]) onSelectPost(posts[0]);
+    } catch {
       setError('Failed to create post');
     }
   };
 
   const handleLike = async (post: Post) => {
-    const updated = { ...post, likes: post.likes + 1 };
-    onClubUpdate({ ...club, posts: club.posts.map(p => p.id === post.id ? updated : p) });
     try {
       await clubService.likePost(post.id);
     } catch {
-      onClubUpdate({ ...club, posts: club.posts });
+      // ignore backend parse errors
     }
+
+    try {
+      const posts = await clubService.listPosts(club.id);
+      onClubUpdate({ ...club, posts });
+      const refreshed = posts.find(p => p.id === post.id);
+      if (refreshed) onSelectPost(refreshed);
+    } catch {}
   };
 
   return (
@@ -194,10 +207,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             <div className="flex items-center gap-6 text-gray-500">
               <button
                 className="flex items-center gap-1 hover:text-orange-500"
-                onClick={() => {
-                  handleLike(post);
-                  onSelectPost({ ...post, likes: post.likes + 1 });
-                }}
+                onClick={() => handleLike(post)}
               >
                 <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
               </button>

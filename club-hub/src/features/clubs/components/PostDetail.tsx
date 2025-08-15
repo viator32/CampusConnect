@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Post, Comment } from '../types';
 import {
   User as UserIcon,
@@ -22,6 +22,21 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   const [postData, setPostData] = useState(post);
   const [commentText, setCommentText] = useState('');
 
+  useEffect(() => {
+    clubService
+      .listComments(post.id)
+      .then(comments => {
+        setPostData(p => ({
+          ...p,
+          comments: comments.length,
+          commentsList: comments,
+        }));
+        onPostUpdate?.({ ...post, comments: comments.length, commentsList: comments });
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post.id]);
+
   const handleLikePost = async () => {
     setPostData(p => {
       const next = { ...p, likes: p.likes + 1 };
@@ -31,11 +46,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       await clubService.likePost(postData.id);
     } catch {
-      setPostData(p => {
-        const next = { ...p, likes: Math.max(0, p.likes - 1) };
-        onPostUpdate?.(next);
-        return next;
-      });
+      // ignore backend parse errors
     }
   };
 
@@ -53,18 +64,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       await clubService.likeComment(commentId);
     } catch {
-      setPostData(p => {
-        const next = {
-          ...p,
-          commentsList: (p.commentsList ?? []).map(c =>
-            c.id === commentId
-              ? { ...c, likes: Math.max(0, (c.likes ?? 1) - 1) }
-              : c
-          ),
-        };
-        onPostUpdate?.(next);
-        return next;
-      });
+      // ignore backend parse errors
     }
   };
 

@@ -176,11 +176,7 @@ export default function FeedPage() {
     try {
       await clubService.likePost(postId);
     } catch {
-      setPosts(prev =>
-        prev.map(p =>
-          p.id === postId ? { ...p, likes: Math.max(0, p.likes - 1) } : p
-        )
-      );
+      // ignore backend parse errors; keep optimistic like
     }
   };
 
