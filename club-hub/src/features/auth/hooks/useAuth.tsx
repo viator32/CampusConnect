@@ -29,6 +29,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthToken(token);
   }, [token]);
 
+  // automatically refresh auth token every 15 minutes
+  useEffect(() => {
+    if (!token) return;
+    const handle = setInterval(async () => {
+      try {
+        const res = await authService.refresh(token);
+        setToken(res.token);
+      } catch {
+        setToken(null);
+      }
+    }, 15 * 60 * 1000);
+    return () => clearInterval(handle);
+  }, [token]);
+
   const login = async (email: string, password: string) => {
     const result = await authService.login(email, password);
     setToken(result.token);
