@@ -105,8 +105,8 @@ function mapClub(dto: any): Club {
 
     events: (dto.events ?? []).map(mapEvent),
     posts: (dto.posts ?? []).map(mapPost),
-    members_list: dto.membersList ?? [],
-    forum_threads: dto.forumThreads ?? [],
+    members_list: dto.membersList ?? dto.members_list ?? [],
+    forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
 
     founded: dto.founded,
     location: dto.location,

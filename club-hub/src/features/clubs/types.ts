@@ -52,7 +52,7 @@ export interface Post {
 }
 
 export interface Member {
-  id: number;
+  id: number | string;
   name: string;
   role: string;
   avatar: string;
