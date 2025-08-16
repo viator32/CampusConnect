@@ -36,6 +36,9 @@ export default function FeedPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const isEvent = (item: FeedItem): item is EventFeedItem =>
+    (item as any).type === 'event';
+
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
@@ -129,9 +132,6 @@ export default function FeedPage() {
       setBookmarkError('Failed to update bookmark');
     }
   };
-
-  const isEvent = (item: FeedItem): item is EventFeedItem =>
-    (item as any).type === 'event';
 
   const likePost = async (postId: string) => {
     setItems(prev =>
