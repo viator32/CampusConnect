@@ -349,8 +349,8 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
             </button>
           </div>
           <div className="grid grid-cols-7 text-xs text-gray-500 mb-1">
-            {['S','M','T','W','T','F','S'].map(w => (
-              <div key={w} className="text-center">{w}</div>
+            {['S','M','T','W','T','F','S'].map((w, i) => (
+              <div key={i} className="text-center">{w}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-2">
