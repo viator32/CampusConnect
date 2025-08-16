@@ -1,40 +1,17 @@
 // src/features/feed/pages/FeedPage.tsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClubs } from '../../clubs/hooks/useClubs';
-import {
-  Heart,
-  MessageCircle,
-  Share2,
-  Bookmark,
-  Search as SearchIcon,
-  Calendar,
-  MapPin,
-  Loader2
-} from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../../clubs/services/ClubService';
+import { type FeedItem, type FeedEventItem, feedService } from '../services/FeedService';
+import type { FeedPost } from '../services/dummyData';
 import { formatDateTime } from '../../../utils/date';
 
-type PostWithMeta = {
-  clubId: string;
-  clubName: string;
-  clubImage: string;
-  isJoined: boolean;
-} & {
-  id: string;
-  author: string;
-  content: string;
-  likes: number;
-  comments: number;
-  time: string;
-};
-
-type EventFeedItem = {
-  type: 'event';
+interface EventFeedItem extends FeedEventItem {
   clubId: string;
   clubName: string;
   clubImage: string;
@@ -47,93 +24,62 @@ type EventFeedItem = {
   description?: string;
   joinedCount: number;
   participants?: { id: number; name: string; surname: string; email: string }[];
-};
+}
 
 export default function FeedPage() {
   const navigate = useNavigate();
-  const { clubs, loading, error } = useClubs();
 
-  const [posts, setPosts] = useState<PostWithMeta[]>([]);
+  const [items, setItems] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const next = await feedService.getPage(page, 10);
+      setItems(prev => [...prev, ...next]);
+      setPage(p => p + 1);
+      if (next.length < 10) setHasMore(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load feed';
+      setError(message);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [page, hasMore, loadingMore]);
+
   useEffect(() => {
-    setPosts(
-      clubs
-        .flatMap(club =>
-          club.posts.map(post => ({
-            ...post,
-            clubId: club.id,
-            clubName: club.name,
-            clubImage: club.image,
-            isJoined: club.isJoined,
-          }))
-        )
-        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-    );
-  }, [clubs]);
+    loadMore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // build events feed separately
-  const events: EventFeedItem[] = useMemo(
-    () =>
-      clubs.flatMap(club =>
-        club.events.map(ev => ({
-          type: 'event' as const,
-          clubId: club.id,
-          clubName: club.name,
-          clubImage: club.image,
-          isJoinedClub: club.isJoined,
-          id: ev.id,
-          title: ev.title,
-          date: ev.date,
-          time: ev.time,
-          location: ev.location,
-          description: ev.description,
-          joinedCount: ev.joined ?? ev.participants?.length ?? 0,
-          participants: ev.participants
-        }))
-      ),
-    [clubs]
+  const observer = useRef<IntersectionObserver | null>(null);
+  const loaderRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loadingMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMore();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loadingMore, hasMore, loadMore]
   );
 
-  // state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'events'>('recent');
   const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
-  // post filtering & sorting
-  const filteredPosts = useMemo(() => {
-    let arr = posts.filter(
-      p =>
-        p.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.clubName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.author.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (activeTab === 'popular') {
-      arr = [...arr].sort((a, b) => b.likes - a.likes);
-    }
-    return arr;
-  }, [posts, searchQuery, activeTab]);
-
-  // event filtering & sorting
-  const filteredEvents = useMemo(() => {
-    let evs = events.filter(e => {
-      const q = searchQuery.toLowerCase();
-      return (
-        e.title.toLowerCase().includes(q) ||
-        e.clubName.toLowerCase().includes(q) ||
-        (e.description?.toLowerCase().includes(q) ?? false)
-      );
-    });
-    if (activeTab === 'popular') {
-      evs = [...evs].sort((a, b) => b.joinedCount - a.joinedCount);
-    } else {
-      evs = [...evs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    }
-    return evs;
-  }, [events, searchQuery, activeTab]);
-
-  const toggleBookmark = async (post: PostWithMeta) => {
+  const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
     const isBookmarked = prev.has(post.id);
     if (isBookmarked) {
@@ -171,9 +117,18 @@ export default function FeedPage() {
     }
   };
 
+  const isEvent = (item: FeedItem): item is EventFeedItem =>
+    (item as any).type === 'event';
+
   const likePost = async (postId: string) => {
-    setPosts(prev =>
-      prev.map(p => (p.id === postId ? { ...p, likes: p.likes + 1 } : p))
+    setItems(prev =>
+      prev.map(item =>
+        isEvent(item)
+          ? item
+          : item.id === postId
+            ? { ...item, likes: item.likes + 1 }
+            : item
+      )
     );
     try {
       await clubService.likePost(postId);
@@ -206,176 +161,133 @@ export default function FeedPage() {
 
   return (
     <div className="flex space-x-6">
-      {/* Main Column */}
-      <main className="flex-1 space-y-6">
-        {/* Search */}
-        <div className="relative max-w-md">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder={activeTab === 'events' ? 'Search events...' : 'Search posts...'}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {/* Tabs */}
-        <nav className="border-b border-gray-200">
-          <ul className="flex space-x-4">
-            {(['recent', 'popular', 'events'] as const).map(tab => (
-              <li key={tab}>
-                <button
-                  onClick={() => setActiveTab(tab)}
-                  className={`pb-2 font-medium ${
-                    activeTab === tab
-                      ? 'border-b-2 border-orange-500 text-orange-600'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {tab === 'events' ? 'Events' : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Feed Content */}
-        {activeTab === 'events' ? (
-          <>
-            {filteredEvents.length === 0 && (
-              <p className="text-center text-gray-500">No events to show.</p>
-            )}
-            <div className="space-y-4">
-              {filteredEvents.map(ev => {
-                const key = `${ev.clubId}-${ev.id}`;
-                const joinedByUser = joinedEvents.has(key);
-                return (
-                  <div
-                    key={`event-${ev.clubId}-${ev.id}`}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">{ev.clubImage}</div>
-                        <div>
-                          <p className="font-medium text-gray-900">{ev.clubName}</p>
-                          <p className="text-sm text-gray-500">{ev.title}</p>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500 flex gap-3">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{ev.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{ev.location || 'TBA'}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {ev.description && (
-                      <p className="text-gray-700 mb-2">{ev.description}</p>
-                    )}
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="text-gray-500 flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <Share2 className="w-4 h-4" />
-                          <span className="text-sm">{ev.joinedCount} joined</span>
-                        </div>
-                      </div>
-                      <div>
-                        <Button
-                          onClick={() => handleJoinEvent(ev)}
-                          className={`px-4 py-2 rounded-lg text-sm ${
-                            joinedByUser
-                              ? 'bg-gray-200 text-gray-700 cursor-default'
-                              : 'bg-orange-500 text-white hover:bg-orange-600'
-                          }`}
-                        >
-                          {joinedByUser ? 'Joined' : 'Join'}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <>
-            {filteredPosts.length === 0 && (
-              <p className="text-center text-gray-500">No posts to show.</p>
-            )}
-            <div className="space-y-4">
-              {filteredPosts.map(post => (
+      <main className="flex-1 space-y-4">
+        {items.length === 0 && !loadingMore && (
+          <p className="text-center text-gray-500">No items to show.</p>
+        )}
+        <div className="space-y-4">
+          {items.map(item => {
+            if (isEvent(item)) {
+              const ev = item;
+              const key = `${ev.clubId}-${ev.id}`;
+              const joinedByUser = joinedEvents.has(key);
+              return (
                 <div
-                  key={`${post.clubId}-${post.id}`}
+                  key={`event-${ev.clubId}-${ev.id}`}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
                 >
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="text-lg">{post.clubImage}</div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{post.author}</p>
-                      <p className="text-sm text-gray-500">
-                        {post.clubName} • {formatDateTime(post.time)}
-                      </p>
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl">{ev.clubImage}</div>
+                      <div>
+                        <p className="font-medium text-gray-900">{ev.clubName}</p>
+                        <p className="text-sm text-gray-500">{ev.title}</p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 flex gap-3">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{ev.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{ev.location || 'TBA'}</span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Content */}
-                  <p className="text-gray-700 mb-3">{post.content}</p>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-6 text-gray-500 mb-2">
-                    <button
-                      className="flex items-center gap-1 hover:text-orange-500"
-                      onClick={() => {
-                        likePost(post.id);
-                        navigate(`/clubs/${post.clubId}/posts/${post.id}`);
-                      }}
-                    >
-                      <Heart className="w-4 h-4" />
-                      <span className="text-sm">{post.likes}</span>
-                    </button>
-                    <button
-                      className="flex items-center gap-1 hover:text-orange-500"
-                      onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span className="text-sm">{post.comments}</span>
-                    </button>
-                    <div className="relative">
-                      <button
-                        className="flex items-center gap-1 hover:text-orange-500"
-                        onClick={() =>
-                          setSharePostId(prev => (prev === post.id ? null : post.id))
-                        }
-                      >
+                  {ev.description && (
+                    <p className="text-gray-700 mb-2">{ev.description}</p>
+                  )}
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-gray-500 flex items-center gap-4">
+                      <div className="flex items-center gap-1">
                         <Share2 className="w-4 h-4" />
-                      </button>
-                      {sharePostId === post.id && (
-                        <SharePopup
-                          url={`${window.location.origin}/clubs/${post.clubId}/posts/${post.id}`}
-                          onClose={() => setSharePostId(null)}
-                        />
-                      )}
+                        <span className="text-sm">{ev.joinedCount} joined</span>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => toggleBookmark(post)}
-                      className="flex items-center gap-1 hover:text-orange-500"
-                    >
-                      <Bookmark className={`w-4 h-4 ${bookmarked.has(post.id) ? 'text-orange-500' : ''}`} />
-                    </button>
+                    <div>
+                      <Button
+                        onClick={() => handleJoinEvent(ev)}
+                        className={`px-4 py-2 rounded-lg text-sm ${
+                          joinedByUser
+                            ? 'bg-gray-200 text-gray-700 cursor-default'
+                            : 'bg-orange-500 text-white hover:bg-orange-600'
+                        }`}
+                      >
+                        {joinedByUser ? 'Joined' : 'Join'}
+                      </Button>
+                    </div>
                   </div>
-
-                  {/* Comments */}
-                  {/* Comments are handled in PostDetail view */}
                 </div>
-              ))}
-            </div>
-          </>
+              );
+            }
+
+            const post = item as FeedPost;
+            return (
+              <div
+                key={`${post.clubId}-${post.id}`}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="text-lg">{post.clubImage}</div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{post.author}</p>
+                    <p className="text-sm text-gray-500">
+                      {post.clubName} • {formatDateTime(post.time)}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-3">{post.content}</p>
+                <div className="flex items-center gap-6 text-gray-500 mb-2">
+                  <button
+                    className="flex items-center gap-1 hover:text-orange-500"
+                    onClick={() => {
+                      likePost(post.id);
+                      navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                    }}
+                  >
+                    <Heart className="w-4 h-4" />
+                    <span className="text-sm">{post.likes}</span>
+                  </button>
+                  <button
+                    className="flex items-center gap-1 hover:text-orange-500"
+                    onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="text-sm">{post.comments}</span>
+                  </button>
+                  <div className="relative">
+                    <button
+                      className="flex items-center gap-1 hover:text-orange-500"
+                      onClick={() =>
+                        setSharePostId(prev => (prev === post.id ? null : post.id))
+                      }
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    {sharePostId === post.id && (
+                      <SharePopup
+                        url={`${window.location.origin}/clubs/${post.clubId}/posts/${post.id}`}
+                        onClose={() => setSharePostId(null)}
+                      />
+                    )}
+                  </div>
+                  <button
+                    onClick={() => toggleBookmark(post)}
+                    className="flex items-center gap-1 hover:text-orange-500"
+                  >
+                    <Bookmark className={`w-4 h-4 ${bookmarked.has(post.id) ? 'text-orange-500' : ''}`} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div ref={loaderRef} />
+        {loadingMore && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+          </div>
         )}
       </main>
       {bookmarkError && (
