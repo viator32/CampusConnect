@@ -7,25 +7,11 @@ import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../../clubs/services/ClubService';
-import { feedService } from '../services/FeedService';
+import type { FeedItem, FeedEventItem } from '../services/FeedService';
+import type { FeedPost } from '../services/dummyData';
 import { formatDateTime } from '../../../utils/date';
 
-type PostWithMeta = {
-  clubId: string;
-  clubName: string;
-  clubImage: string;
-  isJoined: boolean;
-} & {
-  id: string;
-  author: string;
-  content: string;
-  likes: number;
-  comments: number;
-  time: string;
-};
-
-type EventFeedItem = {
-  type: 'event';
+interface EventFeedItem extends FeedEventItem {
   clubId: string;
   clubName: string;
   clubImage: string;
@@ -38,12 +24,12 @@ type EventFeedItem = {
   description?: string;
   joinedCount: number;
   participants?: { id: number; name: string; surname: string; email: string }[];
-};
+}
 
 export default function FeedPage() {
   const navigate = useNavigate();
 
-  const [items, setItems] = useState<(PostWithMeta | EventFeedItem)[]>([]);
+  const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -93,7 +79,7 @@ export default function FeedPage() {
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
-  const toggleBookmark = async (post: PostWithMeta) => {
+  const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
     const isBookmarked = prev.has(post.id);
     if (isBookmarked) {
@@ -131,13 +117,16 @@ export default function FeedPage() {
     }
   };
 
+  const isEvent = (item: FeedItem): item is EventFeedItem =>
+    (item as any).type === 'event';
+
   const likePost = async (postId: string) => {
     setItems(prev =>
       prev.map(item =>
-        (item as any).type === 'event'
+        isEvent(item)
           ? item
-          : (item as PostWithMeta).id === postId
-            ? { ...(item as PostWithMeta), likes: (item as PostWithMeta).likes + 1 }
+          : item.id === postId
+            ? { ...item, likes: item.likes + 1 }
             : item
       )
     );
@@ -178,8 +167,8 @@ export default function FeedPage() {
         )}
         <div className="space-y-4">
           {items.map(item => {
-            if ((item as any).type === 'event') {
-              const ev = item as EventFeedItem;
+            if (isEvent(item)) {
+              const ev = item;
               const key = `${ev.clubId}-${ev.id}`;
               const joinedByUser = joinedEvents.has(key);
               return (
@@ -233,7 +222,7 @@ export default function FeedPage() {
               );
             }
 
-            const post = item as PostWithMeta;
+            const post = item as FeedPost;
             return (
               <div
                 key={`${post.clubId}-${post.id}`}
