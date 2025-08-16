@@ -11,12 +11,23 @@ export type FeedItem = FeedPost | FeedEventItem;
 
 export class FeedService extends BaseService {
   async getPage(page = 0, size = 10): Promise<FeedItem[]> {
-    const res = await this.api.request<FeedItem[] | { content?: FeedItem[] }>(
-      `/feed?page=${page}&size=${size}`
-    );
+    const res = await this.api.request<
+      | FeedItem[]
+      | { content?: FeedItem[] }
+      | { posts?: FeedPost[]; events?: FeedEventItem[] }
+    >(`/feed?page=${page}&size=${size}`);
 
     if (Array.isArray(res)) return res;
-    if (res && Array.isArray(res.content)) return res.content;
+
+    if (res && Array.isArray((res as any).content)) {
+      return (res as any).content;
+    }
+
+    const posts = Array.isArray((res as any)?.posts) ? (res as any).posts : [];
+    const events = Array.isArray((res as any)?.events) ? (res as any).events : [];
+    if (posts.length > 0 || events.length > 0) {
+      return [...posts, ...events];
+    }
 
     throw new Error('Invalid feed response');
   }
