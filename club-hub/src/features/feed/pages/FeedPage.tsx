@@ -45,9 +45,9 @@ export default function FeedPage() {
       setItems(prev => [...prev, ...next]);
       setPage(p => p + 1);
       if (next.length < 10) setHasMore(false);
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to load feed');
-      setHasMore(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load feed';
+      setError(message);
     } finally {
       setLoading(false);
       setLoadingMore(false);
