@@ -7,7 +7,7 @@ import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../../clubs/services/ClubService';
-import type { FeedItem, FeedEventItem } from '../services/FeedService';
+import { type FeedItem, type FeedEventItem, feedService } from '../services/FeedService';
 import type { FeedPost } from '../services/dummyData';
 import { formatDateTime } from '../../../utils/date';
 
