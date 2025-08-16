@@ -42,7 +42,20 @@ export default function FeedPage() {
     setError(null);
     try {
       const next = await feedService.getPage(page, 10);
-      setItems(prev => [...prev, ...next]);
+      setItems(prev => {
+        const existing = new Set(
+          prev.map(i => (isEvent(i) ? `event-${i.id}` : (i as FeedPost).id))
+        );
+        const filtered = next.filter(item => {
+          const key = isEvent(item)
+            ? `event-${item.id}`
+            : (item as FeedPost).id;
+          if (existing.has(key)) return false;
+          existing.add(key);
+          return true;
+        });
+        return [...prev, ...filtered];
+      });
       setPage(p => p + 1);
       if (next.length < 10) setHasMore(false);
     } catch (err) {
@@ -52,7 +65,7 @@ export default function FeedPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [page, hasMore, loadingMore]);
+  }, [page, hasMore, loadingMore, isEvent]);
 
   useEffect(() => {
     loadMore();
@@ -166,14 +179,14 @@ export default function FeedPage() {
           <p className="text-center text-gray-500">No items to show.</p>
         )}
         <div className="space-y-4">
-          {items.map(item => {
+          {items.map((item, index) => {
             if (isEvent(item)) {
               const ev = item;
               const key = `${ev.clubId}-${ev.id}`;
               const joinedByUser = joinedEvents.has(key);
               return (
                 <div
-                  key={`event-${ev.clubId}-${ev.id}`}
+                  key={`event-${ev.clubId ?? 'unknown'}-${ev.id}-${index}`}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
                 >
                   <div className="flex justify-between items-start mb-2">
@@ -225,7 +238,7 @@ export default function FeedPage() {
             const post = item as FeedPost;
             return (
               <div
-                key={`${post.clubId}-${post.id}`}
+                key={`${post.clubId ?? 'unknown'}-${post.id}-${index}`}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
               >
                 <div className="flex items-center gap-3 mb-2">
