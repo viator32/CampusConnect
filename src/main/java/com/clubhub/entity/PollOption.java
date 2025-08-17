@@ -1,5 +1,6 @@
 package com.clubhub.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import lombok.Getter;
@@ -11,6 +12,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PollOption {
-	private String text;
-	private int votes;
+        @Column(name = "option_text")
+        private String text;
+
+        private int votes;
 }

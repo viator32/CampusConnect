@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@Table(name = "event")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,10 +35,16 @@ public class Event {
 	private UUID id;
 
 	private String title;
-	private String description;
-	private LocalDate date;
-	private String time;
-	private LocalDateTime createdAt;
+        private String description;
+
+        @Column(name = "date")
+        private LocalDate date;
+
+        @Column(name = "time")
+        private String time;
+
+        @Column(name = "created_at")
+        private LocalDateTime createdAt;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

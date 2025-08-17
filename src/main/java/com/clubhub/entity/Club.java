@@ -37,10 +37,13 @@ public class Club {
 
 	private String location;
 
-	private String category;
-	private String image;
-	private boolean isJoined;
-	private int members;
+        private String category;
+        private String image;
+
+        @Column(name = "is_joined")
+        private boolean isJoined;
+
+        private int members;
 
 	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Event> events = new HashSet<>();

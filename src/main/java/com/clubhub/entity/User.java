@@ -41,11 +41,11 @@ public class User {
 	@Column(nullable = false)
 	private String username; // z. B. MaxM
 
-	@Column(nullable = false)
-	private String passwordHash;
+        @Column(name = "password_hash", nullable = false)
+        private String passwordHash;
 
-	@Column(nullable = true)
-	private String studentId; // Optional: Matrikelnummer oder Ähnliches
+        @Column(name = "student_id")
+        private String studentId; // Optional: Matrikelnummer oder Ähnliches
 
 	@ManyToMany
 	@JoinTable(name = "user_club", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "club_id"))

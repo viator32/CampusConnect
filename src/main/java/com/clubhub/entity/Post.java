@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +27,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@Table(name = "post")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,10 +42,13 @@ public class Post {
 	private String content;
 	private int likes;
 	private int comments;
-	private int bookmarks;
-	private int shares;
-	private LocalDateTime time;
-	private String photo;
+        private int bookmarks;
+        private int shares;
+
+        @Column(name = "time")
+        private LocalDateTime time;
+
+        private String photo;
 
 	@Embedded
 	private Poll poll;
