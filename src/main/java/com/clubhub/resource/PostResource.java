@@ -1,6 +1,7 @@
 package com.clubhub.resource;
 
 import java.util.UUID;
+import java.util.List;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -23,6 +24,10 @@ public interface PostResource {
         @GET
         @Path("/posts/{postId}")
         PostDTO getPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+
+        @GET
+        @Path("/posts/bookmarks")
+        List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx);
 
 	@POST
 	@Path("/posts/{postId}/like")

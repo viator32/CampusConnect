@@ -31,7 +31,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "club", "commentsList", "likedBy" })
+@ToString(exclude = { "club", "commentsList", "likedBy", "bookmarkedBy" })
 public class Post {
 
 	@Id
@@ -56,9 +56,13 @@ public class Post {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<Comment> commentsList = new ArrayList<>();
 
-	@ManyToMany
-	@JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-	private Set<User> likedBy = new HashSet<>();
+        @ManyToMany
+        @JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> likedBy = new HashSet<>();
+
+        @ManyToMany
+        @JoinTable(name = "post_bookmarks", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> bookmarkedBy = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")
