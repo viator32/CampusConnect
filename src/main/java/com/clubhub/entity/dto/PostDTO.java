@@ -13,11 +13,13 @@ public class PostDTO {
 	public int likes;
 	public int comments;
 	public int bookmarks;
-	public int shares;
-	public LocalDateTime time;
-	public String photo;
+        public int shares;
+        public LocalDateTime time;
+        public String photo;
 
-	public PollDTO poll;
-	public List<CommentDTO> commentsList = new ArrayList<>();
+        public PollDTO poll;
+        public List<CommentDTO> commentsList = new ArrayList<>();
+
+        public ClubDTO club;
 
 }

@@ -63,19 +63,23 @@ public class ClubMapper {
 		return club;
 	}
 
-	public static EventDTO toDTO(Event e) {
-		EventDTO dto = new EventDTO();
-		dto.id = e.getId();
-		dto.title = e.getTitle();
-		dto.description = e.getDescription();
-		dto.date = e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null;
-		dto.time = e.getTime();
-		return dto;
-	}
+        public static EventDTO toDTO(Event e) {
+                EventDTO dto = new EventDTO();
+                dto.id = e.getId();
+                dto.title = e.getTitle();
+                dto.description = e.getDescription();
+                dto.date = e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null;
+                dto.time = e.getTime();
+                dto.createdAt = e.getCreatedAt();
+                dto.clubId = e.getClub() != null ? e.getClub().getId() : null;
+                dto.attendees = e.getAttendees() != null ? e.getAttendees().size() : 0;
+                dto.club = e.getClub() != null ? toSummaryDTO(e.getClub()) : null;
+                return dto;
+        }
 
-	public static PostDTO toDTO(Post p) {
-		PostDTO dto = new PostDTO();
-		dto.id = p.getId();
+        public static PostDTO toDTO(Post p) {
+                PostDTO dto = new PostDTO();
+                dto.id = p.getId();
 		dto.author = p.getAuthor();
 		dto.content = p.getContent();
 		dto.likes = p.getLikes();
@@ -83,12 +87,13 @@ public class ClubMapper {
 		dto.bookmarks = p.getBookmarks();
 		dto.shares = p.getShares();
 		dto.time = p.getTime();
-		dto.photo = p.getPhoto();
+                dto.photo = p.getPhoto();
 
-		dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
-		dto.commentsList = p.getCommentsList().stream().map(ClubMapper::toDTO).toList();
-		return dto;
-	}
+                dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
+                dto.commentsList = p.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+                dto.club = p.getClub() != null ? toSummaryDTO(p.getClub()) : null;
+                return dto;
+        }
 
 	public static PollDTO toDTO(Poll poll) {
 		PollDTO dto = new PollDTO();
