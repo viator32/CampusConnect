@@ -1,5 +1,6 @@
 package com.clubhub.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,10 +27,20 @@ public class EventRepository {
 		return em.merge(event);
 	}
 
-	public void delete(UUID id) {
-		Event e = em.find(Event.class, id);
-		if (e != null) {
-			em.remove(e);
-		}
-	}
+    public void delete(UUID id) {
+        Event e = em.find(Event.class, id);
+        if (e != null) {
+            em.remove(e);
+        }
+    }
+
+    public List<Event> findFeedForUser(UUID userId, int page, int size) {
+        String jpql = "SELECT e FROM Event e JOIN e.club c JOIN c.membersList m "
+                + "WHERE m.user.id = :userId AND e.createdAt >= m.joinedAt ORDER BY e.createdAt DESC";
+        return em.createQuery(jpql, Event.class)
+                .setParameter("userId", userId)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
 }

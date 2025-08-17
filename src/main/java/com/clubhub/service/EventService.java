@@ -1,10 +1,8 @@
 package com.clubhub.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.Comparator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -77,22 +75,8 @@ public class EventService {
     }
 
     public List<Event> getFeedForUser(UUID userId, int page, int size) {
-        User user = userService.getUserById(userId);
-        List<Event> feed = new ArrayList<>();
-        for (Member m : user.getMemberships()) {
-            LocalDateTime joined = m.getJoinedAt();
-            for (Event e : m.getClub().getEvents()) {
-                LocalDateTime created = e.getCreatedAt();
-                if (joined != null && created != null && !created.isBefore(joined)) {
-                    feed.add(e);
-                }
-            }
-        }
-        return feed.stream()
-                .sorted(Comparator.comparing(Event::getCreatedAt).reversed())
-                .skip((long) page * size)
-                .limit(size)
-                .toList();
+        userService.getUserById(userId);
+        return eventRepository.findFeedForUser(userId, page, size);
     }
 
     @Transactional
