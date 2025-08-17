@@ -97,8 +97,12 @@ public class PostService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        p.setBookmarks(p.getBookmarks() + 1);
-        postRepository.update(p);
+        User user = userService.getUserById(userId);
+        if (!postRepository.hasUserBookmarkedPost(postId, userId)) {
+            p.getBookmarkedBy().add(user);
+            p.setBookmarks(p.getBookmarkedBy().size());
+            postRepository.update(p);
+        }
     }
 
     @Transactional
@@ -121,6 +125,11 @@ public class PostService {
     public List<Post> getFeedForUser(UUID userId, int page, int size) {
         userService.getUserById(userId);
         return postRepository.findFeedForUser(userId, page, size);
+    }
+
+    public List<Post> getBookmarkedPosts(UUID userId) {
+        userService.getUserById(userId);
+        return postRepository.findBookmarkedPostsByUser(userId);
     }
 
     @Transactional

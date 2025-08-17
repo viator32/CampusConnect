@@ -56,4 +56,24 @@ public class PostRepository {
                                 .getSingleResult();
                 return count > 0;
         }
+
+        public boolean hasUserBookmarkedPost(UUID postId, UUID userId) {
+                Long count = em.createQuery("""
+                                SELECT COUNT(p)
+                                FROM Post p
+                                JOIN p.bookmarkedBy u
+                                WHERE p.id = :postId AND u.id = :userId
+                                """, Long.class)
+                                .setParameter("postId", postId)
+                                .setParameter("userId", userId)
+                                .getSingleResult();
+                return count > 0;
+        }
+
+        public List<Post> findBookmarkedPostsByUser(UUID userId) {
+                String jpql = "SELECT p FROM Post p JOIN p.bookmarkedBy u WHERE u.id = :userId ORDER BY p.time DESC";
+                return em.createQuery(jpql, Post.class)
+                                .setParameter("userId", userId)
+                                .getResultList();
+        }
 }

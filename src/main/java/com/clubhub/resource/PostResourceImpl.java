@@ -1,5 +1,6 @@
 package com.clubhub.resource;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -45,6 +46,12 @@ public class PostResourceImpl implements PostResource {
                                         .build());
                 }
                 return ClubMapper.toDTO(post);
+        }
+
+        @Override
+        public List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                return postService.getBookmarkedPosts(userId).stream().map(ClubMapper::toDTO).toList();
         }
 
         @Override
