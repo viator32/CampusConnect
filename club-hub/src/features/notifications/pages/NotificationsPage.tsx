@@ -6,8 +6,7 @@ import {
   Info,
   XCircle
 } from 'lucide-react';
-import { notificationsService } from '../services/NotificationsService';
-import type { Notification as NotificationType } from '../services/dummyData';
+import { notificationsService, type Notification as NotificationType } from '../services/NotificationsService';
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationType[]>([]);

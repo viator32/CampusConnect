@@ -1,15 +1,23 @@
 // src/features/bookmarks/services/BookmarksService.ts
 import { BaseService } from '../../../services/BaseService';
-import { BookmarkedPost, dummyBookmarks } from './dummyData';
+
+export interface BookmarkedPost {
+  id: string;
+  author: string;
+  content: string;
+  time: string;
+  likes: number;
+  comments: number;
+  clubId?: string;
+  clubName?: string;
+  clubImage?: string;
+}
 
 export class BookmarksService extends BaseService {
   async getAll(): Promise<BookmarkedPost[]> {
     // TODO: replace '/bookmarks' with backend endpoint
     await this.api.request('/bookmarks');
-    // TODO: remove dummy data once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => resolve(dummyBookmarks), 200)
-    );
+    return [];
   }
 
   async add(post: BookmarkedPost): Promise<void> {
@@ -19,13 +27,6 @@ export class BookmarksService extends BaseService {
       method: 'POST',
       body: JSON.stringify(payload)
     });
-    // TODO: remove dummy mutation once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => {
-        dummyBookmarks.push(post);
-        resolve();
-      }, 200)
-    );
   }
 
   async remove(id: string): Promise<void> {
@@ -35,14 +36,6 @@ export class BookmarksService extends BaseService {
       method: 'DELETE',
       body: JSON.stringify(payload)
     });
-    // TODO: remove dummy mutation once API is integrated
-    return new Promise(resolve =>
-      setTimeout(() => {
-        const index = dummyBookmarks.findIndex(b => b.id === id);
-        if (index !== -1) dummyBookmarks.splice(index, 1);
-        resolve();
-      }, 200)
-    );
   }
 }
 

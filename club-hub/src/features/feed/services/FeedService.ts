@@ -1,6 +1,18 @@
 import { BaseService } from '../../../services/BaseService';
 import type { Comment } from '../../clubs/types';
-import type { FeedPost } from './dummyData'; // keep your type
+
+export interface FeedPost {
+  id: string;
+  clubId: string;
+  clubName: string;
+  clubImage: string;
+  author: string;
+  content: string;
+  likes: number;
+  comments: number;
+  time: string;
+  commentsList?: Comment[];
+}
 
 export interface FeedEventItem {
   type: 'event';
