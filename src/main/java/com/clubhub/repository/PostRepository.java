@@ -1,5 +1,6 @@
 package com.clubhub.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,14 +23,37 @@ public class PostRepository {
 		return em.find(Post.class, id);
 	}
 
-	public Post update(Post post) {
-		return em.merge(post);
-	}
+        public Post update(Post post) {
+                return em.merge(post);
+        }
 
-	public void delete(UUID id) {
-		Post p = em.find(Post.class, id);
-		if (p != null) {
-			em.remove(p);
-		}
-	}
+        public void delete(UUID id) {
+                Post p = em.find(Post.class, id);
+                if (p != null) {
+                        em.remove(p);
+                }
+        }
+
+        public List<Post> findFeedForUser(UUID userId, int page, int size) {
+                String jpql = "SELECT p FROM Post p JOIN p.club c JOIN c.membersList m WHERE m.user.id = :userId "
+                                + "AND p.time >= m.joinedAt ORDER BY p.time DESC";
+                return em.createQuery(jpql, Post.class)
+                                .setParameter("userId", userId)
+                                .setFirstResult(page * size)
+                                .setMaxResults(size)
+                                .getResultList();
+        }
+
+        public boolean hasUserLikedPost(UUID postId, UUID userId) {
+                Long count = em.createQuery("""
+                                SELECT COUNT(p)
+                                FROM Post p
+                                JOIN p.likedBy u
+                                WHERE p.id = :postId AND u.id = :userId
+                                """, Long.class)
+                                .setParameter("postId", postId)
+                                .setParameter("userId", userId)
+                                .getSingleResult();
+                return count > 0;
+        }
 }

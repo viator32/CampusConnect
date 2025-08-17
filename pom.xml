@@ -73,15 +73,21 @@
 			<artifactId>quarkus-rest-client-jackson</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-rest-jackson</artifactId>
-		</dependency>
+                <dependency>
+                        <groupId>io.quarkus</groupId>
+                        <artifactId>quarkus-rest-jackson</artifactId>
+                </dependency>
 
-		<!-- Test Dependencies -->
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-junit5</artifactId>
+                <!-- Database migration -->
+                <dependency>
+                        <groupId>io.quarkus</groupId>
+                        <artifactId>quarkus-flyway</artifactId>
+                </dependency>
+
+                <!-- Test Dependencies -->
+                <dependency>
+                        <groupId>io.quarkus</groupId>
+                        <artifactId>quarkus-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -153,9 +159,19 @@
 						<maven.home>${maven.home}</maven.home>
 					</systemPropertyVariables>
 				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                        </plugin>
+                        <plugin>
+                                <groupId>org.flywaydb</groupId>
+                                <artifactId>flyway-maven-plugin</artifactId>
+                                <version>9.22.2</version>
+                                <configuration>
+                                        <url>${env.DB_URL}</url>
+                                        <user>${env.DB_USER}</user>
+                                        <password>${env.DB_PASSWORD}</password>
+                                </configuration>
+                        </plugin>
+                </plugins>
+        </build>
 
 	<profiles>
 		<profile>

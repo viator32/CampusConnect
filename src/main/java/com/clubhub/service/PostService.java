@@ -1,10 +1,7 @@
 package com.clubhub.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.Comparator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +18,7 @@ import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
 import com.clubhub.exception.NotFoundException;
 import com.clubhub.exception.ValidationException;
+import com.clubhub.repository.MemberRepository;
 import com.clubhub.repository.PostRepository;
 
 @ApplicationScoped
@@ -37,6 +35,9 @@ public class PostService {
 
     @Inject
     ClubService clubService;
+
+    @Inject
+    MemberRepository memberRepository;
 
     @Transactional
     public Post createPost(UUID clubId, Post post) {
@@ -66,8 +67,7 @@ public class PostService {
     public void like(UUID postId, UUID userId) {
         Post p = getPost(postId);
         User user = userService.getUserById(userId);
-        boolean isMember = p.getClub().getMembersList().stream()
-                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
         if (!isMember) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
@@ -77,9 +77,7 @@ public class PostService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        boolean alreadyLiked = p.getLikedBy().stream()
-                .anyMatch(u -> u.getId().equals(userId));
-        if (!alreadyLiked) {
+        if (!postRepository.hasUserLikedPost(postId, userId)) {
             p.getLikedBy().add(user);
             p.setLikes(p.getLikedBy().size());
             postRepository.update(p);
@@ -89,8 +87,7 @@ public class PostService {
     @Transactional
     public void bookmark(UUID postId, UUID userId) {
         Post p = getPost(postId);
-        boolean isMember = p.getClub().getMembersList().stream()
-                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
         if (!isMember) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
@@ -107,8 +104,7 @@ public class PostService {
     @Transactional
     public void share(UUID postId, UUID userId) {
         Post p = getPost(postId);
-        boolean isMember = p.getClub().getMembersList().stream()
-                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
         if (!isMember) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
@@ -123,22 +119,8 @@ public class PostService {
     }
 
     public List<Post> getFeedForUser(UUID userId, int page, int size) {
-        User user = userService.getUserById(userId);
-        List<Post> feed = new ArrayList<>();
-        for (Member m : user.getMemberships()) {
-            LocalDateTime joined = m.getJoinedAt();
-            for (Post p : m.getClub().getPosts()) {
-                LocalDateTime postTime = p.getTime();
-                if (joined != null && postTime != null && !postTime.isBefore(joined)) {
-                    feed.add(p);
-                }
-            }
-        }
-        return feed.stream()
-                .sorted(Comparator.comparing(Post::getTime).reversed())
-                .skip((long) page * size)
-                .limit(size)
-                .toList();
+        userService.getUserById(userId);
+        return postRepository.findFeedForUser(userId, page, size);
     }
 
     @Transactional
@@ -154,9 +136,7 @@ public class PostService {
                     .build());
         }
         User user = userService.getUserById(userId);
-        Member membership = post.getClub().getMembersList().stream()
-                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
-                .findFirst().orElse(null);
+        Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
         if (membership == null) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
@@ -194,9 +174,7 @@ public class PostService {
                     .build());
         }
         User user = userService.getUserById(userId);
-        Member membership = post.getClub().getMembersList().stream()
-                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
-                .findFirst().orElse(null);
+        Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
         if (membership == null) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
