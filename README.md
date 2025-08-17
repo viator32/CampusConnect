@@ -39,6 +39,13 @@ Alternatively, start the application directly (requires a running PostgreSQL ins
 ./mvnw quarkus:dev
 ```
 
+### Database migrations
+
+Schema changes are managed with [Flyway](https://flywaydb.org/). Migration scripts
+reside in `src/main/resources/db/migration` and are executed automatically on
+application startup. When modifying the database schema, create a new migration
+script following the `V<version>__description.sql` naming convention.
+
 ## Roles and Permissions
 
 Each club member is assigned one of the following roles, which determine what actions are allowed inside a club:
@@ -294,6 +301,22 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```
   Returns posts and events from clubs the user follows. Pagination is controlled
   via `page` (default `0`) and `size` (default `10`) query parameters.
+
+### Posts
+
+- **Get post** – `GET /api/posts/{postId}`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/posts/<postId>
+  ```
+
+- **List bookmarked posts** – `GET /api/posts/bookmarks`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/posts/bookmarks
+  ```
 
 ### Post actions
 
