@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Bookmark, Heart, MessageCircle, Share2 } from 'lucide-react';
-import { bookmarksService } from '../services/BookmarksService';
-import type { BookmarkedPost } from '../services/dummyData';
+import { bookmarksService, type BookmarkedPost } from '../services/BookmarksService';
 import Toast from '../../../components/Toast';
 
 export default function BookmarksPage() {
