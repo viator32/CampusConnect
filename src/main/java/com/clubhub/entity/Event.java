@@ -35,16 +35,16 @@ public class Event {
 	private UUID id;
 
 	private String title;
-        private String description;
+	private String description;
 
-        @Column(name = "date")
-        private LocalDate date;
+	@Column(name = "date")
+	private LocalDate date;
 
-        @Column(name = "time")
-        private String time;
+	@Column(name = "time")
+	private String time;
 
-        @Column(name = "created_at")
-        private LocalDateTime createdAt;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")
