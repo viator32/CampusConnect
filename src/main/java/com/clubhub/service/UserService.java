@@ -13,10 +13,14 @@ import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.clubhub.entity.User;
+import com.clubhub.entity.dto.UserDTO;
+import com.clubhub.entity.mapper.UserMapper;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
 import com.clubhub.exception.NotFoundException;
 import com.clubhub.exception.UnauthorizedException;
+import com.clubhub.repository.EventRepository;
+import com.clubhub.repository.PostRepository;
 import com.clubhub.repository.UserRepository;
 
 @ApplicationScoped
@@ -25,12 +29,27 @@ public class UserService {
         @Inject
         UserRepository userRepository;
 
+        @Inject
+        EventRepository eventRepository;
+
+        @Inject
+        PostRepository postRepository;
+
         @ConfigProperty(name = "auth.pepper")
         String pepper;
 
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
-	}
+        public List<User> getAllUsers() {
+                return userRepository.findAll();
+        }
+
+        public List<UserDTO> getAllUserProfiles() {
+                return userRepository.findAll().stream().map(u -> {
+                        UserDTO dto = UserMapper.toDTO(u);
+                        dto.eventsAttended = eventRepository.countEventsAttendedByUser(u.getId());
+                        dto.postsCreated = postRepository.countPostsByAuthor(u.getUsername());
+                        return dto;
+                }).toList();
+        }
 
         public User getUserById(UUID id) {
                 User user = userRepository.findById(id);
@@ -44,6 +63,14 @@ public class UserService {
                                         .build());
                 }
                 return user;
+        }
+
+        public UserDTO getUserProfile(UUID id) {
+                User user = getUserById(id);
+                UserDTO dto = UserMapper.toDTO(user);
+                dto.eventsAttended = eventRepository.countEventsAttendedByUser(id);
+                dto.postsCreated = postRepository.countPostsByAuthor(user.getUsername());
+                return dto;
         }
 
         public User getUserByEmail(String email) {

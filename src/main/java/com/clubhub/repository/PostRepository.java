@@ -76,4 +76,10 @@ public class PostRepository {
                                 .setParameter("userId", userId)
                                 .getResultList();
         }
+
+        public long countPostsByAuthor(String username) {
+                return em.createQuery("SELECT COUNT(p) FROM Post p WHERE p.author = :username", Long.class)
+                                .setParameter("username", username)
+                                .getSingleResult();
+        }
 }

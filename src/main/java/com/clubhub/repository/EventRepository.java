@@ -43,4 +43,12 @@ public class EventRepository {
                 .setMaxResults(size)
                 .getResultList();
     }
+
+    public long countEventsAttendedByUser(UUID userId) {
+        return em.createQuery(
+                "SELECT COUNT(e) FROM Event e JOIN e.attendees u WHERE u.id = :userId",
+                Long.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
+    }
 }
