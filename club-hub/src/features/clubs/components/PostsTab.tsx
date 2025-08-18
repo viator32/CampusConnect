@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import { Club, Post } from '../types';
 import {
   MessageCircle,
@@ -28,24 +28,26 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [options, setOptions]   = useState<string[]>(['','']);
   const [error, setError]       = useState<string|null>(null);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [sharePostId, setSharePostId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLikedPosts(club.posts.filter((p: any) => p.liked).map(p => p.id));
+  }, [club.posts]);
+
+  useEffect(() => {
+    bookmarksService
+      .getAll()
+      .then(list => setBookmarks(list.map(b => b.id)))
+      .catch(() => {});
+  }, []);
 
   const toggleBookmark = async (post: Post) => {
     if (bookmarks.includes(post.id)) {
       await bookmarksService.remove(post.id);
       setBookmarks(b => b.filter(x => x !== post.id));
     } else {
-      await bookmarksService.add({
-        id: post.id,
-        author: post.author,
-        content: post.content,
-        time: post.time,
-        likes: post.likes,
-        comments: post.comments,
-        clubId: club.id,
-        clubName: club.name,
-        clubImage: club.image
-      });
+      await bookmarksService.add(post.id);
       setBookmarks(b => [...b, post.id]);
     }
   };
@@ -87,16 +89,20 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   };
 
   const handleLike = async (post: Post) => {
+    const isLiked = likedPosts.includes(post.id);
+    onClubUpdate({
+      ...club,
+      posts: club.posts.map(p =>
+        p.id === post.id ? { ...p, likes: p.likes + (isLiked ? -1 : 1) } : p
+      ),
+    });
     try {
-      await clubService.likePost(post.id);
-    } catch {
-      // ignore backend parse errors
-    }
-
-    try {
-      const posts = await clubService.listPosts(club.id);
-      onClubUpdate({ ...club, posts });
+      if (isLiked) await clubService.unlikePost(post.id);
+      else await clubService.likePost(post.id);
     } catch {}
+    setLikedPosts(prev =>
+      isLiked ? prev.filter(id => id !== post.id) : [...prev, post.id]
+    );
   };
 
   return (
@@ -207,7 +213,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                 className="flex items-center gap-1 hover:text-orange-500"
                 onClick={() => handleLike(post)}
               >
-                <Heart className="w-4 h-4" /><span className="text-sm">{post.likes}</span>
+                <Heart className={`w-4 h-4 ${likedPosts.includes(post.id) ? 'text-orange-500' : ''}`} />
+                <span className="text-sm">{post.likes}</span>
               </button>
               <button
                 className="flex items-center gap-1 hover:text-orange-500"

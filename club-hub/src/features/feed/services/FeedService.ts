@@ -9,6 +9,7 @@ export interface FeedPost {
   author: string;
   content: string;
   likes: number;
+  liked?: boolean;
   comments: number;
   time: string;
   commentsList?: Comment[];
@@ -46,6 +47,7 @@ export class FeedService extends BaseService {
       author: p.author,
       content: p.content,
       likes: p.likes ?? 0,
+      liked: p.liked ?? p.likedByUser ?? p.likedByMe ?? false,
       comments: p.comments ?? 0,
       time: p.time,
       commentsList: p.commentsList ?? [],
