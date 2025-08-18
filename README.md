@@ -60,7 +60,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 ### Authentication
 
-- **Register** – `POST /api/auth/register`
+- **Register** – `POST /api/auth/register` (201 Created)
 
   ```bash
   curl -X POST http://localhost:8080/api/auth/register \
@@ -68,7 +68,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"email":"user@study.thws.de","username":"alice","password":"secret"}'
   ```
 
-- **Login** – `POST /api/auth/login`
+- **Login** – `POST /api/auth/login` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/auth/login \
@@ -76,7 +76,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"email":"user@study.thws.de","password":"secret"}'
   ```
 
-- **Refresh token** – `POST /api/auth/refresh`
+- **Refresh token** – `POST /api/auth/refresh` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/auth/refresh \
@@ -84,7 +84,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"token":"<jwt>"}'
   ```
 
-- **Logout** – `POST /api/auth/logout`
+- **Logout** – `POST /api/auth/logout` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/auth/logout \
@@ -94,27 +94,27 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 ### Users
 
-- **List users** – `GET /api/users`
+- **List users** – `GET /api/users` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" http://localhost:8080/api/users
   ```
 
-- **Get current user** – `GET /api/users/me`
+- **Get current user** – `GET /api/users/me` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/users/me
   ```
 
-- **Get user** – `GET /api/users/{id}`
+- **Get user** – `GET /api/users/{id}` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/users/<userId>
   ```
 
-- **Update user** – `PUT /api/users/{id}`
+- **Update user** – `PUT /api/users/{id}` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId> \
@@ -123,7 +123,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"username":"newName"}'
   ```
 
-- **Update avatar** – `PUT /api/users/{id}/avatar`
+- **Update avatar** – `PUT /api/users/{id}/avatar` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/avatar \
@@ -132,7 +132,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"avatar":"<base64-encoded-image>"}'
   ```
 
-- **Update description** – `PUT /api/users/{id}/description`
+- **Update description** – `PUT /api/users/{id}/description` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/description \
@@ -141,7 +141,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"description":"New bio"}'
   ```
 
-- **Update preference** – `PUT /api/users/{id}/preference`
+- **Update preference** – `PUT /api/users/{id}/preference` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/preference \
@@ -150,7 +150,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"preference":"PROGRAMMING"}'
   ```
 
-- **Update subject** – `PUT /api/users/{id}/subject`
+- **Update subject** – `PUT /api/users/{id}/subject` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/subject \
@@ -159,7 +159,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"subject":"COMPUTER_SCIENCE"}'
   ```
 
-- **Delete user** – `DELETE /api/users/{id}`
+- **Delete user** – `DELETE /api/users/{id}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
@@ -168,20 +168,20 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 ### Clubs
 
-- **List clubs** – `GET /api/clubs`
+- **List clubs** – `GET /api/clubs` (200 OK)
 
   ```bash
   curl http://localhost:8080/api/clubs
   ```
 
-- **Get club** – `GET /api/clubs/{id}`
+- **Get club** – `GET /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>
   ```
 
-- **Create club** – `POST /api/clubs`
+- **Create club** – `POST /api/clubs` (201 Created)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs \
@@ -190,7 +190,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"name":"Chess Club","description":"Play chess","category":"Games","image":""}'
   ```
 
-- **Update club** – `PUT /api/clubs/{id}`
+- **Update club** – `PUT /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId> \
@@ -199,28 +199,28 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"description":"Updated description"}'
   ```
 
-- **Delete club** – `DELETE /api/clubs/{id}`
+- **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>
   ```
 
-- **Join club** – `POST /api/clubs/{clubId}/join`
+- **Join club** – `POST /api/clubs/{clubId}/join` (200 OK)
 
   ```bash
   curl -X POST -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/join
   ```
 
-- **Leave club** – `POST /api/clubs/{clubId}/leave`
+- **Leave club** – `POST /api/clubs/{clubId}/leave` (200 OK)
 
   ```bash
   curl -X POST -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/leave
   ```
 
-- **Update member role** – `PUT /api/clubs/{clubId}/members/{memberId}/role`
+- **Update member role** – `PUT /api/clubs/{clubId}/members/{memberId}/role` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/members/<memberId>/role \
@@ -229,14 +229,14 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"role":"ADMIN"}'
   ```
 
-- **List posts of a club** – `GET /api/clubs/{clubId}/posts`
+- **List posts of a club** – `GET /api/clubs/{clubId}/posts` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/posts
   ```
 
-- **Create post in a club** – `POST /api/clubs/{clubId}/posts`
+- **Create post in a club** – `POST /api/clubs/{clubId}/posts` (201 Created)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/posts \
@@ -245,7 +245,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"content":"Hello Club!"}'
   ```
 
-- **Update post in a club** – `PUT /api/clubs/{clubId}/posts/{postId}`
+- **Update post in a club** – `PUT /api/clubs/{clubId}/posts/{postId}` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/posts/<postId> \
@@ -254,7 +254,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"content":"Updated content"}'
   ```
 
-- **Delete post in a club** – `DELETE /api/clubs/{clubId}/posts/{postId}`
+- **Delete post in a club** – `DELETE /api/clubs/{clubId}/posts/{postId}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
@@ -265,14 +265,14 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED`.
 
-- **List events of a club** – `GET /api/clubs/{clubId}/events`
+- **List events of a club** – `GET /api/clubs/{clubId}/events` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/events
   ```
 
-- **Create event in a club** – `POST /api/clubs/{clubId}/events`
+- **Create event in a club** – `POST /api/clubs/{clubId}/events` (201 Created)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/events \
@@ -281,7 +281,7 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"18:00"}'
   ```
 
-- **Update event in a club** – `PUT /api/clubs/{clubId}/events/{eventId}`
+- **Update event in a club** – `PUT /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/events/<eventId> \
@@ -290,21 +290,21 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -d '{"title":"Kickoff","description":"Season start","date":"2024-05-01","time":"19:00"}'
   ```
 
-- **Delete event** – `DELETE /api/clubs/{clubId}/events/{eventId}`
+- **Delete event** – `DELETE /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/events/<eventId>
   ```
 
-- **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join`
+- **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Get single event** – `GET /api/clubs/{clubId}/events/{eventId}`
+- **Get single event** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
@@ -313,14 +313,14 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 ### Comments
 
-- **List comments of a post** – `GET /api/posts/{postId}/comments`
+- **List comments of a post** – `GET /api/posts/{postId}/comments` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/posts/<postId>/comments
   ```
 
-- **Add comment to a post** – `POST /api/posts/{postId}/comments`
+- **Add comment to a post** – `POST /api/posts/{postId}/comments` (201 Created)
 
   ```bash
   curl -X POST http://localhost:8080/api/posts/<postId>/comments \
@@ -329,14 +329,14 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -d '{"content":"Nice post!"}'
   ```
 
-- **Like comment** – `POST /api/comments/{commentId}/like`
+- **Like comment** – `POST /api/comments/{commentId}/like` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/comments/<commentId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Unlike comment** – `DELETE /api/comments/{commentId}/like`
+- **Unlike comment** – `DELETE /api/comments/{commentId}/like` (200 OK)
 
   ```bash
   curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
@@ -345,7 +345,7 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 ### Feed
 
-- **Get feed** – `GET /api/feed`
+- **Get feed** – `GET /api/feed` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
@@ -356,14 +356,14 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 ### Posts
 
-- **Get post** – `GET /api/posts/{postId}`
+- **Get post** – `GET /api/posts/{postId}` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/posts/<postId>
   ```
 
-- **List bookmarked posts** – `GET /api/posts/bookmarks`
+- **List bookmarked posts** – `GET /api/posts/bookmarks` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
@@ -372,28 +372,28 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 ### Post actions
 
-- **Like post** – `POST /api/posts/{postId}/like`
+- **Like post** – `POST /api/posts/{postId}/like` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/posts/<postId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Unlike post** – `DELETE /api/posts/{postId}/like`
+- **Unlike post** – `DELETE /api/posts/{postId}/like` (200 OK)
 
   ```bash
   curl -X DELETE http://localhost:8080/api/posts/<postId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Bookmark post** – `POST /api/posts/{postId}/bookmark`
+- **Bookmark post** – `POST /api/posts/{postId}/bookmark` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/posts/<postId>/bookmark \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Share post** – `POST /api/posts/{postId}/share`
+- **Share post** – `POST /api/posts/{postId}/share` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/posts/<postId>/share \
@@ -419,21 +419,22 @@ All API errors return a structured JSON payload. A typical error looks like:
 The `errorCode` format is `CLB-XX-XXXX-XXXX` where `CLB` identifies the ClubHub module.
 The following codes are currently in use:
 
-| Code | Meaning |
-|------|---------|
-| `CLB-00-0000-0001` | User not found |
-| `CLB-00-0000-0002` | Club not found |
-| `CLB-00-0000-0003` | Post not found |
-| `CLB-00-0000-0004` | User is not a member of the club |
-| `CLB-00-0000-0005` | User is already a member of the club |
-| `CLB-00-0000-0006` | Invalid credentials provided |
-| `CLB-00-0000-0007` | Comment not found |
-| `CLB-00-0000-0008` | Event not found |
-| `CLB-00-0000-0009` | User already exists |
-| `CLB-00-0000-0010` | Member not found |
-| `CLB-00-0000-0011` | Insufficient permissions |
-| `CLB-00-0000-0012` | Last admin cannot leave |
-| `CLB-00-0000-0013` | Last admin cannot change own role |
+| Code | HTTP Status | Meaning |
+|------|-------------|---------|
+| `CLB-00-0000-0001` | 404 Not Found | User not found |
+| `CLB-00-0000-0002` | 404 Not Found | Club not found |
+| `CLB-00-0000-0003` | 404 Not Found | Post not found |
+| `CLB-00-0000-0004` | 400 Bad Request | User is not a member of the club |
+| `CLB-00-0000-0005` | 400 Bad Request | User is already a member of the club |
+| `CLB-00-0000-0006` | 400 Bad Request | Invalid credentials provided |
+| `CLB-00-0000-0007` | 404 Not Found | Comment not found |
+| `CLB-00-0000-0008` | 404 Not Found | Event not found |
+| `CLB-00-0000-0009` | 400 Bad Request | User already exists |
+| `CLB-00-0000-0010` | 404 Not Found | Member not found |
+| `CLB-00-0000-0011` | 403 Forbidden | Insufficient permissions |
+| `CLB-00-0000-0012` | 400 Bad Request | Last admin cannot leave |
+| `CLB-00-0000-0013` | 400 Bad Request | Last admin cannot change own role |
+| `CLB-00-0000-0014` | 401 Unauthorized | Invalid or expired token |
 
 The `title` gives a brief summary while `details` can contain a human-readable
 description. `messageParameters` provides contextual values, and `sourcePointer`

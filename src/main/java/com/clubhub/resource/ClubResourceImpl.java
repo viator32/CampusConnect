@@ -7,6 +7,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
+import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 import com.clubhub.entity.dto.ActionResponseDTO;
 
 import com.clubhub.entity.Club;
@@ -63,8 +64,9 @@ public class ClubResourceImpl implements ClubResource {
                 return ClubMapper.toSummaryDTO(club);
         }
 
-	@Override
-        public ClubDTO create(ClubDTO clubDto, @Context ContainerRequestContext ctx) {
+       @Override
+       @StatusCode(201)
+       public ClubDTO create(ClubDTO clubDto, @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 Club created = clubService.createClub(ClubMapper.toEntity(clubDto), userId);
                 return ClubMapper.toDTO(created);
@@ -121,8 +123,9 @@ public class ClubResourceImpl implements ClubResource {
 		return club.getPosts().stream().map(ClubMapper::toDTO).toList();
 	}
 
-	@Override
-        public PostDTO createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
+       @Override
+       @StatusCode(201)
+       public PostDTO createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 var user = userService.getUserById(userId);
                 var club = clubService.getClubById(clubId);
@@ -208,8 +211,9 @@ public class ClubResourceImpl implements ClubResource {
                 return EventMapper.toDTO(event);
         }
 
-	@Override
-        public EventDTO createEvent(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
+       @Override
+       @StatusCode(201)
+       public EventDTO createEvent(UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx) {
 		var club = clubService.getClubById(clubId);
 		UUID userId = (UUID) ctx.getProperty("userId");
 		Member membership = club.getMembersList().stream()
