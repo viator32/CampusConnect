@@ -65,7 +65,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X POST http://localhost:8080/api/auth/register \
        -H "Content-Type: application/json" \
-       -d '{"email":"user@study.thws.de","username":"alice","studentId":"123456","password":"secret"}'
+       -d '{"email":"user@study.thws.de","username":"alice","password":"secret"}'
   ```
 
 - **Login** – `POST /api/auth/login`
@@ -121,15 +121,6 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"username":"newName"}'
-  ```
-
-- **Update student ID** – `PUT /api/users/{id}/studentId`
-
-  ```bash
-  curl -X PUT http://localhost:8080/api/users/<userId>/studentId \
-       -H "Content-Type: application/json" \
-       -H "Authorization: Bearer <token>" \
-       -d '{"studentId":"654321"}'
   ```
 
 - **Update avatar** – `PUT /api/users/{id}/avatar`

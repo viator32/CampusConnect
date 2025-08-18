@@ -38,10 +38,6 @@ public interface UserResource {
         Response update(@PathParam("id") UUID id, UserDTO userDto);
 
         @PUT
-        @Path("/{id}/studentId")
-        Response updateStudentId(@PathParam("id") UUID id, UserDTO userDto);
-
-        @PUT
         @Path("/{id}/avatar")
         Response updateAvatar(@PathParam("id") UUID id, UserDTO userDto);
 

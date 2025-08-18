@@ -41,9 +41,6 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-        @Column(name = "student_id")
-        private String studentId; // Optional: Matrikelnummer oder Ähnliches
-
         private String avatar;
 
         @Column(length = 1024)

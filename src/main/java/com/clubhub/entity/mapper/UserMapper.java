@@ -11,7 +11,6 @@ public class UserMapper {
                 dto.id = user.getId();
                 dto.email = user.getEmail();
                 dto.username = user.getUsername();
-                dto.studentId = user.getStudentId();
                 dto.avatar = user.getAvatar();
                 dto.description = user.getDescription();
                 dto.preference = user.getPreference();
@@ -24,12 +23,11 @@ public class UserMapper {
                 return dto;
         }
 
-	public static User toEntity(UserDTO dto) {
-		User user = new User();
-		user.setId(dto.id);
-		user.setEmail(dto.email);
-		user.setUsername(dto.username);
-                user.setStudentId(dto.studentId);
+        public static User toEntity(UserDTO dto) {
+                User user = new User();
+                user.setId(dto.id);
+                user.setEmail(dto.email);
+                user.setUsername(dto.username);
                 user.setAvatar(dto.avatar);
                 user.setDescription(dto.description);
                 user.setPreference(dto.preference);
@@ -37,11 +35,10 @@ public class UserMapper {
                 return user;
         }
 
-	public static User toEntity(RegisterDTO dto) {
-		User user = new User();
-		user.setEmail(dto.email);
-		user.setUsername(dto.username);
-		user.setStudentId(dto.studentId);
-		return user;
-	}
+        public static User toEntity(RegisterDTO dto) {
+                User user = new User();
+                user.setEmail(dto.email);
+                user.setUsername(dto.username);
+                return user;
+        }
 }
