@@ -81,9 +81,45 @@ public class CommentService {
     }
 
     @Transactional
-    public void like(UUID commentId) {
+    public void like(UUID commentId, UUID userId) {
         Comment c = getComment(commentId);
-        c.setLikes(c.getLikes() + 1);
+        Post post = c.getPost();
+        boolean isMember = post.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to like comments.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        if (!commentRepository.hasUserLikedComment(commentId, userId)) {
+            User user = userService.getUserById(userId);
+            c.getLikedBy().add(user);
+            c.setLikes(c.getLikedBy().size());
+            commentRepository.update(c);
+        }
+    }
+
+    @Transactional
+    public void unlike(UUID commentId, UUID userId) {
+        Comment c = getComment(commentId);
+        Post post = c.getPost();
+        boolean isMember = post.getClub().getMembersList().stream()
+                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to unlike comments.")
+                    .messageParameter("commentId", commentId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        c.getLikedBy().removeIf(u -> u.getId().equals(userId));
+        c.setLikes(c.getLikedBy().size());
         commentRepository.update(c);
     }
 

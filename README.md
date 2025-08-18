@@ -291,6 +291,13 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Authorization: Bearer <token>"
   ```
 
+- **Unlike comment** – `DELETE /api/comments/{commentId}/like`
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
+       -H "Authorization: Bearer <token>"
+  ```
+
 ### Feed
 
 - **Get feed** – `GET /api/feed`
@@ -324,6 +331,13 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
   ```bash
   curl -X POST http://localhost:8080/api/posts/<postId>/like \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Unlike post** – `DELETE /api/posts/{postId}/like`
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/posts/<postId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
