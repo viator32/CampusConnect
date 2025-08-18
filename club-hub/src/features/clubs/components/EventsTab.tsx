@@ -73,30 +73,25 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
 
   const handleSave = async () => {
     setError(null);
-    if (!title.trim() || !date || !time || !location.trim()) {
-      setError('Title, date, time & location are required.');
+    if (!title.trim() || !date || !time) {
+      setError('Title, date & time are required.');
       return;
     }
 
+    const payload = {
+      title,
+      date,
+      time,
+      description: desc,
+      status,
+      ...(location.trim() ? { location } : {}),
+    };
+
     try {
       if (editingId != null) {
-        await clubService.updateEvent(club.id, editingId, {
-          title,
-          date,
-          time,
-          description: desc,
-          status,
-          location,
-        });
+        await clubService.updateEvent(club.id, editingId, payload);
       } else {
-        await clubService.createEvent(club.id, {
-          title,
-          date,
-          time,
-          description: desc,
-          status,
-          location,
-        });
+        await clubService.createEvent(club.id, payload);
       }
       const refreshed = await clubService.listEvents(club.id);
       onClubUpdate({ ...club, events: refreshed });

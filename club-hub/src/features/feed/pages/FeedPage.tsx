@@ -15,7 +15,7 @@ interface EventFeedItem extends FeedEventItem {
   clubName: string;
   clubImage: string;
   isJoinedClub: boolean;
-  id: number;
+  id: string;
   title: string;
   date: string;
   time: string;
