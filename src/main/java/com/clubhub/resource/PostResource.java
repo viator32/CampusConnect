@@ -13,7 +13,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.PostDTO;
 
@@ -32,17 +31,17 @@ public interface PostResource {
 
         @POST
         @Path("/posts/{postId}/like")
-        Response likePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+        PostDTO likePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
         @DELETE
         @Path("/posts/{postId}/like")
-        Response unlikePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+        PostDTO unlikePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/posts/{postId}/bookmark")
-	Response bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+        @POST
+        @Path("/posts/{postId}/bookmark")
+        PostDTO bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/posts/{postId}/share")
-	Response sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+        @POST
+        @Path("/posts/{postId}/share")
+        PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 }

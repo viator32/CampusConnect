@@ -6,11 +6,11 @@ import java.util.UUID;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.UserDTO;
 import com.clubhub.entity.mapper.UserMapper;
 import com.clubhub.service.UserService;
+import com.clubhub.entity.dto.ActionResponseDTO;
 
 public class UserResourceImpl implements UserResource {
 
@@ -23,58 +23,51 @@ public class UserResourceImpl implements UserResource {
         }
 
 	@Override
-	public Response getCurrent(@Context ContainerRequestContext ctx) {
+        public UserDTO getCurrent(@Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
-                var user = userService.getUserProfile(userId);
-                return Response.ok(user).build();
+                return userService.getUserProfile(userId);
         }
 
 	@Override
-	public Response getById(UUID id) {
-                var user = userService.getUserProfile(id);
-                return Response.ok(user).build();
+        public UserDTO getById(UUID id) {
+                return userService.getUserProfile(id);
         }
 
         @Override
-        public Response update(UUID id, UserDTO userDto) {
+        public UserDTO update(UUID id, UserDTO userDto) {
                 var entity = UserMapper.toEntity(userDto);
                 entity.setId(id);
                 userService.updateUser(entity);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
+                return userService.getUserProfile(id);
         }
 
         @Override
-        public Response updateAvatar(UUID id, UserDTO userDto) {
+        public UserDTO updateAvatar(UUID id, UserDTO userDto) {
                 userService.updateAvatar(id, userDto.avatar);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
+                return userService.getUserProfile(id);
         }
 
         @Override
-        public Response updateDescription(UUID id, UserDTO userDto) {
+        public UserDTO updateDescription(UUID id, UserDTO userDto) {
                 userService.updateDescription(id, userDto.description);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
+                return userService.getUserProfile(id);
         }
 
         @Override
-        public Response updatePreference(UUID id, UserDTO userDto) {
+        public UserDTO updatePreference(UUID id, UserDTO userDto) {
                 userService.updatePreference(id, userDto.preference);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
+                return userService.getUserProfile(id);
         }
 
         @Override
-        public Response updateSubject(UUID id, UserDTO userDto) {
+        public UserDTO updateSubject(UUID id, UserDTO userDto) {
                 userService.updateSubject(id, userDto.subject);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
+                return userService.getUserProfile(id);
         }
 
 	@Override
-	public Response delete(UUID id) {
-		userService.deleteUser(id);
-		return Response.status(Response.Status.NO_CONTENT).build();
-	}
+        public ActionResponseDTO delete(UUID id) {
+                userService.deleteUser(id);
+                return new ActionResponseDTO(true, "User deleted");
+        }
 }
