@@ -175,7 +175,6 @@ export default function FeedPage() {
       <div className="flex justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
       </div>
-    </div>
   );
 }
 
