@@ -85,6 +85,26 @@ public class PostService {
     }
 
     @Transactional
+    public void unlike(UUID postId, UUID userId) {
+        Post p = getPost(postId);
+        boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
+        if (!isMember) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to unlike posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        if (postRepository.hasUserLikedPost(postId, userId)) {
+            p.getLikedBy().removeIf(u -> u.getId().equals(userId));
+            p.setLikes(p.getLikedBy().size());
+            postRepository.update(p);
+        }
+    }
+
+    @Transactional
     public void bookmark(UUID postId, UUID userId) {
         Post p = getPost(postId);
         boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);

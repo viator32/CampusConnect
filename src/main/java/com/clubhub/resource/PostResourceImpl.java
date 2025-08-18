@@ -53,12 +53,19 @@ public class PostResourceImpl implements PostResource {
 		return postService.getBookmarkedPosts(userId).stream().map(ClubMapper::toDTO).toList();
 	}
 
-	@Override
-	public Response likePost(UUID postId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		postService.like(postId, userId);
-		return Response.ok().build();
-	}
+        @Override
+        public Response likePost(UUID postId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.like(postId, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response unlikePost(UUID postId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.unlike(postId, userId);
+                return Response.ok().build();
+        }
 
 	@Override
 	public Response bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {

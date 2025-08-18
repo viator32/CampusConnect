@@ -59,11 +59,19 @@ public class CommentResourceImpl implements CommentResource {
 		return Response.created(URI.create("/api/posts/" + postId + "/comments/" + comment.getId())).build();
 	}
 
-	@Override
-	public Response likeComment(UUID commentId) {
-		commentService.like(commentId);
-		return Response.ok().build();
-	}
+        @Override
+        public Response likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                commentService.like(commentId, userId);
+                return Response.ok().build();
+        }
+
+        @Override
+        public Response unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                commentService.unlike(commentId, userId);
+                return Response.ok().build();
+        }
 
 	@Override
 	public Response updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {

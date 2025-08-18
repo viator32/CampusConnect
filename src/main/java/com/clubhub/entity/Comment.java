@@ -1,5 +1,7 @@
 package com.clubhub.entity;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -8,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -21,7 +25,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "post", "thread" })
+@ToString(exclude = { "post", "thread", "likedBy" })
 public class Comment {
 
 	@Id
@@ -35,6 +39,10 @@ public class Comment {
         private String time;
 
         private int likes;
+
+        @ManyToMany
+        @JoinTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> likedBy = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "post_id")
