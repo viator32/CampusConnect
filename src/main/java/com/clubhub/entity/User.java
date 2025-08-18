@@ -7,6 +7,8 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,8 +41,19 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-	@Column(name = "student_id")
-	private String studentId; // Optional: Matrikelnummer oder Ähnliches
+        @Column(name = "student_id")
+        private String studentId; // Optional: Matrikelnummer oder Ähnliches
+
+        private String avatar;
+
+        @Column(length = 1024)
+        private String description;
+
+        @Enumerated(EnumType.STRING)
+        private Preference preference;
+
+        @Enumerated(EnumType.STRING)
+        private Subject subject;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Member> memberships = new HashSet<>();

@@ -18,34 +18,31 @@ public class UserResourceImpl implements UserResource {
 	UserService userService;
 
 	@Override
-	public List<UserDTO> getAll() {
-		return userService.getAllUsers().stream()
-				.map(UserMapper::toDTO)
-				.toList();
-	}
+        public List<UserDTO> getAll() {
+                return userService.getAllUserProfiles();
+        }
 
 	@Override
 	public Response getCurrent(@Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		var user = userService.getUserById(userId);
-		return user != null ? Response.ok(UserMapper.toDTO(user)).build()
-				: Response.status(Response.Status.NOT_FOUND).build();
-	}
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var user = userService.getUserProfile(userId);
+                return Response.ok(user).build();
+        }
 
 	@Override
 	public Response getById(UUID id) {
-		var user = userService.getUserById(id);
-		return user != null ? Response.ok(UserMapper.toDTO(user)).build()
-				: Response.status(Response.Status.NOT_FOUND).build();
-	}
+                var user = userService.getUserProfile(id);
+                return Response.ok(user).build();
+        }
 
 	@Override
 	public Response update(UUID id, UserDTO userDto) {
-		var entity = UserMapper.toEntity(userDto);
-		entity.setId(id);
-		var updated = userService.updateUser(entity);
-		return Response.status(Response.Status.OK).entity(updated).build();
-	}
+                var entity = UserMapper.toEntity(userDto);
+                entity.setId(id);
+                userService.updateUser(entity);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
 
 	@Override
 	public Response delete(UUID id) {
