@@ -23,7 +23,7 @@ export const profileService = new ProfileService();
 // ─── mappers ────────────────────────────────────────────────────────────────
 function mapUser(dto: any): User {
   return {
-    id: dto.id,
+    id: String(dto.id),
     role: dto.role ?? 'student',
     name: dto.username ?? dto.name ?? '',
     email: dto.email ?? '',
@@ -37,14 +37,22 @@ function mapUser(dto: any): User {
     postsCreated: dto.postsCreated ?? 0,
     badges: dto.badges ?? [],
     interests: dto.interests ?? [],
-    joinedClubIds: dto.joinedClubIds ?? [],
+    memberships:
+      dto.memberships?.map((m: any) => ({
+        id: m.id,
+        clubId: m.clubId,
+        name: m.name,
+        role: m.role,
+        avatar: m.avatar ?? '👤',
+        joinedAt: m.joinedAt ?? '',
+      })) ?? [],
     joinedEvents:
       dto.joinedEvents?.map((e: any) => ({
         id: e.id,
         title: e.title,
         date: e.date,
         time: e.time,
-        clubId: e.clubId,
+        clubId: String(e.clubId),
         clubName: e.clubName,
         clubImage: e.clubImage ?? '🏷️',
       })) ?? [],

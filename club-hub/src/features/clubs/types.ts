@@ -3,7 +3,7 @@
 export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
 
 export interface Participant {
-  id: number;
+  id: string;
   name: string;
   surname: string;
   email: string;

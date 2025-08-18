@@ -13,7 +13,7 @@ const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
 
 export default function MyClubsPage() {
   const navigate = useNavigate();
-  const { user } = useProfile();
+  const { user, refresh } = useProfile();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +27,8 @@ export default function MyClubsPage() {
 
     setLoading(true);
     setError(null);
-    Promise.all((user.joinedClubIds || []).map(id => clubService.getById(id)))
+    const ids = user.memberships.map(m => m.clubId);
+    Promise.all(ids.map(id => clubService.getById(id)))
       .then(results => {
         const valid = results.filter((c): c is Club => Boolean(c));
         setClubs(valid.map(c => ({ ...c, isJoined: true })));
@@ -40,6 +41,7 @@ export default function MyClubsPage() {
     setError(null);
     try {
       await clubService.leaveClub(id);
+      await refresh();
       setClubs(prev => prev.filter(c => c.id !== id));
     } catch (err: any) {
       setError(err?.message ?? 'Failed to leave club');
@@ -81,6 +83,7 @@ export default function MyClubsPage() {
           members: created.members || 1,
         },
       ]);
+      await refresh();
       setShowModal(false);
       setShowEmojiPicker(false);
       setForm({ name: '', description: '', category: categories[0], image: '🏷️' });

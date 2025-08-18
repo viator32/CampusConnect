@@ -1,3 +1,5 @@
+import type { Role } from '../clubs/types';
+
 export interface Notifications {
   email: boolean;
   push: boolean;
@@ -27,7 +29,7 @@ export interface Settings {
 
 export interface JoinedEvent {
   id: number;
-  clubId: number;
+  clubId: string;
   clubName: string;
   clubImage: string;   // emoji or icon
   title: string;
@@ -35,8 +37,17 @@ export interface JoinedEvent {
   time: string;        // "14:00"
 }
 
+export interface Membership {
+  id: string;
+  clubId: string;
+  name: string;
+  role: Role;
+  avatar: string;
+  joinedAt: string;
+}
+
 export interface User {
-  id: number;
+  id: string;
   role: string;
   name: string;
   email: string;
@@ -50,7 +61,7 @@ export interface User {
   postsCreated: number;
   badges: string[];
   interests: string[];
-  joinedClubIds: string[];
+  memberships: Membership[];
   settings: Settings;
 
   // ← newly added

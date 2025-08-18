@@ -1,7 +1,7 @@
 import { User } from '../types';
 
 export const initialUser: User = {
-  id: 1,
+  id: '1',
   role: "admin",
   name: "John Doe",
   email: "john.doe@university.edu",
@@ -15,11 +15,11 @@ export const initialUser: User = {
   postsCreated: 12,
   badges: ["Active Member", "Event Organizer", "Helpful Contributor"],
   interests: ["Programming", "Photography", "Debate", "Volunteering"],
-  joinedClubIds: [],
+  memberships: [],
   joinedEvents: [
     {
       id: 101,
-      clubId: 10,
+      clubId: '10',
       clubName: "Art Society",
       clubImage: "🎨",
       title: "Watercolor Workshop",
@@ -28,7 +28,7 @@ export const initialUser: User = {
     },
     {
       id: 202,
-      clubId: 20,
+      clubId: '20',
       clubName: "Chess Club",
       clubImage: "♟️",
       title: "Weekly Blitz Tournament",
