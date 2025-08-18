@@ -123,6 +123,51 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"username":"newName"}'
   ```
 
+- **Update student ID** – `PUT /api/users/{id}/studentId`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/studentId \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"studentId":"654321"}'
+  ```
+
+- **Update avatar** – `PUT /api/users/{id}/avatar`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/avatar \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"avatar":"<base64-encoded-image>"}'
+  ```
+
+- **Update description** – `PUT /api/users/{id}/description`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/description \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"description":"New bio"}'
+  ```
+
+- **Update preference** – `PUT /api/users/{id}/preference`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/preference \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"preference":"PROGRAMMING"}'
+  ```
+
+- **Update subject** – `PUT /api/users/{id}/subject`
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/subject \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"subject":"COMPUTER_SCIENCE"}'
+  ```
+
 - **Delete user** – `DELETE /api/users/{id}`
 
   ```bash
