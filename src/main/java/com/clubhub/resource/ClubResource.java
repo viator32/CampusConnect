@@ -14,13 +14,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
+import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
-import com.clubhub.entity.dto.ActionResponseDTO;
+
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 @Path("/api/clubs")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,79 +33,79 @@ public interface ClubResource {
 
 	@GET
 	@Path("/{id}")
-        ClubDTO getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
+	ClubDTO getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
 
-        @POST
-        @StatusCode(201)
-        ClubDTO create(ClubDTO clubDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@ResponseStatus(201)
+	ClubDTO create(ClubDTO clubDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{id}")
-        ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
+	ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
 
 	@DELETE
 	@Path("/{id}")
-        ActionResponseDTO delete(@PathParam("id") UUID id);
+	ActionResponseDTO delete(@PathParam("id") UUID id);
 
 	@POST
 	@Path("/{clubId}/join")
-        ActionResponseDTO joinClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	ActionResponseDTO joinClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
 	@POST
 	@Path("/{clubId}/leave")
-        ActionResponseDTO leaveClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	ActionResponseDTO leaveClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{clubId}/members/{memberId}/role")
-        ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
-                        @Context ContainerRequestContext ctx);
+	ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
+			@Context ContainerRequestContext ctx);
 
 	@GET
 	@Path("/{clubId}/posts")
 	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/{clubId}/posts")
-        @StatusCode(201)
-        PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/posts")
+	@ResponseStatus(201)
+	PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{clubId}/posts/{postId}")
-        PostDTO updatePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId, PostDTO postDTO,
-                        @Context ContainerRequestContext ctx);
+	PostDTO updatePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId, PostDTO postDTO,
+			@Context ContainerRequestContext ctx);
 
 	@DELETE
 	@Path("/{clubId}/posts/{postId}")
-        ActionResponseDTO deletePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId,
-                        @Context ContainerRequestContext ctx);
+	ActionResponseDTO deletePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId,
+			@Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{clubId}/events")
-        List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/events")
+	List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{clubId}/events/{eventId}")
-        EventDTO getEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
-                        @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/events/{eventId}")
+	EventDTO getEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+			@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/{clubId}/events")
-        @StatusCode(201)
-        EventDTO createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/events")
+	@ResponseStatus(201)
+	EventDTO createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{clubId}/events/{eventId}")
-        EventDTO updateEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId, EventDTO eventDTO,
-                        @Context ContainerRequestContext ctx);
+	EventDTO updateEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId, EventDTO eventDTO,
+			@Context ContainerRequestContext ctx);
 
 	@DELETE
 	@Path("/{clubId}/events/{eventId}")
-        ActionResponseDTO deleteEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
-                        @Context ContainerRequestContext ctx);
+	ActionResponseDTO deleteEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+			@Context ContainerRequestContext ctx);
 
 	@POST
 	@Path("/{clubId}/events/{eventId}/join")
-        EventDTO joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
-                        @Context ContainerRequestContext ctx);
+	EventDTO joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+			@Context ContainerRequestContext ctx);
 
 }

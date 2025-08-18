@@ -14,10 +14,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
-import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ActionResponseDTO;
+import com.clubhub.entity.dto.CommentDTO;
+
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,25 +29,26 @@ public interface CommentResource {
 	@Path("/posts/{postId}/comments")
 	List<CommentDTO> getComments(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/posts/{postId}/comments")
-        @StatusCode(201)
-        CommentDTO addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/posts/{postId}/comments")
+	@ResponseStatus(201)
+	CommentDTO addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO,
+			@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/comments/{commentId}/like")
-        CommentDTO likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/comments/{commentId}/like")
+	CommentDTO likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
-        @DELETE
-        @Path("/comments/{commentId}/like")
-        CommentDTO unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	@DELETE
+	@Path("/comments/{commentId}/like")
+	CommentDTO unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/comments/{commentId}")
-        CommentDTO updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO,
-                        @Context ContainerRequestContext ctx);
+	CommentDTO updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO,
+			@Context ContainerRequestContext ctx);
 
 	@DELETE
 	@Path("/comments/{commentId}")
-        ActionResponseDTO deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	ActionResponseDTO deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 }

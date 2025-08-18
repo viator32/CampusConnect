@@ -11,10 +11,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
-import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ActionResponseDTO;
+import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
@@ -52,41 +51,40 @@ public class CommentResourceImpl implements CommentResource {
 		return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
 	}
 
-       @Override
-       @StatusCode(201)
-       public CommentDTO addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var comment = commentService.addComment(postId, userId, dto.content);
-                return ClubMapper.toDTO(comment);
-        }
-
-        @Override
-        public CommentDTO likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                commentService.like(commentId, userId);
-                var comment = commentService.getComment(commentId);
-                return ClubMapper.toDTO(comment);
-        }
-
-        @Override
-        public CommentDTO unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                commentService.unlike(commentId, userId);
-                var comment = commentService.getComment(commentId);
-                return ClubMapper.toDTO(comment);
-        }
+	@Override
+	public CommentDTO addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var comment = commentService.addComment(postId, userId, dto.content);
+		return ClubMapper.toDTO(comment);
+	}
 
 	@Override
-        public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var updated = commentService.updateComment(commentId, userId, dto.content);
-                return ClubMapper.toDTO(updated);
-        }
+	public CommentDTO likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		commentService.like(commentId, userId);
+		var comment = commentService.getComment(commentId);
+		return ClubMapper.toDTO(comment);
+	}
 
 	@Override
-        public ActionResponseDTO deleteComment(UUID commentId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                commentService.deleteComment(commentId, userId);
-                return new ActionResponseDTO(true, "Comment deleted");
-        }
+	public CommentDTO unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		commentService.unlike(commentId, userId);
+		var comment = commentService.getComment(commentId);
+		return ClubMapper.toDTO(comment);
+	}
+
+	@Override
+	public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var updated = commentService.updateComment(commentId, userId, dto.content);
+		return ClubMapper.toDTO(updated);
+	}
+
+	@Override
+	public ActionResponseDTO deleteComment(UUID commentId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		commentService.deleteComment(commentId, userId);
+		return new ActionResponseDTO(true, "Comment deleted");
+	}
 }

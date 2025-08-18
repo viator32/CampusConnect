@@ -29,19 +29,19 @@ public interface PostResource {
 	@Path("/posts/bookmarks")
 	List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/posts/{postId}/like")
-        PostDTO likePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/posts/{postId}/like")
+	PostDTO likePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-        @DELETE
-        @Path("/posts/{postId}/like")
-        PostDTO unlikePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+	@DELETE
+	@Path("/posts/{postId}/like")
+	PostDTO unlikePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/posts/{postId}/bookmark")
-        PostDTO bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/posts/{postId}/bookmark")
+	PostDTO bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/posts/{postId}/share")
-        PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/posts/{postId}/share")
+	PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 }

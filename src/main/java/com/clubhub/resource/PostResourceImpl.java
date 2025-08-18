@@ -52,35 +52,35 @@ public class PostResourceImpl implements PostResource {
 		return postService.getBookmarkedPosts(userId).stream().map(ClubMapper::toDTO).toList();
 	}
 
-        @Override
-        public PostDTO likePost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.like(postId, userId);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post);
-        }
-
-        @Override
-        public PostDTO unlikePost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.unlike(postId, userId);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post);
-        }
+	@Override
+	public PostDTO likePost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.like(postId, userId);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post);
+	}
 
 	@Override
-        public PostDTO bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.bookmark(postId, userId);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post);
-        }
+	public PostDTO unlikePost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.unlike(postId, userId);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post);
+	}
 
 	@Override
-        public PostDTO sharePost(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.share(postId, userId);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post);
-        }
+	public PostDTO bookmarkPost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.bookmark(postId, userId);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post);
+	}
+
+	@Override
+	public PostDTO sharePost(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.share(postId, userId);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post);
+	}
 }
