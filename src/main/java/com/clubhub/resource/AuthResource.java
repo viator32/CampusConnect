@@ -6,6 +6,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
 import com.clubhub.entity.dto.AuthRequestDTO;
 import com.clubhub.entity.dto.AuthResponseDTO;
@@ -17,8 +18,9 @@ import com.clubhub.entity.dto.ActionResponseDTO;
 @Produces(MediaType.APPLICATION_JSON)
 public interface AuthResource {
 
-	@POST
-	@Path("/register")
+        @POST
+        @Path("/register")
+        @StatusCode(201)
         AuthResponseDTO register(RegisterDTO register);
 
 	@POST

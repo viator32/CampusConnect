@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.EventDTO;
@@ -33,7 +34,8 @@ public interface ClubResource {
 	@Path("/{id}")
         ClubDTO getById(@PathParam("id") UUID id, @Context ContainerRequestContext ctx);
 
-	@POST
+        @POST
+        @StatusCode(201)
         ClubDTO create(ClubDTO clubDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
@@ -61,8 +63,9 @@ public interface ClubResource {
 	@Path("/{clubId}/posts")
 	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/{clubId}/posts")
+        @POST
+        @Path("/{clubId}/posts")
+        @StatusCode(201)
         PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
@@ -84,8 +87,9 @@ public interface ClubResource {
         EventDTO getEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
                         @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/{clubId}/events")
+        @POST
+        @Path("/{clubId}/events")
+        @StatusCode(201)
         EventDTO createEvent(@PathParam("clubId") UUID clubId, EventDTO eventDTO, @Context ContainerRequestContext ctx);
 
 	@PUT

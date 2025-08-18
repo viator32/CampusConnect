@@ -3,6 +3,7 @@ package com.clubhub.resource;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.HeaderParam;
+import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
 import com.clubhub.entity.dto.AuthRequestDTO;
 import com.clubhub.entity.dto.AuthResponseDTO;
@@ -24,8 +25,9 @@ public class AuthResourceImpl implements AuthResource {
 	@Inject
 	AuthService authService;
 
-	@Override
-        public AuthResponseDTO register(RegisterDTO register) {
+       @Override
+       @StatusCode(201)
+       public AuthResponseDTO register(RegisterDTO register) {
 		if (register.email == null || !register.email.endsWith("@study.thws.de")) {
 			throw new ValidationException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)

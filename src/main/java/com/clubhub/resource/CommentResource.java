@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.reactive.RestResponse.StatusCode;
 
 import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ActionResponseDTO;
@@ -27,8 +28,9 @@ public interface CommentResource {
 	@Path("/posts/{postId}/comments")
 	List<CommentDTO> getComments(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/posts/{postId}/comments")
+        @POST
+        @Path("/posts/{postId}/comments")
+        @StatusCode(201)
         CommentDTO addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
 
         @POST
