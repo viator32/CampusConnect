@@ -3,15 +3,16 @@ package com.clubhub.resource;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.AuthRequestDTO;
 import com.clubhub.entity.dto.AuthResponseDTO;
 import com.clubhub.entity.dto.RegisterDTO;
+import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.mapper.UserMapper;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
 import com.clubhub.exception.ValidationException;
+import com.clubhub.exception.UnauthorizedException;
 import com.clubhub.service.AuthService;
 import com.clubhub.service.UserService;
 
@@ -24,7 +25,7 @@ public class AuthResourceImpl implements AuthResource {
 	AuthService authService;
 
 	@Override
-	public Response register(RegisterDTO register) {
+        public AuthResponseDTO register(RegisterDTO register) {
 		if (register.email == null || !register.email.endsWith("@study.thws.de")) {
 			throw new ValidationException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
@@ -46,18 +47,18 @@ public class AuthResourceImpl implements AuthResource {
 		var user = UserMapper.toEntity(register);
 		userService.createUser(user, register.password);
 		String token = authService.createToken(user.getId());
-		return Response.status(Response.Status.CREATED).entity(new AuthResponseDTO(token)).build();
-	}
+                return new AuthResponseDTO(token);
+        }
 
-	@Override
-	public Response login(AuthRequestDTO request) {
+        @Override
+        public AuthResponseDTO login(AuthRequestDTO request) {
 		var user = userService.authenticate(request.email, request.password);
 		String token = authService.createToken(user.getId());
-		return Response.ok(new AuthResponseDTO(token)).build();
-	}
+                return new AuthResponseDTO(token);
+        }
 
-	@Override
-	public Response refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
+        @Override
+        public AuthResponseDTO refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
 		String token = tokenDto != null ? tokenDto.token : null;
 		if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
 			token = authorization.substring("Bearer ".length());
@@ -65,15 +66,19 @@ public class AuthResourceImpl implements AuthResource {
 		if (token != null && token.startsWith("Bearer ")) {
 			token = token.substring("Bearer ".length());
 		}
-		String newToken = authService.refreshToken(token);
-		if (newToken == null) {
-			return Response.status(Response.Status.UNAUTHORIZED).build();
-		}
-		return Response.ok(new AuthResponseDTO(newToken)).build();
-	}
+                String newToken = authService.refreshToken(token);
+                if (newToken == null) {
+                        throw new UnauthorizedException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INVALID_TOKEN)
+                                        .title("Invalid token")
+                                        .details("Token could not be refreshed.")
+                                        .build());
+                }
+                return new AuthResponseDTO(newToken);
+        }
 
-	@Override
-	public Response logout(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
+        @Override
+        public ActionResponseDTO logout(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
 		String token = tokenDto != null ? tokenDto.token : null;
 		if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
 			token = authorization.substring("Bearer ".length());
@@ -81,10 +86,14 @@ public class AuthResourceImpl implements AuthResource {
 		if (token != null && token.startsWith("Bearer ")) {
 			token = token.substring("Bearer ".length());
 		}
-		boolean success = authService.logout(token);
-		if (!success) {
-			return Response.status(Response.Status.UNAUTHORIZED).build();
-		}
-		return Response.noContent().build();
-	}
+                boolean success = authService.logout(token);
+                if (!success) {
+                        throw new UnauthorizedException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INVALID_TOKEN)
+                                        .title("Invalid token")
+                                        .details("Token could not be invalidated.")
+                                        .build());
+                }
+                return new ActionResponseDTO(true, "Logged out");
+        }
 }

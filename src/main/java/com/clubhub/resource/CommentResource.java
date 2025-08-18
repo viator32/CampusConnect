@@ -14,9 +14,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.CommentDTO;
+import com.clubhub.entity.dto.ActionResponseDTO;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,22 +29,22 @@ public interface CommentResource {
 
 	@POST
 	@Path("/posts/{postId}/comments")
-	Response addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
+        CommentDTO addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO, @Context ContainerRequestContext ctx);
 
         @POST
         @Path("/comments/{commentId}/like")
-        Response likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+        CommentDTO likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
         @DELETE
         @Path("/comments/{commentId}/like")
-        Response unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+        CommentDTO unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/comments/{commentId}")
-	Response updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO,
-			@Context ContainerRequestContext ctx);
+        CommentDTO updateComment(@PathParam("commentId") UUID commentId, CommentDTO commentDTO,
+                        @Context ContainerRequestContext ctx);
 
 	@DELETE
 	@Path("/comments/{commentId}")
-	Response deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+        ActionResponseDTO deleteComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 }

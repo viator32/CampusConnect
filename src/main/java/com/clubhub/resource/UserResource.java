@@ -13,9 +13,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import com.clubhub.entity.dto.UserDTO;
+import com.clubhub.entity.dto.ActionResponseDTO;
 
 @Path("/api/users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,34 +27,34 @@ public interface UserResource {
 
 	@GET
 	@Path("/me")
-	Response getCurrent(@Context ContainerRequestContext ctx);
+        UserDTO getCurrent(@Context ContainerRequestContext ctx);
 
 	@GET
 	@Path("/{id}")
-	Response getById(@PathParam("id") UUID id);
+        UserDTO getById(@PathParam("id") UUID id);
 
         @PUT
         @Path("/{id}")
-        Response update(@PathParam("id") UUID id, UserDTO userDto);
+        UserDTO update(@PathParam("id") UUID id, UserDTO userDto);
 
         @PUT
         @Path("/{id}/avatar")
-        Response updateAvatar(@PathParam("id") UUID id, UserDTO userDto);
+        UserDTO updateAvatar(@PathParam("id") UUID id, UserDTO userDto);
 
         @PUT
         @Path("/{id}/description")
-        Response updateDescription(@PathParam("id") UUID id, UserDTO userDto);
+        UserDTO updateDescription(@PathParam("id") UUID id, UserDTO userDto);
 
         @PUT
         @Path("/{id}/preference")
-        Response updatePreference(@PathParam("id") UUID id, UserDTO userDto);
+        UserDTO updatePreference(@PathParam("id") UUID id, UserDTO userDto);
 
         @PUT
         @Path("/{id}/subject")
-        Response updateSubject(@PathParam("id") UUID id, UserDTO userDto);
+        UserDTO updateSubject(@PathParam("id") UUID id, UserDTO userDto);
 
 	@DELETE
 	@Path("/{id}")
-	Response delete(@PathParam("id") UUID id);
+        ActionResponseDTO delete(@PathParam("id") UUID id);
 
 }
