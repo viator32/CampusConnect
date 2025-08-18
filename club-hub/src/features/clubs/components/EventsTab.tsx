@@ -73,15 +73,14 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
 
   const handleSave = async () => {
     setError(null);
-    if (!title.trim() || !date || !time) {
-      setError('Title, date & time are required.');
+    if (!title.trim() || !date || !time || !location.trim()) {
+      setError('Title, date, time & location are required.');
       return;
     }
 
     try {
-      let updated: ClubEvent[];
       if (editingId != null) {
-        const dto = await clubService.updateEvent(club.id, editingId, {
+        await clubService.updateEvent(club.id, editingId, {
           title,
           date,
           time,
@@ -89,9 +88,8 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
           status,
           location,
         });
-        updated = club.events.map(ev => (ev.id === editingId ? dto : ev));
       } else {
-        const dto = await clubService.createEvent(club.id, {
+        await clubService.createEvent(club.id, {
           title,
           date,
           time,
@@ -99,9 +97,9 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
           status,
           location,
         });
-        updated = [dto, ...club.events];
       }
-      onClubUpdate({ ...club, events: updated });
+      const refreshed = await clubService.listEvents(club.id);
+      onClubUpdate({ ...club, events: refreshed });
       setShowForm(false);
     } catch (err) {
       setError('Failed to save event');

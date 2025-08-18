@@ -34,6 +34,7 @@ export default function FeedPage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [activeTab, setActiveTab] = useState<'events' | 'posts'>('events');
 
   const isEvent = (item: FeedItem): item is EventFeedItem =>
     (item as any).type === 'event';
@@ -93,6 +94,16 @@ export default function FeedPage() {
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+
+  const visibleItems = items.filter(item =>
+    activeTab === 'events' ? isEvent(item) : !isEvent(item)
+  );
+
+  useEffect(() => {
+    if (!loading && visibleItems.length === 0 && hasMore && !loadingMore) {
+      loadMore();
+    }
+  }, [activeTab, visibleItems.length, hasMore, loadingMore, loadMore, loading]);
 
   const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
@@ -164,22 +175,46 @@ export default function FeedPage() {
       <div className="flex justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (error) {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
   return (
-    <div className="flex space-x-6">
-      <main className="flex-1 space-y-4">
-        {items.length === 0 && !loadingMore && (
-          <p className="text-center text-gray-500">No items to show.</p>
-        )}
-        <div className="space-y-4">
-          {items.map((item, index) => {
-            if (isEvent(item)) {
+    <div className="flex flex-col space-y-4">
+      <div className="flex space-x-4 border-b">
+        <button
+          onClick={() => setActiveTab('events')}
+          className={`px-4 py-2 -mb-px font-medium ${
+            activeTab === 'events'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-gray-600'
+          }`}
+        >
+          Events
+        </button>
+        <button
+          onClick={() => setActiveTab('posts')}
+          className={`px-4 py-2 -mb-px font-medium ${
+            activeTab === 'posts'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-gray-600'
+          }`}
+        >
+          Recent Posts
+        </button>
+      </div>
+      <div className="flex space-x-6">
+        <main className="flex-1 space-y-4">
+          {visibleItems.length === 0 && !loadingMore && (
+            <p className="text-center text-gray-500">No items to show.</p>
+          )}
+          <div className="space-y-4">
+            {visibleItems.map((item, index) => {
+              if (isEvent(item)) {
               const ev = item;
               const key = `${ev.clubId}-${ev.id}`;
               const joinedByUser = joinedEvents.has(key);
@@ -302,9 +337,10 @@ export default function FeedPage() {
           </div>
         )}
       </main>
-      {bookmarkError && (
-        <Toast message={bookmarkError} onClose={() => setBookmarkError(null)} />
-      )}
+        {bookmarkError && (
+          <Toast message={bookmarkError} onClose={() => setBookmarkError(null)} />
+        )}
+      </div>
     </div>
   );
 }
