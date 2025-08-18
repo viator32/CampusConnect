@@ -105,6 +105,16 @@ export default function FeedPage() {
     }
   }, [activeTab, visibleItems.length, hasMore, loadingMore, loadMore, loading]);
 
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      try {
+        const list = await bookmarksService.getAll();
+        setBookmarked(new Set(list.map(b => b.id)));
+      } catch {}
+    };
+    loadBookmarks();
+  }, []);
+
   const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
     const isBookmarked = prev.has(post.id);
@@ -125,17 +135,7 @@ export default function FeedPage() {
       if (isBookmarked) {
         await bookmarksService.remove(post.id);
       } else {
-        await bookmarksService.add({
-          id: post.id,
-          author: post.author,
-          content: post.content,
-          time: post.time,
-          likes: post.likes,
-          comments: post.comments,
-          clubId: post.clubId,
-          clubName: post.clubName,
-          clubImage: post.clubImage
-        });
+        await bookmarksService.add(post.id);
       }
     } catch (err) {
       setBookmarked(prev);
@@ -143,20 +143,30 @@ export default function FeedPage() {
     }
   };
 
-  const likePost = async (postId: string) => {
+  const toggleLike = async (post: FeedPost) => {
+    const isLiked = post.liked ?? false;
     setItems(prev =>
       prev.map(item =>
         isEvent(item)
           ? item
-          : item.id === postId
-            ? { ...item, likes: item.likes + 1 }
+          : item.id === post.id
+            ? { ...item, liked: !isLiked, likes: item.likes + (isLiked ? -1 : 1) }
             : item
       )
     );
     try {
-      await clubService.likePost(postId);
+      if (isLiked) await clubService.unlikePost(post.id);
+      else await clubService.likePost(post.id);
     } catch {
-      // ignore backend parse errors; keep optimistic like
+      setItems(prev =>
+        prev.map(item =>
+          isEvent(item)
+            ? item
+            : item.id === post.id
+              ? { ...item, liked: isLiked, likes: item.likes + (isLiked ? 1 : -1) }
+              : item
+        )
+      );
     }
   };
 
@@ -272,7 +282,8 @@ export default function FeedPage() {
             return (
               <div
                 key={`${post.clubId ?? 'unknown'}-${post.id}-${index}`}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
+                onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="text-lg">{post.clubImage}</div>
@@ -287,22 +298,25 @@ export default function FeedPage() {
                 <div className="flex items-center gap-6 text-gray-500 mb-2">
                   <button
                     className="flex items-center gap-1 hover:text-orange-500"
-                    onClick={() => {
-                      likePost(post.id);
-                      navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                    onClick={e => {
+                      e.stopPropagation();
+                      toggleLike(post);
                     }}
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className={`w-4 h-4 ${post.liked ? 'text-orange-500' : ''}`} />
                     <span className="text-sm">{post.likes}</span>
                   </button>
                   <button
                     className="flex items-center gap-1 hover:text-orange-500"
-                    onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
+                    onClick={e => {
+                      e.stopPropagation();
+                      navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                    }}
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span className="text-sm">{post.comments}</span>
                   </button>
-                  <div className="relative">
+                  <div className="relative" onClick={e => e.stopPropagation()}>
                     <button
                       className="flex items-center gap-1 hover:text-orange-500"
                       onClick={() =>
@@ -319,7 +333,10 @@ export default function FeedPage() {
                     )}
                   </div>
                   <button
-                    onClick={() => toggleBookmark(post)}
+                    onClick={e => {
+                      e.stopPropagation();
+                      toggleBookmark(post);
+                    }}
                     className="flex items-center gap-1 hover:text-orange-500"
                   >
                     <Bookmark className={`w-4 h-4 ${bookmarked.has(post.id) ? 'text-orange-500' : ''}`} />

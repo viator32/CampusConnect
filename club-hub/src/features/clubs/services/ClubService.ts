@@ -85,6 +85,10 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'POST' });
   }
 
+  async unlikePost(postId: string): Promise<void> {
+    await this.api.request<void>(`/posts/${postId}/like`, { method: 'DELETE' });
+  }
+
   // Events inside a club
   async listEvents(clubId: string): Promise<ClubEvent[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/events`);

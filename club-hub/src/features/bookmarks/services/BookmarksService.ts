@@ -15,28 +15,31 @@ export interface BookmarkedPost {
 
 export class BookmarksService extends BaseService {
   async getAll(): Promise<BookmarkedPost[]> {
-    // TODO: replace '/bookmarks' with backend endpoint
-    await this.api.request('/bookmarks');
-    return [];
+    const arr = await this.api.request<any[]>(`/posts/bookmarks`);
+    return arr.map(mapBookmarkedPost);
   }
 
-  async add(post: BookmarkedPost): Promise<void> {
-    const payload = this.buildPayload(post);
-    // TODO: replace '/bookmarks' with backend endpoint
-    await this.api.request('/bookmarks', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+  async add(id: string): Promise<void> {
+    await this.api.request<void>(`/posts/${id}/bookmark`, { method: 'POST' });
   }
 
   async remove(id: string): Promise<void> {
-    const payload = this.buildPayload({ id });
-    // TODO: replace `/bookmarks/${id}` with backend endpoint
-    await this.api.request(`/bookmarks/${id}`, {
-      method: 'DELETE',
-      body: JSON.stringify(payload)
-    });
+    await this.api.request<void>(`/posts/${id}/bookmark`, { method: 'DELETE' });
   }
+}
+
+function mapBookmarkedPost(dto: any): BookmarkedPost {
+  return {
+    id: String(dto.id),
+    author: dto.author ?? dto.username ?? 'Unknown',
+    content: dto.content ?? '',
+    time: dto.time ?? dto.createdAt ?? '',
+    likes: dto.likes ?? 0,
+    comments: dto.comments ?? 0,
+    clubId: dto.clubId ?? dto.club?.id,
+    clubName: dto.clubName ?? dto.club?.name,
+    clubImage: dto.clubImage ?? dto.club?.image,
+  };
 }
 
 export const bookmarksService = new BookmarksService();
