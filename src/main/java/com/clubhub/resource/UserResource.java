@@ -33,9 +33,29 @@ public interface UserResource {
 	@Path("/{id}")
 	Response getById(@PathParam("id") UUID id);
 
-	@PUT
-	@Path("/{id}")
-	Response update(@PathParam("id") UUID id, UserDTO userDto);
+        @PUT
+        @Path("/{id}")
+        Response update(@PathParam("id") UUID id, UserDTO userDto);
+
+        @PUT
+        @Path("/{id}/studentId")
+        Response updateStudentId(@PathParam("id") UUID id, UserDTO userDto);
+
+        @PUT
+        @Path("/{id}/avatar")
+        Response updateAvatar(@PathParam("id") UUID id, UserDTO userDto);
+
+        @PUT
+        @Path("/{id}/description")
+        Response updateDescription(@PathParam("id") UUID id, UserDTO userDto);
+
+        @PUT
+        @Path("/{id}/preference")
+        Response updatePreference(@PathParam("id") UUID id, UserDTO userDto);
+
+        @PUT
+        @Path("/{id}/subject")
+        Response updateSubject(@PathParam("id") UUID id, UserDTO userDto);
 
 	@DELETE
 	@Path("/{id}")
