@@ -16,21 +16,28 @@ public class UserRepository {
 	@Inject
 	EntityManager em;
 
-	public User findById(UUID id) {
-		try {
-			return em.createQuery("""
-					SELECT u FROM User u
-					LEFT JOIN FETCH u.joinedClubs
-					WHERE u.id = :id
-					""", User.class).setParameter("id", id).getSingleResult();
-		} catch (NullPointerException e) {
-			return null;
-		}
-	}
+        public User findById(UUID id) {
+                try {
+                        return em.createQuery("""
+                                        SELECT DISTINCT u FROM User u
+                                        LEFT JOIN FETCH u.joinedClubs
+                                        LEFT JOIN FETCH u.memberships m
+                                        LEFT JOIN FETCH m.club
+                                        WHERE u.id = :id
+                                        """, User.class).setParameter("id", id).getSingleResult();
+                } catch (NullPointerException e) {
+                        return null;
+                }
+        }
 
-	public List<User> findAll() {
-		return em.createQuery("SELECT u FROM User u", User.class).getResultList();
-	}
+        public List<User> findAll() {
+                return em.createQuery("""
+                                SELECT DISTINCT u FROM User u
+                                LEFT JOIN FETCH u.joinedClubs
+                                LEFT JOIN FETCH u.memberships m
+                                LEFT JOIN FETCH m.club
+                                """, User.class).getResultList();
+        }
 
 	public User findByEmail(String email) {
 		try {
