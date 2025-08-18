@@ -15,16 +15,27 @@ export interface BookmarkedPost {
 
 export class BookmarksService extends BaseService {
   async getAll(): Promise<BookmarkedPost[]> {
-    const arr = await this.api.request<any[]>(`/posts/bookmarks`);
+    // API expects /api/posts/bookmarks
+    const arr = await this.api.request<any[]>(
+      `${this.api.baseUrl}/posts/bookmarks`
+    );
     return arr.map(mapBookmarkedPost);
   }
 
   async add(id: string): Promise<void> {
-    await this.api.request<void>(`/posts/${id}/bookmark`, { method: 'POST' });
+    // POST /api/posts/{postId}/bookmark
+    await this.api.request<void>(
+      `${this.api.baseUrl}/posts/${id}/bookmark`,
+      { method: 'POST' }
+    );
   }
 
   async remove(id: string): Promise<void> {
-    await this.api.request<void>(`/posts/${id}/bookmark`, { method: 'DELETE' });
+    // DELETE /api/posts/{postId}/bookmark
+    await this.api.request<void>(
+      `${this.api.baseUrl}/posts/${id}/bookmark`,
+      { method: 'DELETE' }
+    );
   }
 }
 
