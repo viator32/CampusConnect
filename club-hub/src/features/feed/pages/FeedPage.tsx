@@ -64,6 +64,9 @@ export default function FeedPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load feed';
       setError(message);
+      // Stop trying to load more pages if an error occurs to avoid infinite retry
+      // loops, which can happen for users without any joined clubs.
+      setHasMore(false);
     } finally {
       setLoading(false);
       setLoadingMore(false);

@@ -68,11 +68,11 @@ export class FeedService extends BaseService {
       joinedCount: e.attendees ?? e.joinedCount ?? 0,
     }));
 
-    if (posts.length > 0 || events.length > 0) {
-      return [...posts, ...events];
-    }
-
-    throw new Error('Invalid feed response');
+    // Even if both posts and events arrays are empty we should return an empty array
+    // rather than throwing an error. An empty feed is a valid state (e.g. a user
+    // that hasn't joined any clubs yet). Throwing an error causes the caller to
+    // repeatedly retry the request, resulting in an infinite fetch loop.
+    return [...posts, ...events];
   }
 
   async addPost(post: Omit<FeedPost, 'id'>): Promise<FeedPost> {
