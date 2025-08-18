@@ -36,219 +36,216 @@ public class ClubService {
 		return clubRepository.findAll();
 	}
 
-        public Club getClubById(UUID id) {
-                Club club = clubRepository.findById(id);
-                if (club == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                        .title("Club not found")
-                                        .details("No club with id %s exists.".formatted(id))
-                                        .messageParameter("clubId", id.toString())
-                                        .sourcePointer("clubId")
-                                        .build());
-                }
-                return club;
-        }
-
-        @Transactional
-        public Club createClub(Club club, UUID creatorId) {
-                clubRepository.save(club);
-
-                User user = userService.getUserById(creatorId);
-
-                Member member = new Member();
-                member.setClub(club);
-                member.setUser(user);
-                member.setRole(MemberRole.ADMIN);
-                member.setAvatar("👤");
-                member.setJoinedAt(java.time.LocalDateTime.now());
-
-                em.persist(member);
-
-                club.getMembersList().add(member);
-                club.setMembers(club.getMembersList().size());
-
-                user.getJoinedClubs().add(club);
-                user.getMemberships().add(member);
-
-                em.merge(club);
-                em.merge(user);
-
-                return club;
-        }
+	public Club getClubById(UUID id) {
+		Club club = clubRepository.findById(id);
+		if (club == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(id))
+					.messageParameter("clubId", id.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
+		return club;
+	}
 
 	@Transactional
-        public Club updateClub(UUID id, Club updated) {
-                Club existing = clubRepository.findById(id);
-                if (existing == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                        .title("Club not found")
-                                        .details("No club with id %s exists.".formatted(id))
-                                        .messageParameter("clubId", id.toString())
-                                        .sourcePointer("clubId")
-                                        .build());
-                }
-                existing.setName(updated.getName());
-                existing.setDescription(updated.getDescription());
-                existing.setLocation(updated.getLocation());
+	public Club createClub(Club club, UUID creatorId) {
+		clubRepository.save(club);
 
-                return clubRepository.update(existing);
-        }
+		User user = userService.getUserById(creatorId);
+
+		Member member = new Member();
+		member.setClub(club);
+		member.setUser(user);
+		member.setRole(MemberRole.ADMIN);
+		member.setAvatar("👤");
+		member.setJoinedAt(java.time.LocalDateTime.now());
+
+		em.persist(member);
+
+		club.getMembersList().add(member);
+		club.setMembers(club.getMembersList().size());
+
+		user.getMemberships().add(member);
+
+		em.merge(club);
+		em.merge(user);
+
+		return club;
+	}
 
 	@Transactional
-        public boolean deleteClub(UUID id) {
-                Club existing = clubRepository.findById(id);
-                if (existing == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                        .title("Club not found")
-                                        .details("No club with id %s exists.".formatted(id))
-                                        .messageParameter("clubId", id.toString())
-                                        .sourcePointer("clubId")
-                                        .build());
-                }
-                clubRepository.delete(id);
-                return true;
-        }
+	public Club updateClub(UUID id, Club updated) {
+		Club existing = clubRepository.findById(id);
+		if (existing == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(id))
+					.messageParameter("clubId", id.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
+		existing.setName(updated.getName());
+		existing.setDescription(updated.getDescription());
+		existing.setLocation(updated.getLocation());
 
-    @Transactional
-    public void joinClub(UUID clubId, UUID userId) {
-        Club club = em.find(Club.class, clubId);
-        if (club == null) {
-                throw new NotFoundException(ErrorPayload.builder()
-                                .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                .title("Club not found")
-                                .details("No club with id %s exists.".formatted(clubId))
-                                .messageParameter("clubId", clubId.toString())
-                                .sourcePointer("clubId")
-                                .build());
-        }
+		return clubRepository.update(existing);
+	}
 
-        User user = userService.getUserById(userId);
+	@Transactional
+	public boolean deleteClub(UUID id) {
+		Club existing = clubRepository.findById(id);
+		if (existing == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(id))
+					.messageParameter("clubId", id.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
+		clubRepository.delete(id);
+		return true;
+	}
 
-        boolean alreadyMember = club.getMembersList().stream()
-                        .anyMatch(member -> member.getUser() != null && member.getUser().getId().equals(user.getId()));
-        if (alreadyMember) {
-                throw new ValidationException(ErrorPayload.builder()
-                                .errorCode(ClubHubErrorCode.ALREADY_MEMBER)
-                                .title("Already a member")
-                                .details("User is already a member of this club.")
-                                .messageParameter("clubId", clubId.toString())
-                                .messageParameter("userId", userId.toString())
-                                .build());
-        }
+	@Transactional
+	public void joinClub(UUID clubId, UUID userId) {
+		Club club = em.find(Club.class, clubId);
+		if (club == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(clubId))
+					.messageParameter("clubId", clubId.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
 
-        Member member = new Member();
-        member.setClub(club);
-        member.setUser(user);
-        member.setRole(MemberRole.MEMBER);
-        member.setAvatar("👤");
-        member.setJoinedAt(java.time.LocalDateTime.now());
+		User user = userService.getUserById(userId);
 
-        em.persist(member);
+		boolean alreadyMember = club.getMembersList().stream()
+				.anyMatch(member -> member.getUser() != null && member.getUser().getId().equals(user.getId()));
+		if (alreadyMember) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.ALREADY_MEMBER)
+					.title("Already a member")
+					.details("User is already a member of this club.")
+					.messageParameter("clubId", clubId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
 
-        club.getMembersList().add(member);
-        club.setMembers(club.getMembersList().size());
+		Member member = new Member();
+		member.setClub(club);
+		member.setUser(user);
+		member.setRole(MemberRole.MEMBER);
+		member.setAvatar("👤");
+		member.setJoinedAt(java.time.LocalDateTime.now());
 
-        user.getJoinedClubs().add(club);
-        user.getMemberships().add(member);
+		em.persist(member);
 
-        em.merge(club);
-        em.merge(user);
-    }
+		club.getMembersList().add(member);
+		club.setMembers(club.getMembersList().size());
 
-    @Transactional
-    public void leaveClub(UUID clubId, UUID userId) {
-        Club club = getClubById(clubId);
-        Member membership = club.getMembersList().stream()
-                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
-                .findFirst()
-                .orElse(null);
-        if (membership == null) {
-            throw new ValidationException(ErrorPayload.builder()
-                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-                    .title("User not a member")
-                    .details("User is not a member of this club.")
-                    .messageParameter("clubId", clubId.toString())
-                    .messageParameter("userId", userId.toString())
-                    .build());
-        }
-        if (membership.getRole() == MemberRole.ADMIN) {
-            long adminCount = club.getMembersList().stream()
-                    .filter(m -> m.getRole() == MemberRole.ADMIN)
-                    .count();
-            if (adminCount <= 1) {
-                throw new ValidationException(ErrorPayload.builder()
-                        .errorCode(ClubHubErrorCode.LAST_ADMIN_LEAVE)
-                        .title("Cannot leave club")
-                        .details("At least one admin must remain in the club.")
-                        .messageParameter("clubId", clubId.toString())
-                        .messageParameter("userId", userId.toString())
-                        .build());
-            }
-        }
+		user.getMemberships().add(member);
 
-        User user = membership.getUser();
+		em.merge(club);
+		em.merge(user);
+	}
 
-        club.getMembersList().remove(membership);
-        club.setMembers(club.getMembersList().size());
+	@Transactional
+	public void leaveClub(UUID clubId, UUID userId) {
+		Club club = getClubById(clubId);
+		Member membership = club.getMembersList().stream()
+				.filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+				.findFirst()
+				.orElse(null);
+		if (membership == null) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+					.title("User not a member")
+					.details("User is not a member of this club.")
+					.messageParameter("clubId", clubId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		if (membership.getRole() == MemberRole.ADMIN) {
+			long adminCount = club.getMembersList().stream()
+					.filter(m -> m.getRole() == MemberRole.ADMIN)
+					.count();
+			if (adminCount <= 1) {
+				throw new ValidationException(ErrorPayload.builder()
+						.errorCode(ClubHubErrorCode.LAST_ADMIN_LEAVE)
+						.title("Cannot leave club")
+						.details("At least one admin must remain in the club.")
+						.messageParameter("clubId", clubId.toString())
+						.messageParameter("userId", userId.toString())
+						.build());
+			}
+		}
 
-        user.getMemberships().remove(membership);
-        user.getJoinedClubs().remove(club);
+		User user = membership.getUser();
 
-        em.remove(em.contains(membership) ? membership : em.merge(membership));
-        em.merge(club);
-        em.merge(user);
-    }
+		club.getMembersList().remove(membership);
+		club.setMembers(club.getMembersList().size());
 
-    @Transactional
-    public void updateMemberRole(UUID clubId, UUID memberId, MemberRole newRole, UUID actingUserId) {
-        Club club = getClubById(clubId);
-        Member actingMember = club.getMembersList().stream()
-                .filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))
-                .findFirst()
-                .orElse(null);
-        if (actingMember == null || actingMember.getRole() != MemberRole.ADMIN) {
-            throw new ValidationException(ErrorPayload.builder()
-                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
-                    .title("Insufficient permissions")
-                    .details("Only admins can change member roles.")
-                    .messageParameter("clubId", clubId.toString())
-                    .messageParameter("userId", actingUserId.toString())
-                    .build());
-        }
+		user.getMemberships().remove(membership);
 
-        Member member = club.getMembersList().stream()
-                .filter(m -> m.getId().equals(memberId))
-                .findFirst()
-                .orElse(null);
-        if (member == null) {
-            throw new NotFoundException(ErrorPayload.builder()
-                    .errorCode(ClubHubErrorCode.MEMBER_NOT_FOUND)
-                    .title("Member not found")
-                    .details("No member with id %s exists.".formatted(memberId))
-                    .messageParameter("memberId", memberId.toString())
-                    .build());
-        }
+		em.remove(em.contains(membership) ? membership : em.merge(membership));
+		em.merge(club);
+		em.merge(user);
+	}
 
-        if (actingMember.getId().equals(member.getId())) {
-            long adminCount = club.getMembersList().stream()
-                    .filter(m -> m.getRole() == MemberRole.ADMIN)
-                    .count();
-            if (adminCount <= 1 && newRole != MemberRole.ADMIN) {
-                throw new ValidationException(ErrorPayload.builder()
-                        .errorCode(ClubHubErrorCode.LAST_ADMIN_ROLE_CHANGE)
-                        .title("Cannot change role")
-                        .details("At least one admin must remain in the club.")
-                        .messageParameter("clubId", clubId.toString())
-                        .messageParameter("memberId", memberId.toString())
-                        .build());
-            }
-        }
+	@Transactional
+	public void updateMemberRole(UUID clubId, UUID memberId, MemberRole newRole, UUID actingUserId) {
+		Club club = getClubById(clubId);
+		Member actingMember = club.getMembersList().stream()
+				.filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))
+				.findFirst()
+				.orElse(null);
+		if (actingMember == null || actingMember.getRole() != MemberRole.ADMIN) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+					.title("Insufficient permissions")
+					.details("Only admins can change member roles.")
+					.messageParameter("clubId", clubId.toString())
+					.messageParameter("userId", actingUserId.toString())
+					.build());
+		}
 
-        member.setRole(newRole);
-        em.merge(member);
-    }
+		Member member = club.getMembersList().stream()
+				.filter(m -> m.getId().equals(memberId))
+				.findFirst()
+				.orElse(null);
+		if (member == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.MEMBER_NOT_FOUND)
+					.title("Member not found")
+					.details("No member with id %s exists.".formatted(memberId))
+					.messageParameter("memberId", memberId.toString())
+					.build());
+		}
+
+		if (actingMember.getId().equals(member.getId())) {
+			long adminCount = club.getMembersList().stream()
+					.filter(m -> m.getRole() == MemberRole.ADMIN)
+					.count();
+			if (adminCount <= 1 && newRole != MemberRole.ADMIN) {
+				throw new ValidationException(ErrorPayload.builder()
+						.errorCode(ClubHubErrorCode.LAST_ADMIN_ROLE_CHANGE)
+						.title("Cannot change role")
+						.details("At least one admin must remain in the club.")
+						.messageParameter("clubId", clubId.toString())
+						.messageParameter("memberId", memberId.toString())
+						.build());
+			}
+		}
+
+		member.setRole(newRole);
+		em.merge(member);
+	}
 
 }
