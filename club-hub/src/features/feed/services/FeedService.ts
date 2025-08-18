@@ -26,7 +26,7 @@ export class FeedService extends BaseService {
     const res = await this.api.request<
       | FeedItem[]
       | { content?: FeedItem[] }
-      | { posts?: FeedPost[]; events?: FeedEventItem[] }
+      | { posts?: any[]; events?: any[] }
     >(`/feed?page=${page}&size=${size}`);
 
     if (Array.isArray(res)) return res;
@@ -35,8 +35,37 @@ export class FeedService extends BaseService {
       return (res as any).content;
     }
 
-    const posts = Array.isArray((res as any)?.posts) ? (res as any).posts : [];
-    const events = Array.isArray((res as any)?.events) ? (res as any).events : [];
+    const postsData = Array.isArray((res as any)?.posts) ? (res as any).posts : [];
+    const eventsData = Array.isArray((res as any)?.events) ? (res as any).events : [];
+
+    const posts: FeedPost[] = postsData.map((p: any) => ({
+      id: p.id,
+      clubId: p.club?.id ?? p.clubId ?? '',
+      clubName: p.club?.name ?? '',
+      clubImage: p.club?.image ?? '',
+      author: p.author,
+      content: p.content,
+      likes: p.likes ?? 0,
+      comments: p.comments ?? 0,
+      time: p.time,
+      commentsList: p.commentsList ?? [],
+    }));
+
+    const events: FeedEventItem[] = eventsData.map((e: any) => ({
+      type: 'event',
+      id: e.id,
+      clubId: e.clubId ?? e.club?.id ?? '',
+      clubName: e.club?.name ?? '',
+      clubImage: e.club?.image ?? '',
+      isJoinedClub: e.club?.isJoined ?? false,
+      title: e.title,
+      date: e.date,
+      time: e.time,
+      location: e.location,
+      description: e.description,
+      joinedCount: e.attendees ?? e.joinedCount ?? 0,
+    }));
+
     if (posts.length > 0 || events.length > 0) {
       return [...posts, ...events];
     }

@@ -78,30 +78,25 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
       return;
     }
 
+    const payload = {
+      title,
+      date,
+      time,
+      description: desc,
+      status,
+      ...(location.trim() ? { location } : {}),
+    };
+
     try {
-      let updated: ClubEvent[];
+      let nextEvents: ClubEvent[];
       if (editingId != null) {
-        const dto = await clubService.updateEvent(club.id, editingId, {
-          title,
-          date,
-          time,
-          description: desc,
-          status,
-          location,
-        });
-        updated = club.events.map(ev => (ev.id === editingId ? dto : ev));
+        const updated = await clubService.updateEvent(club.id, editingId, payload);
+        nextEvents = club.events.map(e => (e.id === editingId ? updated : e));
       } else {
-        const dto = await clubService.createEvent(club.id, {
-          title,
-          date,
-          time,
-          description: desc,
-          status,
-          location,
-        });
-        updated = [dto, ...club.events];
+        const created = await clubService.createEvent(club.id, payload);
+        nextEvents = [...club.events, created];
       }
-      onClubUpdate({ ...club, events: updated });
+      onClubUpdate({ ...club, events: nextEvents });
       setShowForm(false);
     } catch (err) {
       setError('Failed to save event');
