@@ -11,7 +11,6 @@ public class UserDTO {
         public UUID id;
         public String email;
         public String username;
-        public String studentId;
         public String avatar;
         public String description;
         public Preference preference;

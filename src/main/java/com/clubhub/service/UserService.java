@@ -126,13 +126,6 @@ public class UserService {
         }
 
         @Transactional
-        public void updateStudentId(UUID id, String studentId) {
-                User user = getUserById(id);
-                user.setStudentId(studentId);
-                userRepository.update(user);
-        }
-
-        @Transactional
         public void updateAvatar(UUID id, String avatar) {
                 User user = getUserById(id);
                 user.setAvatar(avatar);

@@ -45,13 +45,6 @@ public class UserResourceImpl implements UserResource {
         }
 
         @Override
-        public Response updateStudentId(UUID id, UserDTO userDto) {
-                userService.updateStudentId(id, userDto.studentId);
-                var updatedDto = userService.getUserProfile(id);
-                return Response.status(Response.Status.OK).entity(updatedDto).build();
-        }
-
-        @Override
         public Response updateAvatar(UUID id, UserDTO userDto) {
                 userService.updateAvatar(id, userDto.avatar);
                 var updatedDto = userService.getUserProfile(id);
