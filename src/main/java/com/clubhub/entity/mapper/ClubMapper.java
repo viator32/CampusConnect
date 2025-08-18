@@ -71,8 +71,9 @@ public class ClubMapper {
                 dto.date = e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null;
                 dto.time = e.getTime();
                 dto.createdAt = e.getCreatedAt();
+                dto.status = e.getStatus();
                 dto.clubId = e.getClub() != null ? e.getClub().getId() : null;
-                dto.attendees = e.getAttendees() != null ? e.getAttendees().size() : 0;
+                dto.attendeesCount = e.getAttendees() != null ? e.getAttendees().size() : 0;
                 dto.club = e.getClub() != null ? toSummaryDTO(e.getClub()) : null;
                 return dto;
         }

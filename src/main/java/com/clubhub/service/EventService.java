@@ -116,6 +116,7 @@ public class EventService {
         event.setDescription(dto.description);
         event.setDate(dto.date);
         event.setTime(dto.time);
+        event.setStatus(dto.status != null ? dto.status : event.getStatus());
         eventRepository.update(event);
     }
 

@@ -263,6 +263,8 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 ### Events
 
+Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED`.
+
 - **List events of a club** – `GET /api/clubs/{clubId}/events`
 
   ```bash
@@ -300,6 +302,13 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
        -H "Authorization: Bearer <token>"
+  ```
+
+- **Get single event** – `GET /api/clubs/{clubId}/events/{eventId}`
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/events/<eventId>
   ```
 
 ### Comments

@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,8 +45,11 @@ public class Event {
 	@Column(name = "time")
 	private String time;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
+        @Column(name = "created_at")
+        private LocalDateTime createdAt;
+
+        @Enumerated(EnumType.STRING)
+        private EventStatus status = EventStatus.SCHEDULED;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

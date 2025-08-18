@@ -75,9 +75,14 @@ public interface ClubResource {
 	Response deletePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId,
 			@Context ContainerRequestContext ctx);
 
-	@GET
-	@Path("/{clubId}/events")
-	List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+        @GET
+        @Path("/{clubId}/events")
+        List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+
+        @GET
+        @Path("/{clubId}/events/{eventId}")
+        EventDTO getEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+                        @Context ContainerRequestContext ctx);
 
 	@POST
 	@Path("/{clubId}/events")
