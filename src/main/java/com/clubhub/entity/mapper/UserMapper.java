@@ -23,6 +23,16 @@ public class UserMapper {
                 return dto;
         }
 
+        public static UserDTO toSummaryDTO(User user) {
+                UserDTO dto = new UserDTO();
+                dto.id = user.getId();
+                dto.email = user.getEmail();
+                dto.username = user.getUsername();
+                dto.avatar = user.getAvatar();
+                dto.description = user.getDescription();
+                return dto;
+        }
+
         public static User toEntity(UserDTO dto) {
                 User user = new User();
                 user.setId(dto.id);
