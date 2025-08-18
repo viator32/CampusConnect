@@ -1,8 +1,6 @@
 package com.clubhub.entity;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,9 +10,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -28,7 +23,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = "joinedClubs")
+@ToString(exclude = "memberships")
 public class User {
 
 	@Id
@@ -41,15 +36,11 @@ public class User {
 	@Column(nullable = false)
 	private String username; // z. B. MaxM
 
-        @Column(name = "password_hash", nullable = false)
-        private String passwordHash;
+	@Column(name = "password_hash", nullable = false)
+	private String passwordHash;
 
-        @Column(name = "student_id")
-        private String studentId; // Optional: Matrikelnummer oder Ähnliches
-
-	@ManyToMany
-	@JoinTable(name = "user_club", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "club_id"))
-	private List<Club> joinedClubs = new ArrayList<>();
+	@Column(name = "student_id")
+	private String studentId; // Optional: Matrikelnummer oder Ähnliches
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Member> memberships = new HashSet<>();

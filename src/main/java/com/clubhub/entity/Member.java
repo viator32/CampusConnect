@@ -31,12 +31,12 @@ public class Member {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-        @Enumerated(EnumType.STRING)
-        private MemberRole role;
-    private String avatar;
+	@Enumerated(EnumType.STRING)
+	private MemberRole role;
+	private String avatar;
 
-    @Column(name = "joined_at")
-    private LocalDateTime joinedAt;
+	@Column(name = "joined_at")
+	private LocalDateTime joinedAt;
 
 	@ManyToOne
 	@JoinColumn(name = "club_id", nullable = false)
