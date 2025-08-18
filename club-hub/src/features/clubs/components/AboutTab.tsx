@@ -1,6 +1,6 @@
 // src/features/clubs/components/AboutTab.tsx
 import React, { useState } from 'react';
-import { Club, Project } from '../types';
+import { Club, Project, Role } from '../types';
 import {
   Users,
   Calendar,
@@ -13,11 +13,14 @@ import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 interface AboutTabProps {
   club: Club;
   onUpdate: (updated: Club) => void;
+  currentUserRole?: Role;
 }
 
-export default function AboutTab({ club, onUpdate }: AboutTabProps) {
+export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const canEdit = currentUserRole === 'ADMIN';
 
   // initialize form with existing club data
   const [form, setForm] = useState({
@@ -128,25 +131,27 @@ export default function AboutTab({ club, onUpdate }: AboutTabProps) {
           </div>
 
           {/* Edit / Save */}
-          {isEditing ? (
-            <div className="flex gap-2">
+          {canEdit && (
+            isEditing ? (
+              <div className="flex gap-2">
+                <Button
+                  onClick={save}
+                  className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                >
+                  Save
+                </Button>
+                <Button onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+              </div>
+            ) : (
               <Button
-                onClick={save}
-                className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-1"
               >
-                Save
+                <EditIcon className="w-4 h-4" /> Edit
               </Button>
-              <Button onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center gap-1"
-            >
-              <EditIcon className="w-4 h-4" /> Edit
-            </Button>
+            )
           )}
         </div>
 

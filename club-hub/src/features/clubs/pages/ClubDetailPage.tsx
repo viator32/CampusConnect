@@ -27,7 +27,7 @@ export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useProfile();
+  const { user, refresh } = useProfile();
 
   const [club, setClub]           = useState<Club|null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('about');
@@ -44,7 +44,7 @@ export default function ClubDetailPage() {
         if (!c) return setClub(null);
         const joined =
           c.isJoined ||
-          !!user?.joinedClubIds.includes(c.id) ||
+          !!user?.memberships.some(m => m.clubId === c.id) ||
           c.members_list.some(m => String(m.id) === String(user?.id));
         setClub({ ...c, isJoined: joined });
       })
@@ -98,15 +98,20 @@ export default function ClubDetailPage() {
       );
   }
 
-  const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = [
-    { id: 'about',   label: 'About',  icon: BookOpen      },
-    { id: 'events',  label: 'Events', icon: Calendar      },
-    { id: 'forum',   label: 'Forum',  icon: MessageSquare },
-    { id: 'posts',   label: 'Posts',  icon: MessageCircle },
-    { id: 'members', label: 'Members',icon: Users         },
-  ];
+  const userRole: Role | undefined =
+    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
 
-  const userRole: Role | undefined = club?.members_list.find(m => String(m.id) === String(user?.id))?.role as Role | undefined;
+  const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = club.isJoined
+    ? [
+        { id: 'about',   label: 'About',  icon: BookOpen      },
+        { id: 'events',  label: 'Events', icon: Calendar      },
+        { id: 'forum',   label: 'Forum',  icon: MessageSquare },
+        { id: 'posts',   label: 'Posts',  icon: MessageCircle },
+        { id: 'members', label: 'Members',icon: Users         },
+      ]
+    : [
+        { id: 'about', label: 'About', icon: BookOpen }
+      ];
 
   const updateClub = (updated: Club) => setClub(updated);
 
@@ -118,6 +123,16 @@ export default function ClubDetailPage() {
       setClub({ ...club, isJoined: false, members: Math.max(0, club.members - 1) });
       try {
         await clubService.leaveClub(club.id);
+        await refresh();
+        const updated = await clubService.getById(club.id);
+        if (updated) {
+          const joined =
+            updated.isJoined ||
+            updated.members_list.some(m => String(m.id) === String(user?.id));
+          setClub({ ...updated, isJoined: joined });
+          setActiveTab('about');
+          setSearchParams({ tab: 'about' });
+        }
       } catch (err: any) {
         setClub(prev);
         setError(err.message ?? 'Failed to leave club');
@@ -126,6 +141,14 @@ export default function ClubDetailPage() {
       setClub({ ...club, isJoined: true, members: club.members + 1 });
       try {
         await clubService.joinClub(club.id);
+        await refresh();
+        const updated = await clubService.getById(club.id);
+        if (updated) {
+          const joined =
+            updated.isJoined ||
+            updated.members_list.some(m => String(m.id) === String(user?.id));
+          setClub({ ...updated, isJoined: joined });
+        }
       } catch (err: any) {
         setClub(prev);
         setError(err.message ?? 'Failed to join club');
@@ -186,7 +209,13 @@ export default function ClubDetailPage() {
       </div>
 
       {/* Tab contents */}
-      {activeTab === 'about'  && <AboutTab   club={club} onUpdate={updateClub}               />}
+      {activeTab === 'about'  && (
+        <AboutTab
+          club={club}
+          onUpdate={updateClub}
+          currentUserRole={userRole}
+        />
+      )}
       {activeTab === 'events' && (
         <EventsTab
           club={club}

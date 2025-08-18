@@ -18,7 +18,7 @@ export function useClubs() {
         setClubs(
           arr.map(c => ({
             ...c,
-            isJoined: c.isJoined || !!user?.joinedClubIds.includes(c.id)
+            isJoined: c.isJoined || !!user?.memberships.some(m => m.clubId === c.id)
           }))
         )
       )

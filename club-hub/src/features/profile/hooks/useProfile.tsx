@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 type ProfileContextValue = {
   user: User | null;
   updateUser: (u: User) => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
@@ -14,6 +15,11 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<User | null>(null);
   const { token } = useAuth();
 
+  const refresh = async () => {
+    const u = await profileService.getCurrent();
+    setUser(u);
+  };
+
   // fetch user whenever token changes
   useEffect(() => {
     if (!token) {
@@ -21,14 +27,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return;
     }
     let active = true;
-    profileService
-      .getCurrent()
-      .then(u => {
-        if (active) setUser(u);
-      })
-      .catch(() => {
-        if (active) setUser(null);
-      });
+    refresh().catch(() => {
+      if (active) setUser(null);
+    });
     return () => {
       active = false;
     };
@@ -41,7 +42,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   return (
-    <ProfileContext.Provider value={{ user, updateUser }}>
+    <ProfileContext.Provider value={{ user, updateUser, refresh }}>
       {children}
     </ProfileContext.Provider>
   );
