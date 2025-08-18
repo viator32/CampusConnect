@@ -35,11 +35,46 @@ public class UserResourceImpl implements UserResource {
                 return Response.ok(user).build();
         }
 
-	@Override
-	public Response update(UUID id, UserDTO userDto) {
+        @Override
+        public Response update(UUID id, UserDTO userDto) {
                 var entity = UserMapper.toEntity(userDto);
                 entity.setId(id);
                 userService.updateUser(entity);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
+
+        @Override
+        public Response updateStudentId(UUID id, UserDTO userDto) {
+                userService.updateStudentId(id, userDto.studentId);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
+
+        @Override
+        public Response updateAvatar(UUID id, UserDTO userDto) {
+                userService.updateAvatar(id, userDto.avatar);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
+
+        @Override
+        public Response updateDescription(UUID id, UserDTO userDto) {
+                userService.updateDescription(id, userDto.description);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
+
+        @Override
+        public Response updatePreference(UUID id, UserDTO userDto) {
+                userService.updatePreference(id, userDto.preference);
+                var updatedDto = userService.getUserProfile(id);
+                return Response.status(Response.Status.OK).entity(updatedDto).build();
+        }
+
+        @Override
+        public Response updateSubject(UUID id, UserDTO userDto) {
+                userService.updateSubject(id, userDto.subject);
                 var updatedDto = userService.getUserProfile(id);
                 return Response.status(Response.Status.OK).entity(updatedDto).build();
         }
