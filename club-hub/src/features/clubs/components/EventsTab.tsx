@@ -94,7 +94,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
         nextEvents = club.events.map(e => (e.id === editingId ? updated : e));
       } else {
         const created = await clubService.createEvent(club.id, payload);
-        nextEvents = [...club.events, created];
+        nextEvents = [created, ...club.events];
       }
       onClubUpdate({ ...club, events: nextEvents });
       setShowForm(false);
