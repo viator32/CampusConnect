@@ -33,24 +33,24 @@ public class User {
 	private UUID id;
 
 	@Column(nullable = false, unique = true)
-	private String email; // z. B. max.mustermann@uni.de
+	private String email;
 
 	@Column(nullable = false)
-	private String username; // z. B. MaxM
+	private String username;
 
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-        private String avatar;
+	private String avatar;
 
-        @Column(length = 1024)
-        private String description;
+	@Column(length = 1024)
+	private String description;
 
-        @Enumerated(EnumType.STRING)
-        private Preference preference;
+	@Enumerated(EnumType.STRING)
+	private Preference preference;
 
-        @Enumerated(EnumType.STRING)
-        private Subject subject;
+	@Enumerated(EnumType.STRING)
+	private Subject subject;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Member> memberships = new HashSet<>();

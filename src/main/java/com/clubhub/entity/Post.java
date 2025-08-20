@@ -42,13 +42,13 @@ public class Post {
 	private String content;
 	private int likes;
 	private int comments;
-        private int bookmarks;
-        private int shares;
+	private int bookmarks;
+	private int shares;
 
-        @Column(name = "time")
-        private LocalDateTime time;
+	@Column(name = "time")
+	private LocalDateTime time;
 
-        private String photo;
+	private String photo;
 
 	@Embedded
 	private Poll poll;
@@ -56,13 +56,13 @@ public class Post {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<Comment> commentsList = new ArrayList<>();
 
-        @ManyToMany
-        @JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> likedBy = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> likedBy = new HashSet<>();
 
-        @ManyToMany
-        @JoinTable(name = "post_bookmarks", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> bookmarkedBy = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "post_bookmarks", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> bookmarkedBy = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")
