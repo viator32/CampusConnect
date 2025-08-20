@@ -1,5 +1,24 @@
 import type { Role } from '../clubs/types';
 
+export enum Subject {
+  COMPUTER_SCIENCE = 'COMPUTER_SCIENCE',
+  MATHEMATICS = 'MATHEMATICS',
+  PHYSICS = 'PHYSICS',
+  ENGINEERING = 'ENGINEERING',
+  BUSINESS = 'BUSINESS',
+  LAW = 'LAW',
+  MEDICINE = 'MEDICINE',
+}
+
+export enum Preference {
+  PROGRAMMING = 'PROGRAMMING',
+  PHOTOGRAPHY = 'PHOTOGRAPHY',
+  DEBATE = 'DEBATE',
+  VOLUNTEERING = 'VOLUNTEERING',
+  MUSIC = 'MUSIC',
+  ART = 'ART',
+}
+
 export interface Notifications {
   email: boolean;
   push: boolean;
@@ -15,7 +34,7 @@ export interface Privacy {
   allowMessages: boolean;
 }
 
-export interface Preferences {
+export interface PreferencesSettings {
   theme: 'light' | 'dark';
   language: string;
   timeFormat: string;
@@ -24,17 +43,7 @@ export interface Preferences {
 export interface Settings {
   notifications: Notifications;
   privacy: Privacy;
-  preferences: Preferences;
-}
-
-export interface JoinedEvent {
-  id: number;
-  clubId: string;
-  clubName: string;
-  clubImage: string;   // emoji or icon
-  title: string;
-  date: string;        // ISO date "2025-07-20"
-  time: string;        // "14:00"
+  preferences: PreferencesSettings;
 }
 
 export interface Membership {
@@ -52,18 +61,11 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  year: string;
-  major: string;
-  bio: string;
-  joinedDate: string;
+  description: string;
+  subject: Subject | '';
+  preferences: Preference[];
   clubsJoined: number;
   eventsAttended: number;
-  postsCreated: number;
-  badges: string[];
-  interests: string[];
   memberships: Membership[];
   settings: Settings;
-
-  // ← newly added
-  joinedEvents: JoinedEvent[];
 }

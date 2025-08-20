@@ -1,40 +1,51 @@
-// src/features/profile/pages/ProfilePage.tsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import { useProfile } from '../hooks/useProfile';
-import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import Button from '../../../components/Button';
+import { Subject, Preference } from '../types';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
   const { user, updateUser } = useProfile();
-
-  const [isEditing, setIsEditing]         = useState(false);
-  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [prefOpen, setPrefOpen] = useState(false);
   const [form, setForm] = useState({
-    name:      '',
-    bio:       '',
-    year:      '',
-    major:     '',
-    avatar:    '',
-    interests: ''
+    name: '',
+    description: '',
+    subject: '' as Subject | '',
+    preferences: [] as Preference[],
+    avatar: '',
   });
 
-  // prefills when entering edit mode or user loads
+  const prefRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (user) {
       setForm({
-        name:      user.name,
-        bio:       user.bio,
-        year:      user.year,
-        major:     user.major,
-        avatar:    user.avatar,
-        interests: user.interests.join(', ')
+        name: user.name,
+        description: user.description,
+        subject: user.subject || '',
+        preferences: user.preferences || [],
+        avatar: user.avatar || '',
       });
     }
   }, [user, isEditing]);
 
-  if (!user) return <div>Loading…</div>;
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (prefRef.current && !prefRef.current.contains(e.target as Node)) {
+        setPrefOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  if (!user) return <div>Loading...</div>;
+
+  const formatEnum = (v: string) =>
+    v
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -43,57 +54,85 @@ export default function ProfilePage() {
     setForm(f => ({ ...f, [name]: value }));
   };
 
-  const onAvatarClick = (data: EmojiClickData) => {
-    setForm(f => ({ ...f, avatar: data.emoji }));
-    setShowAvatarPicker(false);
+  const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm(f => ({ ...f, subject: e.target.value as Subject }));
+  };
+
+  const togglePreference = (pref: Preference) => {
+    setForm(f => {
+      const exists = f.preferences.includes(pref);
+      return {
+        ...f,
+        preferences: exists
+          ? f.preferences.filter(p => p !== pref)
+          : [...f.preferences, pref],
+      };
+    });
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm(f => ({ ...f, avatar: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const save = async () => {
-    const updated = {
+    await updateUser({
       ...user,
-      name:      form.name.trim() || user.name,
-      bio:       form.bio,
-      year:      form.year,
-      major:     form.major,
-      avatar:    form.avatar,
-      interests: form.interests
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-    };
-    await updateUser(updated);
+      name: form.name.trim() || user.name,
+      description: form.description,
+      subject: form.subject,
+      preferences: form.preferences,
+      avatar: form.avatar,
+    });
     setIsEditing(false);
   };
 
+  const subjectOptions = Object.values(Subject);
+  const preferenceOptions = Object.values(Preference);
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Profile</h1>
+      <h1 className="text-2xl font-bold">My Profile</h1>
 
-      {/* ── Main Card ── */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-start gap-6">
-          {/* Avatar */}
-          <div className="relative">
-            <div
-              className={`w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-4xl cursor-pointer
-                ${isEditing ? 'hover:ring-2 hover:ring-orange-300' : ''}`}
-              onClick={() => isEditing && setShowAvatarPicker(v => !v)}
-            >
-              {form.avatar}
-            </div>
-            {isEditing && showAvatarPicker && (
-              <div className="absolute z-30 top-full mt-2">
-                  <EmojiPicker
-                    onEmojiClick={onAvatarClick}
-                    theme={Theme.AUTO}
-                    height={400}
-                    width="100%"
+          <div className="flex flex-col items-center">
+            <div className={`relative ${isEditing ? 'cursor-pointer group' : ''}`}>
+              {form.avatar ? (
+                <img
+                  src={form.avatar}
+                  alt="avatar"
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-3xl">
+                  👤
+                </div>
+              )}
+              {isEditing && (
+                <>
+                  <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    Change
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
                   />
-              </div>
+                </>
+              )}
+            </div>
+            {isEditing && (
+              <p className="mt-2 text-xs text-gray-500">Click avatar to change</p>
             )}
           </div>
 
-          {/* Info + edit/save */}
           <div className="flex-1">
             <div className="flex justify-between items-center">
               {isEditing ? (
@@ -118,128 +157,117 @@ export default function ProfilePage() {
                     <Button onClick={() => setIsEditing(false)}>Cancel</Button>
                   </>
                 ) : (
-                  <Button onClick={() => setIsEditing(true)}>
-                    Edit Profile
-                  </Button>
+                  <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
                 )}
               </div>
             </div>
 
-            {/* Year / Major */}
-            {isEditing ? (
-              <div className="mt-2 flex gap-4">
-                <input
-                  name="year"
-                  value={form.year}
-                  onChange={handleChange}
-                  placeholder="Year"
-                  className="border rounded px-3 py-1"
-                />
-                <input
-                  name="major"
-                  value={form.major}
-                  onChange={handleChange}
-                  placeholder="Major"
-                  className="border rounded px-3 py-1"
-                />
-              </div>
-            ) : (
-              <p className="mt-1 text-gray-600">
-                {user.year} • {user.major}
-              </p>
-            )}
-
-            {/* Bio */}
             <div className="mt-4">
-              <h3 className="font-semibold text-gray-900">About</h3>
+              <h3 className="font-semibold text-gray-900">Description</h3>
               {isEditing ? (
                 <textarea
-                  name="bio"
-                  value={form.bio}
+                  name="description"
+                  value={form.description}
                   onChange={handleChange}
                   rows={3}
                   className="w-full border rounded px-3 py-2 resize-none"
-                  placeholder="Tell us about yourself…"
                 />
               ) : (
                 <p className="text-gray-700">
-                  {user.bio || (
-                    <span className="italic text-gray-400">No bio yet.</span>
+                  {user.description || (
+                    <span className="italic text-gray-400">No description.</span>
                   )}
                 </p>
               )}
             </div>
 
-            {/* Interests */}
-            <div className="mt-3">
-              <h3 className="font-semibold text-gray-900">Interests</h3>
+            <div className="mt-4">
+              <h3 className="font-semibold text-gray-900">Subject</h3>
               {isEditing ? (
-                <input
-                  name="interests"
-                  value={form.interests}
-                  onChange={handleChange}
-                  placeholder="Comma‑separated"
-                  className="w-full border rounded px-3 py-2"
-                />
+                <select
+                  value={form.subject}
+                  onChange={handleSubjectChange}
+                  className="border rounded px-3 py-2 w-full"
+                >
+                  <option value="">Select subject</option>
+                  {subjectOptions.map(s => (
+                    <option key={s} value={s}>
+                      {formatEnum(s)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-700">
+                  {user.subject ? (
+                    formatEnum(user.subject)
+                  ) : (
+                    <span className="italic text-gray-400">No subject selected.</span>
+                  )}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <h3 className="font-semibold text-gray-900">Preferences</h3>
+              {isEditing ? (
+                <div className="relative" ref={prefRef}>
+                  <button
+                    type="button"
+                    onClick={() => setPrefOpen(o => !o)}
+                    className="border rounded px-3 py-2 w-full text-left flex justify-between items-center"
+                  >
+                    <span>
+                      {form.preferences.length
+                        ? form.preferences.map(p => formatEnum(p)).join(', ')
+                        : 'Select preferences'}
+                    </span>
+                    <span className="ml-2 text-gray-500">&#9662;</span>
+                  </button>
+                  {prefOpen && (
+                    <div className="absolute z-10 mt-1 w-full border rounded bg-white shadow max-h-60 overflow-auto">
+                      {preferenceOptions.map(p => (
+                        <label
+                          key={p}
+                          className="flex items-center px-3 py-1 hover:bg-gray-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            className="mr-2"
+                            checked={form.preferences.includes(p)}
+                            onChange={() => togglePreference(p)}
+                          />
+                          {formatEnum(p)}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {user.interests.length > 0 ? (
-                    user.interests.map(i => (
+                  {user.preferences.length > 0 ? (
+                    user.preferences.map(p => (
                       <span
-                        key={i}
+                        key={p}
                         className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                       >
-                        {i}
+                        {formatEnum(p)}
                       </span>
                     ))
                   ) : (
                     <span className="italic text-gray-400">
-                      No interests yet.
+                      No preferences selected.
                     </span>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Stats */}
             <div className="mt-4 flex gap-6">
-              <Stat label="Clubs Joined"   value={user.clubsJoined} />
+              <Stat label="Clubs Joined" value={user.clubsJoined} />
               <Stat label="Events Attended" value={user.eventsAttended} />
-              <Stat label="Posts Created"   value={user.postsCreated} />
             </div>
           </div>
         </div>
-      </div>
-
-      {/* ── Upcoming Events ── */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Your Upcoming Events</h2>
-        {user.joinedEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {user.joinedEvents.map(ev => (
-              <div
-                key={ev.id}
-                className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md cursor-pointer"
-                onClick={() => navigate(`/clubs/${ev.clubId}`)}
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="text-2xl">{ev.clubImage}</div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{ev.clubName}</p>
-                    <p className="text-sm text-gray-500">
-                      {ev.date} @ {ev.time}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-700">{ev.title}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="italic text-gray-600">
-            You haven’t joined any upcoming events.
-          </p>
-        )}
       </div>
     </div>
   );

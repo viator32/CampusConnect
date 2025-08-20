@@ -37,7 +37,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // updateUser calls service then updates context
   const updateUser = async (updated: User) => {
-    const saved = await profileService.updateCurrent(updated);
+    const saved = await profileService.updateCurrent(updated.id, updated);
     setUser(saved);
   };
 
