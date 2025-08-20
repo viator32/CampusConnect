@@ -9,8 +9,8 @@ export class ProfileService extends BaseService {
   }
 
   /** Update the current user (partial PUT is fine) */
-  async updateCurrent(partial: Partial<User>): Promise<User> {
-    const dto = await this.api.request<any>('/users/me', {
+  async updateCurrent(id: string, partial: Partial<User>): Promise<User> {
+    const dto = await this.api.request<any>(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(mapUserToDto(partial)),
     });
@@ -27,46 +27,29 @@ function mapUser(dto: any): User {
     role: dto.role ?? 'student',
     name: dto.username ?? dto.name ?? '',
     email: dto.email ?? '',
-    avatar: dto.avatar ?? '👤',
-    year: dto.year ?? '',
-    major: dto.major ?? '',
-    bio: dto.bio ?? '',
-    joinedDate: dto.createdAt ?? '',
-    clubsJoined: dto.clubsJoined ?? 0,
-    eventsAttended: dto.eventsAttended ?? 0,
-    postsCreated: dto.postsCreated ?? 0,
-    badges: dto.badges ?? [],
-    interests: dto.interests ?? [],
+    avatar: dto.avatar ?? '',
+    description: dto.description ?? '',
+    subject: dto.subject ?? '',
+    preferences: dto.preferences ?? [],
     memberships:
       dto.memberships?.map((m: any) => ({
         id: m.id,
         clubId: m.clubId,
         name: m.name,
         role: m.role,
-        avatar: m.avatar ?? '👤',
+        avatar: m.avatar ?? '',
         joinedAt: m.joinedAt ?? '',
       })) ?? [],
-    joinedEvents:
-      dto.joinedEvents?.map((e: any) => ({
-        id: e.id,
-        title: e.title,
-        date: e.date,
-        time: e.time,
-        clubId: String(e.clubId),
-        clubName: e.clubName,
-        clubImage: e.clubImage ?? '🏷️',
-      })) ?? [],
-    settings: dto.settings ?? {}, // Add default or mapped settings
+    settings: dto.settings ?? { notifications: {}, privacy: {}, preferences: {} },
   };
 }
 
 function mapUserToDto(p: Partial<User>) {
   const out: any = {};
-  if (p.name !== undefined) out.username = p.name; // backend field
-  if (p.bio !== undefined) out.bio = p.bio;
-  if (p.year !== undefined) out.year = p.year;
-  if (p.major !== undefined) out.major = p.major;
+  if (p.name !== undefined) out.username = p.name;
   if (p.avatar !== undefined) out.avatar = p.avatar;
-  if (p.interests !== undefined) out.interests = p.interests;
+  if (p.description !== undefined) out.description = p.description;
+  if (p.subject !== undefined) out.subject = p.subject;
+  if (p.preferences !== undefined) out.preferences = p.preferences;
   return out;
 }
