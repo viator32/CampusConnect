@@ -41,33 +41,9 @@ public class UserResourceImpl implements UserResource {
 		return userService.getUserProfile(id);
 	}
 
-	@Override
-	public UserDTO updateAvatar(UUID id, UserDTO userDto) {
-		userService.updateAvatar(id, userDto.avatar);
-		return userService.getUserProfile(id);
-	}
-
-	@Override
-	public UserDTO updateDescription(UUID id, UserDTO userDto) {
-		userService.updateDescription(id, userDto.description);
-		return userService.getUserProfile(id);
-	}
-
-	@Override
-	public UserDTO updatePreference(UUID id, UserDTO userDto) {
-		userService.updatePreference(id, userDto.preference);
-		return userService.getUserProfile(id);
-	}
-
-	@Override
-	public UserDTO updateSubject(UUID id, UserDTO userDto) {
-		userService.updateSubject(id, userDto.subject);
-		return userService.getUserProfile(id);
-	}
-
-	@Override
-	public ActionResponseDTO delete(UUID id) {
-		userService.deleteUser(id);
-		return new ActionResponseDTO(true, "User deleted");
-	}
+        @Override
+        public ActionResponseDTO delete(UUID id) {
+                userService.deleteUser(id);
+                return new ActionResponseDTO(true, "User deleted");
+        }
 }

@@ -12,8 +12,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import com.clubhub.entity.Preference;
-import com.clubhub.entity.Subject;
 import com.clubhub.entity.User;
 import com.clubhub.entity.dto.UserDTO;
 import com.clubhub.entity.mapper.UserMapper;
@@ -126,34 +124,6 @@ public class UserService {
         }
 
         @Transactional
-        public void updateAvatar(UUID id, String avatar) {
-                User user = getUserById(id);
-                user.setAvatar(avatar);
-                userRepository.update(user);
-        }
-
-        @Transactional
-        public void updateDescription(UUID id, String description) {
-                User user = getUserById(id);
-                user.setDescription(description);
-                userRepository.update(user);
-        }
-
-        @Transactional
-        public void updatePreference(UUID id, Preference preference) {
-                User user = getUserById(id);
-                user.setPreference(preference);
-                userRepository.update(user);
-        }
-
-        @Transactional
-        public void updateSubject(UUID id, Subject subject) {
-                User user = getUserById(id);
-                user.setSubject(subject);
-                userRepository.update(user);
-        }
-
-	@Transactional
         public void deleteUser(UUID id) {
                 User user = userRepository.findById(id);
                 if (user == null) {
