@@ -114,13 +114,22 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        http://localhost:8080/api/users/<userId>
   ```
 
-- **Update user** – `PUT /api/users/{id}` (200 OK)
+- **Update user profile** – `PUT /api/users/{id}` (200 OK)
 
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId> \
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"username":"newName","avatar":"<base64-encoded-image>","description":"New bio","preference":"PROGRAMMING","subject":"COMPUTER_SCIENCE"}'
+  ```
+
+- **Change password** – `PUT /api/users/{id}/password` (200 OK)
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/password \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"currentPassword":"oldSecret","newPassword":"newSecret"}'
   ```
 
 - **Delete user** – `DELETE /api/users/{id}` (200 OK)

@@ -119,18 +119,44 @@ public class UserService {
 
 
         @Transactional
-        public User updateUser(User user) {
+        public User updateUserProfile(User user) {
                 User existing = getUserById(user.getId());
-                existing.setEmail(user.getEmail());
-                existing.setUsername(user.getUsername());
-                existing.setAvatar(user.getAvatar());
-                existing.setDescription(user.getDescription());
-                existing.setPreference(user.getPreference());
-                existing.setSubject(user.getSubject());
-                if (user.getPasswordHash() != null) {
-                        existing.setPasswordHash(user.getPasswordHash());
+                if (user.getEmail() != null) {
+                        existing.setEmail(user.getEmail());
+                }
+                if (user.getUsername() != null) {
+                        existing.setUsername(user.getUsername());
+                }
+                if (user.getAvatar() != null) {
+                        existing.setAvatar(user.getAvatar());
+                }
+                if (user.getDescription() != null) {
+                        existing.setDescription(user.getDescription());
+                }
+                if (user.getPreference() != null) {
+                        existing.setPreference(user.getPreference());
+                }
+                if (user.getSubject() != null) {
+                        existing.setSubject(user.getSubject());
                 }
                 return userRepository.update(existing);
+        }
+
+        @Transactional
+        public void changePassword(UUID id, String currentPassword, String newPassword) {
+                User existing = getUserById(id);
+                String currentHash = hash(currentPassword);
+                if (!existing.getPasswordHash().equals(currentHash)) {
+                        throw new UnauthorizedException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+                                        .title("Invalid credentials")
+                                        .details("Current password is incorrect.")
+                                        .messageParameter("userId", id.toString())
+                                        .sourcePointer("currentPassword")
+                                        .build());
+                }
+                existing.setPasswordHash(hash(newPassword));
+                userRepository.update(existing);
         }
 
         @Transactional

@@ -16,6 +16,8 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.UserDTO;
+import com.clubhub.entity.dto.UserPasswordUpdateDTO;
+import com.clubhub.entity.dto.UserUpdateDTO;
 
 @Path("/api/users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,9 +35,13 @@ public interface UserResource {
 	@Path("/{id}")
 	UserDTO getById(@PathParam("id") UUID id);
 
-	@PUT
-	@Path("/{id}")
-	UserDTO update(@PathParam("id") UUID id, UserDTO userDto);
+        @PUT
+        @Path("/{id}")
+        UserDTO update(@PathParam("id") UUID id, UserUpdateDTO userDto);
+
+        @PUT
+        @Path("/{id}/password")
+        ActionResponseDTO updatePassword(@PathParam("id") UUID id, UserPasswordUpdateDTO passwordDto);
 
         @DELETE
         @Path("/{id}")
