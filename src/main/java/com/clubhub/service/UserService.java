@@ -118,9 +118,19 @@ public class UserService {
         }
 
 
-	@Transactional
+        @Transactional
         public User updateUser(User user) {
-                return userRepository.update(user);
+                User existing = getUserById(user.getId());
+                existing.setEmail(user.getEmail());
+                existing.setUsername(user.getUsername());
+                existing.setAvatar(user.getAvatar());
+                existing.setDescription(user.getDescription());
+                existing.setPreference(user.getPreference());
+                existing.setSubject(user.getSubject());
+                if (user.getPasswordHash() != null) {
+                        existing.setPasswordHash(user.getPasswordHash());
+                }
+                return userRepository.update(existing);
         }
 
         @Transactional
