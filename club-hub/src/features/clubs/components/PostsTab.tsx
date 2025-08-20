@@ -68,21 +68,14 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     }
 
     try {
-      await clubService.createPost(club.id, text);
-    } catch {
-      // backend may return 201 with empty body causing a parse error
-      // ignore to allow UI to refresh via listPosts
-    }
-
-    try {
-      const posts = await clubService.listPosts(club.id);
-      onClubUpdate({ ...club, posts });
+      const created = await clubService.createPost(club.id, text);
+      onClubUpdate({ ...club, posts: [created, ...club.posts] });
       setText('');
       setPhoto(null);
       setIsPoll(false);
       setQuestion('');
       setOptions(['', '']);
-      if (posts[0]) onSelectPost(posts[0]);
+      onSelectPost(created);
     } catch {
       setError('Failed to create post');
     }
