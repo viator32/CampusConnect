@@ -31,6 +31,8 @@ function mapUser(dto: any): User {
     description: dto.description ?? '',
     subject: dto.subject ?? '',
     preferences: dto.preferences ?? [],
+    clubsJoined: dto.clubsJoined ?? 0,
+    eventsAttended: dto.eventsAttended ?? 0,
     memberships:
       dto.memberships?.map((m: any) => ({
         id: m.id,

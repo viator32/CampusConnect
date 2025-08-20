@@ -64,6 +64,8 @@ export interface User {
   description: string;
   subject: Subject | '';
   preferences: Preference[];
+  clubsJoined: number;
+  eventsAttended: number;
   memberships: Membership[];
   settings: Settings;
 }

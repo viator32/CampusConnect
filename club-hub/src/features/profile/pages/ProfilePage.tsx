@@ -261,9 +261,23 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            <div className="mt-4 flex gap-6">
+              <Stat label="Clubs Joined" value={user.clubsJoined} />
+              <Stat label="Events Attended" value={user.eventsAttended} />
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <div className="text-xl font-bold text-orange-600">{value}</div>
+      <div className="text-sm text-gray-600">{label}</div>
     </div>
   );
 }
