@@ -26,9 +26,9 @@ public class FeedResourceImpl implements FeedResource {
 	public FeedDTO getFeed(@Context ContainerRequestContext ctx, int page, int size) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		FeedDTO feed = new FeedDTO();
-		feed.posts = postService.getFeedForUser(userId, page, size).stream()
-				.map(ClubMapper::toDTO)
-				.toList();
+                feed.posts = postService.getFeedForUser(userId, page, size).stream()
+                                .map(p -> ClubMapper.toDTO(p, userId))
+                                .toList();
 		feed.events = eventService.getFeedForUser(userId, page, size).stream()
 				.map(EventMapper::toDTO)
 				.toList();

@@ -48,37 +48,37 @@ public class CommentResourceImpl implements CommentResource {
 					.messageParameter("userId", userId.toString())
 					.build());
 		}
-		return post.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+                return post.getCommentsList().stream().map(c -> ClubMapper.toDTO(c, userId)).toList();
 	}
 
 	@Override
 	public CommentDTO addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		var comment = commentService.addComment(postId, userId, dto.content);
-		return ClubMapper.toDTO(comment);
+                var comment = commentService.addComment(postId, userId, dto.content);
+                return ClubMapper.toDTO(comment, userId);
 	}
 
 	@Override
 	public CommentDTO likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		commentService.like(commentId, userId);
-		var comment = commentService.getComment(commentId);
-		return ClubMapper.toDTO(comment);
+                commentService.like(commentId, userId);
+                var comment = commentService.getComment(commentId);
+                return ClubMapper.toDTO(comment, userId);
 	}
 
 	@Override
 	public CommentDTO unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		commentService.unlike(commentId, userId);
-		var comment = commentService.getComment(commentId);
-		return ClubMapper.toDTO(comment);
+                commentService.unlike(commentId, userId);
+                var comment = commentService.getComment(commentId);
+                return ClubMapper.toDTO(comment, userId);
 	}
 
 	@Override
 	public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		var updated = commentService.updateComment(commentId, userId, dto.content);
-		return ClubMapper.toDTO(updated);
+                var updated = commentService.updateComment(commentId, userId, dto.content);
+                return ClubMapper.toDTO(updated, userId);
 	}
 
 	@Override

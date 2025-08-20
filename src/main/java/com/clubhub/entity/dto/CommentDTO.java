@@ -6,7 +6,8 @@ public class CommentDTO {
 
 	public UUID id;
 	public String author;
-	public String content;
-	public String time;
-	public int likes;
+        public String content;
+        public String time;
+        public int likes;
+        public boolean liked;
 }
