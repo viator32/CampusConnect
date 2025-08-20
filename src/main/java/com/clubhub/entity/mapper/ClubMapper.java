@@ -1,7 +1,7 @@
 package com.clubhub.entity.mapper;
 
 import java.time.LocalDate;
-
+import java.util.UUID;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Comment;
 import com.clubhub.entity.Event;
@@ -21,16 +21,20 @@ import com.clubhub.entity.dto.PostDTO;
 
 public class ClubMapper {
 
-	public static ClubDTO toDTO(Club club) {
-		ClubDTO dto = toSummaryDTO(club);
+        public static ClubDTO toDTO(Club club) {
+                return toDTO(club, null);
+        }
 
-		dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
-		dto.posts = club.getPosts().stream().map(ClubMapper::toDTO).toList();
-		dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
-		dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
+        public static ClubDTO toDTO(Club club, UUID userId) {
+                ClubDTO dto = toSummaryDTO(club);
 
-		return dto;
-	}
+                dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
+                dto.posts = club.getPosts().stream().map(p -> toDTO(p, userId)).toList();
+                dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
+                dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
+
+                return dto;
+        }
 
 	public static ClubDTO toSummaryDTO(Club club) {
 		ClubDTO dto = new ClubDTO();
@@ -79,20 +83,25 @@ public class ClubMapper {
         }
 
         public static PostDTO toDTO(Post p) {
+                return toDTO(p, null);
+        }
+
+        public static PostDTO toDTO(Post p, UUID userId) {
                 PostDTO dto = new PostDTO();
                 dto.id = p.getId();
-		dto.author = p.getAuthor();
-		dto.content = p.getContent();
-		dto.likes = p.getLikes();
-		dto.comments = p.getComments();
-		dto.bookmarks = p.getBookmarks();
-		dto.shares = p.getShares();
-		dto.time = p.getTime();
+                dto.author = p.getAuthor();
+                dto.content = p.getContent();
+                dto.likes = p.getLikes();
+                dto.comments = p.getComments();
+                dto.bookmarks = p.getBookmarks();
+                dto.shares = p.getShares();
+                dto.time = p.getTime();
                 dto.photo = p.getPhoto();
 
                 dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
-                dto.commentsList = p.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+                dto.commentsList = p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
                 dto.club = p.getClub() != null ? toSummaryDTO(p.getClub()) : null;
+                dto.liked = userId != null && p.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId));
                 return dto;
         }
 
@@ -110,15 +119,20 @@ public class ClubMapper {
 		return dto;
 	}
 
-	public static CommentDTO toDTO(Comment c) {
-		CommentDTO dto = new CommentDTO();
-		dto.id = c.getId();
-		dto.author = c.getAuthor();
-		dto.content = c.getContent();
-		dto.time = c.getTime();
-		dto.likes = c.getLikes();
-		return dto;
-	}
+        public static CommentDTO toDTO(Comment c) {
+                return toDTO(c, null);
+        }
+
+        public static CommentDTO toDTO(Comment c, UUID userId) {
+                CommentDTO dto = new CommentDTO();
+                dto.id = c.getId();
+                dto.author = c.getAuthor();
+                dto.content = c.getContent();
+                dto.time = c.getTime();
+                dto.likes = c.getLikes();
+                dto.liked = userId != null && c.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId));
+                return dto;
+        }
 
         public static MemberDTO toDTO(Member m) {
                 MemberDTO dto = new MemberDTO();

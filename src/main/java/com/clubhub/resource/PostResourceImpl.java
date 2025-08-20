@@ -43,13 +43,13 @@ public class PostResourceImpl implements PostResource {
 					.messageParameter("userId", userId.toString())
 					.build());
 		}
-		return ClubMapper.toDTO(post);
+                return ClubMapper.toDTO(post, userId);
 	}
 
 	@Override
 	public List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		return postService.getBookmarkedPosts(userId).stream().map(ClubMapper::toDTO).toList();
+                return postService.getBookmarkedPosts(userId).stream().map(p -> ClubMapper.toDTO(p, userId)).toList();
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class PostResourceImpl implements PostResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.like(postId, userId);
 		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post);
+                return ClubMapper.toDTO(post, userId);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class PostResourceImpl implements PostResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.unlike(postId, userId);
 		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post);
+                return ClubMapper.toDTO(post, userId);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class PostResourceImpl implements PostResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.bookmark(postId, userId);
 		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post);
+                return ClubMapper.toDTO(post, userId);
 	}
 
 	@Override
@@ -81,6 +81,6 @@ public class PostResourceImpl implements PostResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.share(postId, userId);
 		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post);
+                return ClubMapper.toDTO(post, userId);
 	}
 }

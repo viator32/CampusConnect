@@ -57,9 +57,9 @@ public class ClubResourceImpl implements ClubResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		boolean isMember = club.getMembersList().stream()
 				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-		if (isMember) {
-			return ClubMapper.toDTO(club);
-		}
+                if (isMember) {
+                        return ClubMapper.toDTO(club, userId);
+                }
 		return ClubMapper.toSummaryDTO(club);
 	}
 
@@ -119,7 +119,7 @@ public class ClubResourceImpl implements ClubResource {
 					.messageParameter("userId", userId.toString())
 					.build());
 		}
-		return club.getPosts().stream().map(ClubMapper::toDTO).toList();
+                return club.getPosts().stream().map(p -> ClubMapper.toDTO(p, userId)).toList();
 	}
 
 	@Override
@@ -144,16 +144,16 @@ public class ClubResourceImpl implements ClubResource {
 		if (post.getTime() == null) {
 			post.setTime(java.time.LocalDateTime.now());
 		}
-		var created = postService.createPost(clubId, post);
-		return ClubMapper.toDTO(created);
+                var created = postService.createPost(clubId, post);
+                return ClubMapper.toDTO(created, userId);
 	}
 
 	@Override
 	public PostDTO updatePost(UUID clubId, UUID postId, PostDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-		postService.updatePost(clubId, postId, dto, userId);
-		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post);
+                postService.updatePost(clubId, postId, dto, userId);
+                var post = postService.getPost(postId);
+                return ClubMapper.toDTO(post, userId);
 	}
 
 	@Override

@@ -21,5 +21,6 @@ public class PostDTO {
         public List<CommentDTO> commentsList = new ArrayList<>();
 
         public ClubDTO club;
+        public boolean liked;
 
 }
