@@ -3,6 +3,7 @@ package com.clubhub.entity.mapper;
 import com.clubhub.entity.User;
 import com.clubhub.entity.dto.RegisterDTO;
 import com.clubhub.entity.dto.UserDTO;
+import com.clubhub.entity.dto.UserUpdateDTO;
 
 public class UserMapper {
 
@@ -36,6 +37,17 @@ public class UserMapper {
         public static User toEntity(UserDTO dto) {
                 User user = new User();
                 user.setId(dto.id);
+                user.setEmail(dto.email);
+                user.setUsername(dto.username);
+                user.setAvatar(dto.avatar);
+                user.setDescription(dto.description);
+                user.setPreference(dto.preference);
+                user.setSubject(dto.subject);
+                return user;
+        }
+
+        public static User toEntity(UserUpdateDTO dto) {
+                User user = new User();
                 user.setEmail(dto.email);
                 user.setUsername(dto.username);
                 user.setAvatar(dto.avatar);
