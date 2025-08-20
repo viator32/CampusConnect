@@ -37,24 +37,8 @@ public interface UserResource {
 	@Path("/{id}")
 	UserDTO update(@PathParam("id") UUID id, UserDTO userDto);
 
-	@PUT
-	@Path("/{id}/avatar")
-	UserDTO updateAvatar(@PathParam("id") UUID id, UserDTO userDto);
-
-	@PUT
-	@Path("/{id}/description")
-	UserDTO updateDescription(@PathParam("id") UUID id, UserDTO userDto);
-
-	@PUT
-	@Path("/{id}/preference")
-	UserDTO updatePreference(@PathParam("id") UUID id, UserDTO userDto);
-
-	@PUT
-	@Path("/{id}/subject")
-	UserDTO updateSubject(@PathParam("id") UUID id, UserDTO userDto);
-
-	@DELETE
-	@Path("/{id}")
-	ActionResponseDTO delete(@PathParam("id") UUID id);
+        @DELETE
+        @Path("/{id}")
+        ActionResponseDTO delete(@PathParam("id") UUID id);
 
 }
