@@ -117,11 +117,24 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 - **Update user profile** – `PUT /api/users/{id}` (200 OK)
 
   ```bash
-  curl -X PUT http://localhost:8080/api/users/<userId> \
-       -H "Content-Type: application/json" \
-       -H "Authorization: Bearer <token>" \
-       -d '{"username":"newName","avatar":"<base64-encoded-image>","description":"New bio","preference":"PROGRAMMING","subject":"COMPUTER_SCIENCE"}'
+  curl -X PUT http://localhost:8080/api/users/<userId> \\
+       -H "Content-Type: application/json" \\
+       -H "Authorization: Bearer <token>" \\
+       -d '{"username":"newName","description":"New bio","preferences":["PROGRAMMING","MUSIC"],"subject":"COMPUTER_SCIENCE"}'
   ```
+
+  The `preferences` field accepts an array of values from the `Preference` enum.
+
+- **Update user avatar** – `PUT /api/users/{id}/avatar` (200 OK)
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/users/<userId>/avatar \\
+       -H "Authorization: Bearer <token>" \\
+       -H "Content-Type: application/octet-stream" \\
+       --data-binary "@avatar.png"
+  ```
+
+  The endpoint expects raw image bytes in the request body. Avatars are returned as Base64-encoded strings in user profiles.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 

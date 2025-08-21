@@ -134,9 +134,9 @@ public class UserService {
                 if (user.getDescription() != null) {
                         existing.setDescription(user.getDescription());
                 }
-                if (user.getPreference() != null) {
-                        existing.setPreference(user.getPreference());
-                }
+               if (user.getPreferences() != null) {
+                       existing.setPreferences(user.getPreferences());
+               }
                 if (user.getSubject() != null) {
                         existing.setSubject(user.getSubject());
                 }

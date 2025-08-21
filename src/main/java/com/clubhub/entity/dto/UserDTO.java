@@ -1,6 +1,7 @@
 package com.clubhub.entity.dto;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.clubhub.entity.Preference;
@@ -13,7 +14,7 @@ public class UserDTO {
         public String username;
         public String avatar;
         public String description;
-        public Preference preference;
+        public Set<Preference> preferences;
         public Subject subject;
         public List<MemberDTO> memberships;
         public int clubsJoined;
