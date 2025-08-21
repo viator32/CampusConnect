@@ -16,7 +16,7 @@ public class UserMapper {
                dto.username = user.getUsername();
                dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
                dto.description = user.getDescription();
-                dto.preference = user.getPreference();
+               dto.preferences = user.getPreferences();
                 dto.subject = user.getSubject();
                 dto.memberships = user.getMemberships()
                                 .stream()
@@ -45,7 +45,7 @@ public class UserMapper {
                        user.setAvatar(Base64.getDecoder().decode(dto.avatar));
                }
                user.setDescription(dto.description);
-               user.setPreference(dto.preference);
+               user.setPreferences(dto.preferences);
                user.setSubject(dto.subject);
                return user;
        }
@@ -55,7 +55,7 @@ public class UserMapper {
                user.setEmail(dto.email);
                user.setUsername(dto.username);
                user.setDescription(dto.description);
-               user.setPreference(dto.preference);
+               user.setPreferences(dto.preferences);
                user.setSubject(dto.subject);
                return user;
        }

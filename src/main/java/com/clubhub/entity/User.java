@@ -5,13 +5,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -45,16 +49,19 @@ public class User {
        @Lob
        private byte[] avatar;
 
-	@Column(length = 1024)
-	private String description;
+        @Column(length = 1024)
+        private String description;
 
-	@Enumerated(EnumType.STRING)
-	private Preference preference;
+       @ElementCollection(fetch = FetchType.EAGER, targetClass = Preference.class)
+       @Enumerated(EnumType.STRING)
+       @CollectionTable(name = "user_preferences", joinColumns = @JoinColumn(name = "user_id"))
+       @Column(name = "preference")
+       private Set<Preference> preferences = new HashSet<>();
 
-	@Enumerated(EnumType.STRING)
-	private Subject subject;
+        @Enumerated(EnumType.STRING)
+        private Subject subject;
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Member> memberships = new HashSet<>();
+        @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+        private Set<Member> memberships = new HashSet<>();
 
 }
