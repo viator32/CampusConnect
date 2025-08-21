@@ -50,8 +50,14 @@ export class EnvironmentApi {
     }
 
     const res = await fetch(url, { ...options, headers });
+    // Redirect to login if the session is no longer valid
+    if (res.status === 401) {
+      EnvironmentApi.setAuthToken(null);
+      window.location.href = '/login';
+      throw new Error('401 Unauthorized');
+    }
 
-    // No refresh endpoint is required beyond POST /auth/refresh with { token }, so we simply throw on 401 here.
+    // No refresh endpoint is required beyond POST /auth/refresh with { token }, so we simply throw on other non-ok responses.
     if (!res.ok) {
       const text = await res.text();
       let data: any = null;
