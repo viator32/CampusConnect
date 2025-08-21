@@ -6,8 +6,7 @@ import com.clubhub.entity.Subject;
 public class UserUpdateDTO {
         public String email;
         public String username;
-        public String avatar;
-        public String description;
+       public String description;
         public Preference preference;
         public Subject subject;
 }

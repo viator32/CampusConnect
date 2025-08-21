@@ -43,8 +43,14 @@ public class UserResourceImpl implements UserResource {
                 return userService.getUserProfile(id);
         }
 
-        @Override
-        public ActionResponseDTO updatePassword(UUID id, UserPasswordUpdateDTO passwordDto) {
+       @Override
+       public UserDTO updateAvatar(UUID id, byte[] avatar) {
+               userService.updateAvatar(id, avatar);
+               return userService.getUserProfile(id);
+       }
+
+       @Override
+       public ActionResponseDTO updatePassword(UUID id, UserPasswordUpdateDTO passwordDto) {
                 userService.changePassword(id, passwordDto.currentPassword, passwordDto.newPassword);
                 return new ActionResponseDTO(true, "Password updated");
         }
