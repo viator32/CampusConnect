@@ -39,6 +39,11 @@ public interface UserResource {
         @Path("/{id}")
         UserDTO update(@PathParam("id") UUID id, UserUpdateDTO userDto);
 
+       @PUT
+       @Path("/{id}/avatar")
+       @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+       UserDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar);
+
         @PUT
         @Path("/{id}/password")
         ActionResponseDTO updatePassword(@PathParam("id") UUID id, UserPasswordUpdateDTO passwordDto);

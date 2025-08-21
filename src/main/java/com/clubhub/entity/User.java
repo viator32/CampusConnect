@@ -12,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -41,7 +42,8 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-	private String avatar;
+       @Lob
+       private byte[] avatar;
 
 	@Column(length = 1024)
 	private String description;
