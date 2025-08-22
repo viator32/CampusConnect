@@ -161,13 +161,13 @@ public class ClubMapper {
 
 	public static ForumThreadDTO toDTO(ForumThread t) {
 		ForumThreadDTO dto = new ForumThreadDTO();
-		dto.id = t.getId();
-		dto.title = t.getTitle();
-		dto.author = t.getAuthor();
-		dto.replies = t.getReplies();
-		dto.lastActivity = t.getLastActivity();
-		dto.content = t.getContent();
-		dto.posts = t.getPosts().stream().map(ClubMapper::toDTO).toList();
-		return dto;
+                dto.id = t.getId();
+                dto.title = t.getTitle();
+                dto.authorId = t.getAuthor() != null ? t.getAuthor().getId() : null;
+                dto.replies = t.getReplies();
+                dto.lastActivity = t.getLastActivity();
+                dto.content = t.getContent();
+                dto.posts = t.getPosts().stream().map(ClubMapper::toDTO).toList();
+                return dto;
 	}
 }

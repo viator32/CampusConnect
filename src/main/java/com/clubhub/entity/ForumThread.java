@@ -32,8 +32,11 @@ public class ForumThread {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-	private String title;
-        private String author;
+        private String title;
+
+        @ManyToOne
+        @JoinColumn(name = "author_id")
+        private User author;
         private int replies;
 
         @Column(name = "last_activity")
