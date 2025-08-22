@@ -3,6 +3,7 @@ package com.clubhub.entity.mapper;
 import java.util.Base64;
 
 import com.clubhub.entity.User;
+import com.clubhub.entity.dto.AuthorDTO;
 import com.clubhub.entity.dto.RegisterDTO;
 import com.clubhub.entity.dto.UserDTO;
 import com.clubhub.entity.dto.UserUpdateDTO;
@@ -35,6 +36,14 @@ public class UserMapper {
                dto.description = user.getDescription();
                 return dto;
         }
+
+       public static AuthorDTO toAuthorDTO(User user) {
+               AuthorDTO dto = new AuthorDTO();
+               dto.id = user.getId();
+               dto.username = user.getUsername();
+               dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
+               return dto;
+       }
 
         public static User toEntity(UserDTO dto) {
                 User user = new User();
