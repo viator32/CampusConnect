@@ -97,7 +97,7 @@ public class ClubMapper {
         public static PostDTO toDTO(Post p, UUID userId) {
                 PostDTO dto = new PostDTO();
                 dto.id = p.getId();
-                dto.authorId = p.getAuthor() != null ? p.getAuthor().getId() : null;
+                dto.author = p.getAuthor() != null ? UserMapper.toAuthorDTO(p.getAuthor()) : null;
                 dto.content = p.getContent();
                 dto.likes = p.getLikes();
                 dto.comments = p.getComments();
@@ -163,7 +163,7 @@ public class ClubMapper {
 		ForumThreadDTO dto = new ForumThreadDTO();
                 dto.id = t.getId();
                 dto.title = t.getTitle();
-                dto.authorId = t.getAuthor() != null ? t.getAuthor().getId() : null;
+                dto.author = t.getAuthor() != null ? UserMapper.toAuthorDTO(t.getAuthor()) : null;
                 dto.replies = t.getReplies();
                 dto.lastActivity = t.getLastActivity();
                 dto.content = t.getContent();

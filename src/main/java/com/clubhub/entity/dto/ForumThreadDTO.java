@@ -6,10 +6,10 @@ import java.util.UUID;
 
 public class ForumThreadDTO {
 
-	public UUID id;
-	public String title;
-        public UUID authorId;
-	public int replies;
+        public UUID id;
+        public String title;
+        public AuthorDTO author;
+        public int replies;
 	public String lastActivity;
 	public String content;
 	public List<CommentDTO> posts = new ArrayList<>();
