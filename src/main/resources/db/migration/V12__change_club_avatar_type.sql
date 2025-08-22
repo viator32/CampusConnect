@@ -1,0 +1,2 @@
+ALTER TABLE clubs
+    ALTER COLUMN avatar TYPE BYTEA;

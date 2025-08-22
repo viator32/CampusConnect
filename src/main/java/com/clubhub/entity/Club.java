@@ -39,7 +39,7 @@ public class Club {
 
         private String category;
         private String image;
-        private String avatar;
+        private byte[] avatar;
 
         @Column(name = "is_joined")
         private boolean isJoined;

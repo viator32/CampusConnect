@@ -185,6 +185,14 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"description":"Updated description"}'
   ```
 
+- **Update club avatar** – `PUT /api/clubs/{id}/avatar` (200 OK)
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/clubs/<clubId>/avatar \
+       -H "Authorization: Bearer <token>" \
+       --data-binary "@avatar.png"
+  ```
+
 - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 
   ```bash
