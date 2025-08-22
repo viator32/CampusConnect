@@ -8,7 +8,7 @@ public class ForumThreadDTO {
 
 	public UUID id;
 	public String title;
-	public String author;
+        public UUID authorId;
 	public int replies;
 	public String lastActivity;
 	public String content;

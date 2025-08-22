@@ -50,7 +50,7 @@ CREATE TABLE event_user (
 CREATE TABLE forumthread (
     id            UUID PRIMARY KEY,
     title         VARCHAR,
-    author        VARCHAR,
+    author_id     UUID REFERENCES users (id) ON DELETE SET NULL,
     replies       INTEGER,
     last_activity VARCHAR,
     content       TEXT,
@@ -59,7 +59,7 @@ CREATE TABLE forumthread (
 
 CREATE TABLE post (
     id            UUID PRIMARY KEY,
-    author        VARCHAR,
+    author_id     UUID REFERENCES users (id) ON DELETE SET NULL,
     content       TEXT,
     likes         INTEGER,
     comments      INTEGER,
