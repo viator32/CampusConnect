@@ -7,10 +7,12 @@ import java.util.UUID;
 public class ClubDTO {
 	public UUID id;
 	public String name;
-	public String description;
-	public String category;
-	public String image;
-	public boolean isJoined;
+        public String description;
+        public String category;
+        public String image;
+        public String location;
+        public String avatar;
+        public boolean isJoined;
 	public int members;
 	public int eventsCount;
 	public int postsCount;

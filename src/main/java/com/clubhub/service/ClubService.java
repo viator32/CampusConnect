@@ -88,12 +88,15 @@ public class ClubService {
 					.sourcePointer("clubId")
 					.build());
 		}
-		existing.setName(updated.getName());
-		existing.setDescription(updated.getDescription());
-		existing.setLocation(updated.getLocation());
+                existing.setName(updated.getName());
+                existing.setDescription(updated.getDescription());
+                existing.setLocation(updated.getLocation());
+                existing.setCategory(updated.getCategory());
+                existing.setImage(updated.getImage());
+                existing.setAvatar(updated.getAvatar());
 
-		return clubRepository.update(existing);
-	}
+                return clubRepository.update(existing);
+        }
 
 	@Transactional
 	public boolean deleteClub(UUID id) {

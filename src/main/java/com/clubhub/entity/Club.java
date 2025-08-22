@@ -35,10 +35,11 @@ public class Club {
 
 	private String description;
 
-	private String location;
+        private String location;
 
         private String category;
         private String image;
+        private String avatar;
 
         @Column(name = "is_joined")
         private boolean isJoined;

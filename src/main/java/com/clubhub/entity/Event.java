@@ -42,8 +42,10 @@ public class Event {
 	@Column(name = "date")
 	private LocalDate date;
 
-	@Column(name = "time")
-	private String time;
+        @Column(name = "time")
+        private String time;
+
+        private String location;
 
         @Column(name = "created_at")
         private LocalDateTime createdAt;
