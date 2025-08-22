@@ -94,7 +94,7 @@ public class ClubMapper {
         public static PostDTO toDTO(Post p, UUID userId) {
                 PostDTO dto = new PostDTO();
                 dto.id = p.getId();
-                dto.author = p.getAuthor();
+                dto.authorId = p.getAuthor() != null ? p.getAuthor().getId() : null;
                 dto.content = p.getContent();
                 dto.likes = p.getLikes();
                 dto.comments = p.getComments();

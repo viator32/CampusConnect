@@ -139,11 +139,10 @@ public class ClubResourceImpl implements ClubResource {
 					.messageParameter("userId", userId.toString())
 					.build());
 		}
-		var post = PostMapper.toEntity(dto, club);
-		post.setAuthor(user.getUsername());
-		if (post.getTime() == null) {
-			post.setTime(java.time.LocalDateTime.now());
-		}
+                var post = PostMapper.toEntity(dto, club, user);
+                if (post.getTime() == null) {
+                        post.setTime(java.time.LocalDateTime.now());
+                }
                 var created = postService.createPost(clubId, post);
                 return ClubMapper.toDTO(created, userId);
 	}

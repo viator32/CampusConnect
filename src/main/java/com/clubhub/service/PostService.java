@@ -175,7 +175,7 @@ public class PostService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        boolean isAuthor = post.getAuthor() != null && post.getAuthor().equals(user.getUsername());
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
         if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
@@ -213,7 +213,7 @@ public class PostService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        boolean isAuthor = post.getAuthor() != null && post.getAuthor().equals(user.getUsername());
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
         if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
