@@ -13,6 +13,7 @@ import SharePopup from '../../../components/SharePopup';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
+import ProcessingBox from '../../../components/ProcessingBox';
 
 interface PostsTabProps {
   club: Club;
@@ -30,6 +31,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [sharePostId, setSharePostId] = useState<string | null>(null);
+  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     setLikedPosts(club.posts.filter((p: any) => p.liked).map(p => p.id));
@@ -68,6 +70,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     }
 
     try {
+      setPosting(true);
       const created = await clubService.createPost(club.id, text);
       onClubUpdate({ ...club, posts: [created, ...club.posts] });
       setText('');
@@ -78,6 +81,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       onSelectPost(created);
     } catch {
       setError('Failed to create post');
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -99,8 +104,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+    <>
+      {posting && <ProcessingBox message="Creating post..." />}
+      <div className="space-y-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
         <textarea
           placeholder="What's on your mind?"
@@ -244,5 +251,6 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         );
       })}
     </div>
+  </>
   );
 }
