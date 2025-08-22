@@ -59,9 +59,8 @@ public class ClubService {
 		Member member = new Member();
 		member.setClub(club);
 		member.setUser(user);
-		member.setRole(MemberRole.ADMIN);
-		member.setAvatar("👤");
-		member.setJoinedAt(java.time.LocalDateTime.now());
+                member.setRole(MemberRole.ADMIN);
+                member.setJoinedAt(java.time.LocalDateTime.now());
 
 		em.persist(member);
 
@@ -77,9 +76,9 @@ public class ClubService {
 	}
 
 	@Transactional
-	public Club updateClub(UUID id, Club updated) {
-		Club existing = clubRepository.findById(id);
-		if (existing == null) {
+        public Club updateClub(UUID id, Club updated) {
+                Club existing = clubRepository.findById(id);
+                if (existing == null) {
 			throw new NotFoundException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
 					.title("Club not found")
@@ -97,6 +96,13 @@ public class ClubService {
 
                 return clubRepository.update(existing);
         }
+
+       @Transactional
+       public void updateAvatar(UUID id, byte[] avatar) {
+               Club existing = getClubById(id);
+               existing.setAvatar(avatar);
+               clubRepository.update(existing);
+       }
 
 	@Transactional
 	public boolean deleteClub(UUID id) {
@@ -144,9 +150,8 @@ public class ClubService {
 		Member member = new Member();
 		member.setClub(club);
 		member.setUser(user);
-		member.setRole(MemberRole.MEMBER);
-		member.setAvatar("👤");
-		member.setJoinedAt(java.time.LocalDateTime.now());
+                member.setRole(MemberRole.MEMBER);
+                member.setJoinedAt(java.time.LocalDateTime.now());
 
 		em.persist(member);
 

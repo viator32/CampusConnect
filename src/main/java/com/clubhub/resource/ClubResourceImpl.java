@@ -71,10 +71,16 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
 	@Override
-	public ClubDTO update(UUID id, ClubDTO clubDto) {
-		Club updated = clubService.updateClub(id, ClubMapper.toEntity(clubDto));
-		return ClubMapper.toDTO(updated);
-	}
+        public ClubDTO update(UUID id, ClubDTO clubDto) {
+                Club updated = clubService.updateClub(id, ClubMapper.toEntity(clubDto));
+                return ClubMapper.toDTO(updated);
+        }
+
+       @Override
+       public ClubDTO updateAvatar(UUID id, byte[] avatar) {
+               clubService.updateAvatar(id, avatar);
+               return ClubMapper.toDTO(clubService.getClubById(id));
+       }
 
 	@Override
 	public ActionResponseDTO delete(UUID id) {

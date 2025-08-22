@@ -1,6 +1,7 @@
 package com.clubhub.entity.mapper;
 
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.UUID;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Comment;
@@ -44,7 +45,7 @@ public class ClubMapper {
                 dto.category = club.getCategory();
                 dto.image = club.getImage();
                 dto.location = club.getLocation();
-                dto.avatar = club.getAvatar();
+                dto.avatar = club.getAvatar() != null ? Base64.getEncoder().encodeToString(club.getAvatar()) : null;
                 dto.isJoined = club.isJoined();
                 dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
                 dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
@@ -64,7 +65,9 @@ public class ClubMapper {
                 club.setCategory(dto.category);
                 club.setImage(dto.image);
                 club.setLocation(dto.location);
-                club.setAvatar(dto.avatar);
+                if (dto.avatar != null) {
+                        club.setAvatar(Base64.getDecoder().decode(dto.avatar));
+                }
                 club.setJoined(dto.isJoined);
                 club.setMembers(dto.members);
 
@@ -144,12 +147,14 @@ public class ClubMapper {
                 dto.id = m.getId();
                 dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
                 dto.role = m.getRole() != null ? m.getRole().name() : null;
-                dto.avatar = m.getAvatar();
+                dto.avatar = (m.getUser() != null && m.getUser().getAvatar() != null)
+                                ? Base64.getEncoder().encodeToString(m.getUser().getAvatar())
+                                : null;
                 dto.joinedAt = m.getJoinedAt();
 
                 if (m.getUser() != null) {
-			dto.name = m.getUser().getUsername();
-		}
+                        dto.name = m.getUser().getUsername();
+                }
 
 		return dto;
 	}

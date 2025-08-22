@@ -39,9 +39,14 @@ public interface ClubResource {
 	@ResponseStatus(201)
 	ClubDTO create(ClubDTO clubDTO, @Context ContainerRequestContext ctx);
 
-	@PUT
-	@Path("/{id}")
-	ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
+        @PUT
+        @Path("/{id}")
+        ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
+
+       @PUT
+       @Path("/{id}/avatar")
+       @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+       ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar);
 
 	@DELETE
 	@Path("/{id}")
