@@ -38,7 +38,9 @@ public class Post {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-	private String author;
+        @ManyToOne
+        @JoinColumn(name = "author_id")
+        private User author;
 	private String content;
 	private int likes;
 	private int comments;

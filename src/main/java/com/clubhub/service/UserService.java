@@ -47,7 +47,7 @@ public class UserService {
                 return userRepository.findAll().stream().map(u -> {
                         UserDTO dto = UserMapper.toDTO(u);
                         dto.eventsAttended = eventRepository.countEventsAttendedByUser(u.getId());
-                        dto.postsCreated = postRepository.countPostsByAuthor(u.getUsername());
+                        dto.postsCreated = postRepository.countPostsByAuthor(u.getId());
                         return dto;
                 }).toList();
         }
@@ -70,7 +70,7 @@ public class UserService {
                 User user = getUserById(id);
                 UserDTO dto = UserMapper.toDTO(user);
                 dto.eventsAttended = eventRepository.countEventsAttendedByUser(id);
-                dto.postsCreated = postRepository.countPostsByAuthor(user.getUsername());
+                dto.postsCreated = postRepository.countPostsByAuthor(user.getId());
                 return dto;
         }
 

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class PostDTO {
 
 	public UUID id;
-	public String author;
+        public UUID authorId;
 	public String content;
 	public int likes;
 	public int comments;
