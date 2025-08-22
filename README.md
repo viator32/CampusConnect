@@ -291,18 +291,32 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        http://localhost:8080/api/clubs/<clubId>/events/<eventId>
   ```
 
-- **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
+ - **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Get single event** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
+ - **Get single event of a club** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
        http://localhost:8080/api/clubs/<clubId>/events/<eventId>
+  ```
+
+ - **Get event** – `GET /api/events/{eventId}` (200 OK)
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/events/<eventId>
+  ```
+
+ - **Download event attendees (CSV)** – `GET /api/events/{eventId}/attendees/csv` (200 OK)
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/events/<eventId>/attendees/csv
   ```
 
 ### Comments
