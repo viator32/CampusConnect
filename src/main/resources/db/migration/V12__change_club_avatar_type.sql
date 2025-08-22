@@ -1,2 +1,2 @@
 ALTER TABLE clubs
-    ALTER COLUMN avatar TYPE BYTEA;
+    ALTER COLUMN avatar TYPE BYTEA USING avatar::BYTEA;
