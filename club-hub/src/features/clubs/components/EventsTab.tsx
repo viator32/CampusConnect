@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Club, Event as ClubEvent, Participant, Role } from '../types';
 import { ChevronLeft, ChevronRight, Users as UsersIcon } from 'lucide-react';
 import Button from '../../../components/Button';
+import ProcessingBox from '../../../components/ProcessingBox';
 import { useProfile } from '../../profile/hooks/useProfile';
 import { clubService } from '../services/ClubService';
 
@@ -35,6 +36,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
   const [desc, setDesc]           = useState('');
   const [status, setStatus]       = useState<Status>('Scheduled');
   const [error, setError]         = useState<string|null>(null);
+  const [saving, setSaving]       = useState(false);
 
   // reset editingId when form closes
   useEffect(() => {
@@ -88,6 +90,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
     };
 
     try {
+      setSaving(true);
       let nextEvents: ClubEvent[];
       if (editingId != null) {
         const updated = await clubService.updateEvent(club.id, editingId, payload);
@@ -100,6 +103,8 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
       setShowForm(false);
     } catch (err) {
       setError('Failed to save event');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -181,10 +186,14 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
   while (cells.length < 42) cells.push(null);
 
   return (
-    <div className="flex flex-col lg:flex-row lg:space-x-6">
-      {/* ── Event List ── */}
-      <div className="flex-1 space-y-4 overflow-auto">
-        <div className="flex justify-between items-center">
+    <>
+      {saving && (
+        <ProcessingBox message={editingId != null ? 'Updating event...' : 'Creating event...'} />
+      )}
+      <div className="flex flex-col lg:flex-row lg:space-x-6">
+        {/* ── Event List ── */}
+        <div className="flex-1 space-y-4 overflow-auto">
+          <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">Upcoming Events</h2>
           {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
             <Button
@@ -381,7 +390,8 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
         >
           Show All Events
         </button>
+        </div>
       </div>
-    </div>
-  );
-}
+      </>
+    );
+  }

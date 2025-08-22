@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users, X, Smile, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
+import ProcessingBox from '../../../components/ProcessingBox';
 import type { Club } from '../types';
 import { clubService } from '../services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
@@ -273,6 +274,8 @@ export default function MyClubsPage() {
           </div>
         </div>
       )}
+
+      {submitting && <ProcessingBox message="Creating club..." />}
     </div>
   );
 }
