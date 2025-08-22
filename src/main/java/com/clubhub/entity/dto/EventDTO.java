@@ -13,6 +13,7 @@ public class EventDTO {
         public String description;
         public LocalDate date;
         public String time;
+        public String location;
         public LocalDateTime createdAt;
         public EventStatus status;
         public UUID clubId;

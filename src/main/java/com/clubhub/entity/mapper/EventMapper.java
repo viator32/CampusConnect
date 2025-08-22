@@ -14,6 +14,7 @@ public class EventMapper {
                 dto.description = event.getDescription();
                 dto.date = event.getDate();
                 dto.time = event.getTime();
+                dto.location = event.getLocation();
                 dto.createdAt = event.getCreatedAt();
                 dto.status = event.getStatus();
                 dto.clubId = event.getClub().getId();
@@ -30,6 +31,7 @@ public class EventMapper {
                 event.setDescription(dto.description);
                 event.setDate(dto.date);
                 event.setTime(dto.time);
+                event.setLocation(dto.location);
                 event.setCreatedAt(dto.createdAt);
                 event.setStatus(dto.status != null ? dto.status : EventStatus.SCHEDULED);
                 event.setClub(club);

@@ -40,14 +40,16 @@ public class ClubMapper {
 		ClubDTO dto = new ClubDTO();
 		dto.id = club.getId();
 		dto.name = club.getName();
-		dto.description = club.getDescription();
-		dto.category = club.getCategory();
-		dto.image = club.getImage();
-		dto.isJoined = club.isJoined();
-		dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
-		dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
-		dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
-		return dto;
+                dto.description = club.getDescription();
+                dto.category = club.getCategory();
+                dto.image = club.getImage();
+                dto.location = club.getLocation();
+                dto.avatar = club.getAvatar();
+                dto.isJoined = club.isJoined();
+                dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
+                dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
+                dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
+                return dto;
 	}
 
 	public static Club toEntity(ClubDTO dto) {
@@ -58,14 +60,16 @@ public class ClubMapper {
 		}
 
 		club.setName(dto.name);
-		club.setDescription(dto.description);
-		club.setCategory(dto.category);
-		club.setImage(dto.image);
-		club.setJoined(dto.isJoined);
-		club.setMembers(dto.members);
+                club.setDescription(dto.description);
+                club.setCategory(dto.category);
+                club.setImage(dto.image);
+                club.setLocation(dto.location);
+                club.setAvatar(dto.avatar);
+                club.setJoined(dto.isJoined);
+                club.setMembers(dto.members);
 
-		return club;
-	}
+                return club;
+        }
 
         public static EventDTO toDTO(Event e) {
                 EventDTO dto = new EventDTO();
@@ -74,6 +78,7 @@ public class ClubMapper {
                 dto.description = e.getDescription();
                 dto.date = e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null;
                 dto.time = e.getTime();
+                dto.location = e.getLocation();
                 dto.createdAt = e.getCreatedAt();
                 dto.status = e.getStatus();
                 dto.clubId = e.getClub() != null ? e.getClub().getId() : null;
