@@ -23,7 +23,6 @@ CREATE TABLE clubs (
 CREATE TABLE member (
     id        UUID PRIMARY KEY,
     role      VARCHAR,
-    avatar    VARCHAR,
     joined_at TIMESTAMP,
     club_id   UUID NOT NULL REFERENCES clubs (id) ON DELETE CASCADE,
     user_id   UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE

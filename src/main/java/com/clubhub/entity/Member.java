@@ -33,7 +33,6 @@ public class Member {
 
 	@Enumerated(EnumType.STRING)
 	private MemberRole role;
-	private String avatar;
 
 	@Column(name = "joined_at")
 	private LocalDateTime joinedAt;
