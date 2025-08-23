@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 type ProfileContextValue = {
   user: User | null;
   updateUser: (u: User) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
   refresh: () => Promise<void>;
 };
 
@@ -41,8 +42,15 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setUser(saved);
   };
 
+  // upload new avatar and update context
+  const updateAvatar = async (file: File) => {
+    if (!user) return;
+    const saved = await profileService.updateAvatar(user.id, file);
+    setUser(saved);
+  };
+
   return (
-    <ProfileContext.Provider value={{ user, updateUser, refresh }}>
+    <ProfileContext.Provider value={{ user, updateUser, updateAvatar, refresh }}>
       {children}
     </ProfileContext.Provider>
   );

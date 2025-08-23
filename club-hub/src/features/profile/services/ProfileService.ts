@@ -16,6 +16,16 @@ export class ProfileService extends BaseService {
     });
     return mapUser(dto);
   }
+
+  /** Upload a new avatar for the given user */
+  async updateAvatar(id: string, file: Blob): Promise<User> {
+    const dto = await this.api.request<any>(`/users/${id}/avatar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: file,
+    });
+    return mapUser(dto);
+  }
 }
 
 export const profileService = new ProfileService();
@@ -49,7 +59,6 @@ function mapUser(dto: any): User {
 function mapUserToDto(p: Partial<User>) {
   const out: any = {};
   if (p.name !== undefined) out.username = p.name;
-  if (p.avatar !== undefined) out.avatar = p.avatar;
   if (p.description !== undefined) out.description = p.description;
   if (p.subject !== undefined) out.subject = p.subject;
   if (p.preferences !== undefined) out.preferences = p.preferences;
