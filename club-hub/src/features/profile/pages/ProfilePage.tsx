@@ -4,7 +4,7 @@ import Button from '../../../components/Button';
 import { Subject, Preference } from '../types';
 
 export default function ProfilePage() {
-  const { user, updateUser } = useProfile();
+  const { user, updateUser, updateAvatar } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [prefOpen, setPrefOpen] = useState(false);
   const [form, setForm] = useState({
@@ -14,6 +14,7 @@ export default function ProfilePage() {
     preferences: [] as Preference[],
     avatar: '',
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const prefRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +74,7 @@ export default function ProfilePage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAvatarFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       setForm(f => ({ ...f, avatar: reader.result as string }));
@@ -81,13 +83,16 @@ export default function ProfilePage() {
   };
 
   const save = async () => {
+    if (avatarFile) {
+      await updateAvatar(avatarFile);
+      setAvatarFile(null);
+    }
     await updateUser({
       ...user,
       name: form.name.trim() || user.name,
       description: form.description,
       subject: form.subject,
       preferences: form.preferences,
-      avatar: form.avatar,
     });
     setIsEditing(false);
   };
