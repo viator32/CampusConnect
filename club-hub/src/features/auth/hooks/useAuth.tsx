@@ -8,8 +8,7 @@ interface AuthContextValue {
   register: (
     name: string,
     email: string,
-    password: string,
-    studentId: string
+    password: string
   ) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -51,10 +50,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (
     name: string,
     email: string,
-    password: string,
-    studentId: string
+    password: string
   ) => {
-    await authService.register(name, email, password, studentId);
+    await authService.register(name, email, password);
   };
 
   const logout = async () => {

@@ -4,7 +4,7 @@ import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import { useAuth } from '../hooks/useAuth';
 
-type FieldErrors = Partial<Record<'name' | 'email' | 'studentId' | 'password', string>>;
+type FieldErrors = Partial<Record<'name' | 'email' | 'password' | 'confirmPassword', string>>;
 
 function parseError(err: unknown): { message: string; fieldErrors: FieldErrors; status?: number } {
   const fallback = { message: 'Something went wrong. Please try again.', fieldErrors: {} as FieldErrors };
@@ -103,8 +103,8 @@ export default function RegisterPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -129,16 +129,16 @@ export default function RegisterPage() {
       else delete fe.email;
     }
 
-    // Student ID
-    if (!field || field === 'studentId') {
-      if (!studentId.trim()) fe.studentId = 'Student ID is required.';
-      else delete fe.studentId;
-    }
-
     // Password
     if (!field || field === 'password') {
-      if (password.length < 8) fe.password = 'Password must be at least 8 characters.';
+      if (password.length < 6) fe.password = 'Password must be at least 6 characters.';
       else delete fe.password;
+    }
+
+    // Confirm Password
+    if (!field || field === 'confirmPassword') {
+      if (confirmPassword !== password) fe.confirmPassword = 'Passwords do not match.';
+      else delete fe.confirmPassword;
     }
 
     setFieldErrors(fe);
@@ -157,7 +157,7 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await register(name.trim(), email.trim(), password, studentId.trim());
+      await register(name.trim(), email.trim(), password);
       // Flash a success message on the login page
       navigate('/login', {
         state: {
@@ -224,28 +224,13 @@ export default function RegisterPage() {
 
           <div>
             <Input
-              placeholder="Student ID"
-              value={studentId}
-              onChange={e => {
-                setStudentId(e.target.value);
-                validate('studentId');
-              }}
-              onBlur={() => handleBlur('studentId')}
-              required
-              aria-invalid={!!fieldErrors.studentId}
-              className={`w-full ${fieldErrors.studentId ? 'ring-1 ring-red-400' : ''}`}
-            />
-            {fieldErrors.studentId && <p className="mt-1 text-xs text-red-600">{fieldErrors.studentId}</p>}
-          </div>
-
-          <div>
-            <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={e => {
                 setPassword(e.target.value);
                 validate('password');
+                validate('confirmPassword');
               }}
               onBlur={() => handleBlur('password')}
               required
@@ -253,6 +238,25 @@ export default function RegisterPage() {
               className={`w-full ${fieldErrors.password ? 'ring-1 ring-red-400' : ''}`}
             />
             {fieldErrors.password && <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>}
+          </div>
+
+          <div>
+            <Input
+              type="password"
+              placeholder="Repeat Password"
+              value={confirmPassword}
+              onChange={e => {
+                setConfirmPassword(e.target.value);
+                validate('confirmPassword');
+              }}
+              onBlur={() => handleBlur('confirmPassword')}
+              required
+              aria-invalid={!!fieldErrors.confirmPassword}
+              className={`w-full ${fieldErrors.confirmPassword ? 'ring-1 ring-red-400' : ''}`}
+            />
+            {fieldErrors.confirmPassword && (
+              <p className="mt-1 text-xs text-red-600">{fieldErrors.confirmPassword}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>

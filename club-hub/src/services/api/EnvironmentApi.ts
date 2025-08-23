@@ -53,7 +53,10 @@ export class EnvironmentApi {
     // Redirect to login if the session is no longer valid
     if (res.status === 401) {
       EnvironmentApi.setAuthToken(null);
-      window.location.href = '/login';
+      // Avoid redirect loop when already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
       throw new Error('401 Unauthorized');
     }
 
