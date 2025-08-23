@@ -5,6 +5,7 @@ import Button from '../../../components/Button';
 import ProcessingBox from '../../../components/ProcessingBox';
 import { useProfile } from '../../profile/hooks/useProfile';
 import { clubService } from '../services/ClubService';
+import Avatar from '../../../components/Avatar';
 
 interface EventsTabProps {
   club: Club;
@@ -306,6 +307,18 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                   <UsersIcon className="w-4 h-4" />
                   <span>{ev.participants?.length ?? 0} joined</span>
                 </div>
+                {ev.participants && ev.participants.length > 0 && (
+                  <div className="flex -space-x-2 mb-3">
+                    {ev.participants.slice(0, 5).map(p => (
+                      <Avatar key={p.id} avatar={p.avatar} size={24} />
+                    ))}
+                    {ev.participants.length > 5 && (
+                      <span className="text-xs text-gray-500 self-end pl-2">
+                        +{ev.participants.length - 5}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleJoinToggle(ev)}

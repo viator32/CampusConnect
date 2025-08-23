@@ -10,13 +10,13 @@ import {
   Settings,
   HelpCircle,
   Shield,
-  User as UserIcon,
   Menu as MenuIcon,
   X as XIcon,
   LogOut as LogOutIcon
 } from 'lucide-react';
 import { useProfile } from '../features/profile/hooks/useProfile';
 import { useAuth } from '../features/auth/hooks/useAuth';
+import Avatar from '../components/Avatar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -114,9 +114,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={() => navigate('/profile')}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                  <UserIcon className="w-4 h-4 text-orange-600" />
-                </div>
+                <Avatar avatar={user.avatar} size={32} />
                 <div className="truncate">
                   <p className="font-medium text-gray-900">{user.name}</p>
                   <p className="text-sm text-gray-600">Student</p>
@@ -158,9 +156,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => navigate('/profile')}
             >
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-orange-600" />
-              </div>
+              <Avatar avatar={user.avatar} size={32} />
             </div>
           )}
         </div>
@@ -226,9 +222,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                      <UserIcon className="w-4 h-4 text-orange-600" />
-                    </div>
+                    <Avatar avatar={user.avatar} size={32} />
                     <div className="truncate">
                       <p className="font-medium text-gray-900">{user.name}</p>
                       <p className="text-sm text-gray-600">Student</p>

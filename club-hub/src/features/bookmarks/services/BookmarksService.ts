@@ -4,6 +4,7 @@ import { BaseService } from '../../../services/BaseService';
 export interface BookmarkedPost {
   id: string;
   author: string;
+  authorAvatar?: string;
   content: string;
   time: string;
   likes: number;
@@ -42,7 +43,8 @@ export class BookmarksService extends BaseService {
 function mapBookmarkedPost(dto: any): BookmarkedPost {
   return {
     id: String(dto.id),
-    author: dto.author ?? dto.username ?? 'Unknown',
+    author: dto.author?.username ?? dto.author ?? dto.username ?? 'Unknown',
+    authorAvatar: dto.author?.avatar ?? '',
     content: dto.content ?? '',
     time: dto.time ?? dto.createdAt ?? '',
     likes: dto.likes ?? 0,

@@ -6,6 +6,7 @@ import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
+import Avatar from '../../../components/Avatar';
 import { clubService } from '../../clubs/services/ClubService';
 import { type FeedItem, type FeedEventItem, type FeedPost, feedService } from '../services/FeedService';
 import { formatDateTime } from '../../../utils/date';
@@ -22,7 +23,7 @@ interface EventFeedItem extends FeedEventItem {
   location?: string;
   description?: string;
   joinedCount: number;
-  participants?: { id: number; name: string; surname: string; email: string }[];
+  attendees?: { id: string; name: string; surname: string; email: string; avatar?: string }[];
 }
 
 export default function FeedPage() {
@@ -226,7 +227,7 @@ export default function FeedPage() {
           )}
           <div className="space-y-4">
             {visibleItems.map((item, index) => {
-              if (isEvent(item)) {
+            if (isEvent(item)) {
               const ev = item;
               const key = `${ev.clubId}-${ev.id}`;
               const joinedByUser = joinedEvents.has(key);
@@ -256,6 +257,18 @@ export default function FeedPage() {
                   </div>
                   {ev.description && (
                     <p className="text-gray-700 mb-2">{ev.description}</p>
+                  )}
+                  {ev.attendees && ev.attendees.length > 0 && (
+                    <div className="flex -space-x-2 mb-2">
+                      {ev.attendees.slice(0, 5).map((a: any) => (
+                        <Avatar key={a.id} avatar={a.avatar} size={24} />
+                      ))}
+                      {ev.attendees.length > 5 && (
+                        <span className="text-xs text-gray-500 self-end pl-2">
+                          +{ev.attendees.length - 5}
+                        </span>
+                      )}
+                    </div>
                   )}
                   <div className="flex items-center justify-between mt-2">
                     <div className="text-gray-500 flex items-center gap-4">
@@ -289,10 +302,11 @@ export default function FeedPage() {
                 onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="text-lg">{post.clubImage}</div>
+                  <Avatar avatar={post.authorAvatar} size={32} />
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{post.author}</p>
                     <p className="text-sm text-gray-500">
+                      <span className="mr-1">{post.clubImage}</span>
                       {post.clubName} • {formatDateTime(post.time)}
                     </p>
                   </div>

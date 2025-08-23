@@ -7,6 +7,7 @@ export interface Participant {
   name: string;
   surname: string;
   email: string;
+  avatar?: string;
 }
 
 export interface Event {
@@ -27,6 +28,7 @@ export interface Comment {
   content: string;
   time: string;
   likes?: number;
+  avatar?: string;
 }
 
 export interface PollOption {
@@ -42,6 +44,7 @@ export interface Poll {
 export interface Post {
   id: string;
   author: string;
+  avatar?: string;
   content: string;
   likes: number;
   comments: number;
@@ -64,6 +67,7 @@ export interface Thread {
   id: number;
   title: string;
   author: string;
+  avatar?: string;
   replies: number;
   lastActivity: string;
   content?: string;

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
+import Avatar from '../../../components/Avatar';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
@@ -177,9 +178,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         return (
           <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                👤
-              </div>
+              <Avatar avatar={post.avatar} size={32} />
               <div>
                 <p className="font-medium text-gray-900">{post.author}</p>
                 <p className="text-xs text-gray-500">{formatDateTime(post.time)}</p>
