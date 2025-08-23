@@ -8,6 +8,7 @@ import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
 import { clubService } from '../../clubs/services/ClubService';
+import { useProfile } from '../../profile/hooks/useProfile';
 import { type FeedItem, type FeedEventItem, type FeedPost, feedService } from '../services/FeedService';
 import { formatDateTime } from '../../../utils/date';
 
@@ -28,6 +29,7 @@ interface EventFeedItem extends FeedEventItem {
 
 export default function FeedPage() {
   const navigate = useNavigate();
+  const { user } = useProfile();
 
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +121,21 @@ export default function FeedPage() {
     loadBookmarks();
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    const set = new Set<string>();
+    items.forEach(item => {
+      if (isEvent(item)) {
+        const key = `${item.clubId}-${item.id}`;
+        const attendees = item.attendees || [];
+        const joined = attendees.some(a => a.email === user.email) ||
+          (item as any).joinedByUser || (item as any).isJoined;
+        if (joined) set.add(key);
+      }
+    });
+    setJoinedEvents(set);
+  }, [items, user, isEvent]);
+
   const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
     const isBookmarked = prev.has(post.id);
@@ -175,13 +192,56 @@ export default function FeedPage() {
   };
 
 
-  const handleJoinEvent = (ev: EventFeedItem) => {
+  const handleJoinEvent = async (ev: EventFeedItem) => {
+    if (!user) return;
     const key = `${ev.clubId}-${ev.id}`;
-    setJoinedEvents(prev => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
+    if (joinedEvents.has(key)) return;
+
+    setJoinedEvents(prev => new Set(prev).add(key));
+    setItems(prev =>
+      prev.map(item => {
+        if (isEvent(item) && item.clubId === ev.clubId && item.id === ev.id) {
+          const attendees = item.attendees || [];
+          return {
+            ...item,
+            attendees: [
+              ...attendees,
+              {
+                id: user.id,
+                name: user.name,
+                surname: (user as any).surname || '',
+                email: user.email,
+                avatar: user.avatar,
+              },
+            ],
+            joinedCount: item.joinedCount + 1,
+          };
+        }
+        return item;
+      })
+    );
+    try {
+      await clubService.joinEvent(ev.clubId, Number(ev.id));
+    } catch {
+      setJoinedEvents(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      setItems(prev =>
+        prev.map(item => {
+          if (isEvent(item) && item.clubId === ev.clubId && item.id === ev.id) {
+            const attendees = (item.attendees || []).filter(a => a.email !== user.email);
+            return {
+              ...item,
+              attendees,
+              joinedCount: Math.max(0, item.joinedCount - 1),
+            };
+          }
+          return item;
+        })
+      );
+    }
   };
 
   if (loading) {
