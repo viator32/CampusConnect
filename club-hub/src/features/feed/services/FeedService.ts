@@ -7,6 +7,7 @@ export interface FeedPost {
   clubName: string;
   clubImage: string;
   author: string;
+  authorAvatar?: string;
   content: string;
   likes: number;
   liked?: boolean;
@@ -44,13 +45,21 @@ export class FeedService extends BaseService {
       clubId: p.club?.id ?? p.clubId ?? '',
       clubName: p.club?.name ?? '',
       clubImage: p.club?.image ?? '',
-      author: p.author,
+      author: p.author?.username ?? p.author ?? 'Unknown',
+      authorAvatar: p.author?.avatar ?? '',
       content: p.content,
       likes: p.likes ?? 0,
       liked: p.liked ?? p.likedByUser ?? p.likedByMe ?? false,
       comments: p.comments ?? 0,
       time: p.time,
-      commentsList: p.commentsList ?? [],
+      commentsList: (p.commentsList ?? []).map((c: any) => ({
+        id: c.id,
+        author: c.author?.username ?? c.author ?? 'Unknown',
+        content: c.content ?? '',
+        time: c.time ?? c.createdAt ?? '',
+        likes: c.likes ?? 0,
+        avatar: c.author?.avatar ?? c.avatar ?? '',
+      })),
     }));
 
     const events: FeedEventItem[] = eventsData.map((e: any) => ({
@@ -65,7 +74,14 @@ export class FeedService extends BaseService {
       time: e.time,
       location: e.location,
       description: e.description,
-      joinedCount: e.attendees ?? e.joinedCount ?? 0,
+      joinedCount: e.attendeesCount ?? e.attendees?.length ?? e.joinedCount ?? 0,
+      attendees: (e.attendees ?? []).map((a: any) => ({
+        id: a.id ?? a.userId ?? '',
+        name: a.name ?? a.username ?? '',
+        surname: a.surname ?? '',
+        email: a.email ?? '',
+        avatar: a.avatar ?? '',
+      })),
     }));
 
     // Even if both posts and events arrays are empty we should return an empty array

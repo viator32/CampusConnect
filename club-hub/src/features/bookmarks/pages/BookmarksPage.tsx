@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Bookmark, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { bookmarksService, type BookmarkedPost } from '../services/BookmarksService';
 import Toast from '../../../components/Toast';
+import Avatar from '../../../components/Avatar';
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
@@ -43,11 +44,18 @@ export default function BookmarksPage() {
             >
               {/* Header */}
               <div className="flex items-center gap-3 mb-2">
-                <div className="text-lg">{post.clubImage ?? '👤'}</div>
+                <Avatar avatar={post.authorAvatar} size={32} />
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">{post.author}</p>
                   <p className="text-sm text-gray-500">
-                    {post.clubName ? `${post.clubName} • ${post.time}` : post.time}
+                    {post.clubName ? (
+                      <>
+                        <span className="mr-1">{post.clubImage}</span>
+                        {post.clubName} • {post.time}
+                      </>
+                    ) : (
+                      post.time
+                    )}
                   </p>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, List } from 'lucide-react';
 import { Club, Member, Role } from '../types';
 import { clubService } from '../services/ClubService';
+import Avatar from '../../../components/Avatar';
 
 const ROLE_OPTIONS: { value: Role; label: string; description: string }[] = [
   { value: 'MEMBER',    label: 'Member',    description: 'Regular member; can post, join events, and comment.' },
@@ -95,7 +96,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                 onClick={() => navigate(`/users/${member.id}`)}
                 className="cursor-pointer text-3xl"
               >
-                {member.avatar}
+                <Avatar avatar={member.avatar} size={48} />
               </div>
 
               <p className="font-medium text-gray-900">{member.name}</p>
@@ -134,7 +135,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                 onClick={() => navigate(`/users/${member.id}`)}
                 className="cursor-pointer text-3xl"
               >
-                {member.avatar}
+                <Avatar avatar={member.avatar} size={32} />
               </div>
 
               <div className="flex-1">

@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Thread, Comment } from '../types';
-import {
-  User as UserIcon,
-  Heart,
-  Share2
-} from 'lucide-react';
+import { Heart, Share2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
+import Avatar from '../../../components/Avatar';
 
 interface ThreadDetailProps {
   thread: Thread;
@@ -24,9 +21,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-            <UserIcon className="w-5 h-5 text-orange-600" />
-          </div>
+          <Avatar avatar={thread.avatar} size={40} />
           <div>
             <p className="font-medium text-gray-900">{thread.author}</p>
             <p className="text-sm text-gray-500">Original Post</p>
@@ -59,9 +54,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
         {(thread.posts ?? []).map((post: Comment) => (
           <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-orange-600" />
-              </div>
+              <Avatar avatar={post.avatar} size={32} />
               <div>
                 <p className="font-medium text-gray-900">{post.author}</p>
                 <p className="text-sm text-gray-500">{post.time}</p>
