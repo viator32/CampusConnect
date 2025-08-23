@@ -15,7 +15,7 @@ type RegisterRes = {
 };
 
 // Backend requires: email, password
-// Register requires: email, username, studentId, password
+// Register requires: email, username, password
 export class AuthService extends BaseService {
   async login(email: string, password: string): Promise<LoginRes> {
     const payload = this.buildPayload({ email, password });
@@ -30,10 +30,9 @@ export class AuthService extends BaseService {
   async register(
     username: string,
     email: string,
-    password: string,
-    studentId: string
+    password: string
   ): Promise<RegisterRes> {
-    const payload = this.buildPayload({ email, username, studentId, password });
+    const payload = this.buildPayload({ email, username, password });
     const res = await this.api.request<RegisterRes>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload),
