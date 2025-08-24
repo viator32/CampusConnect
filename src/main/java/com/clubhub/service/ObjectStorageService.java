@@ -9,6 +9,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 
 @ApplicationScoped
 public class ObjectStorageService {
@@ -24,6 +26,9 @@ public class ObjectStorageService {
 
     public String upload(String objectName, byte[] data, String contentType) {
         try (var stream = new ByteArrayInputStream(data)) {
+            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            }
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(objectName)
