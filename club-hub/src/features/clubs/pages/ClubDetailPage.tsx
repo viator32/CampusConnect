@@ -170,12 +170,13 @@ export default function ClubDetailPage() {
 
   return (
     <div className="space-y-6">
+       <button onClick={() => navigate('/explore')} className="text-gray-500 hover:text-gray-700">
+            ← Back to Explore
+          </button>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/explore')} className="text-gray-500 hover:text-gray-700">
-            ← Back to Explore
-          </button>
+         
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="text-3xl">{club.image}</div>
             <div>
