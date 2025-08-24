@@ -33,6 +33,13 @@ The API will be available at <http://localhost:8080>.
 
 MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (credentials `minio`/`minio123`).
 
+### MinIO setup
+
+1. Open <http://localhost:9001> in your browser.
+2. Log in using `minio` as the username and `minio123` as the password.
+3. Create a bucket named `avatars` (must match `MINIO_BUCKET` in `.env`).
+
+
 ### Development mode
 
 Alternatively, start the application directly (requires a running PostgreSQL instance):
