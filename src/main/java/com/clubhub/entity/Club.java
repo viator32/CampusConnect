@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,10 +37,15 @@ public class Club {
 
 	private String description;
 
-	private String location;
+        private String location;
 
-	private String category;
-	private String image;
+        private String category;
+
+        @Enumerated(EnumType.STRING)
+        private Subject subject;
+
+        @Enumerated(EnumType.STRING)
+        private Preference interest;
 
 	@Column(columnDefinition = "BYTEA")
 	private byte[] avatar;

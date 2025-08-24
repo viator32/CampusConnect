@@ -173,8 +173,9 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   curl -X POST http://localhost:8080/api/clubs \
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
-       -d '{"name":"Chess Club","description":"Play chess","category":"Games","image":""}'
+      -d '{"name":"Chess Club","description":"Play chess","category":"Games","subject":"COMPUTER_SCIENCE","interest":"GAMING"}'
   ```
+  The `subject` field accepts a value from the `Subject` enum and `interest` from the `Preference` enum.
 
 - **Update club** – `PUT /api/clubs/{id}` (200 OK)
 

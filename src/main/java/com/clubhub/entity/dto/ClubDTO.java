@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.clubhub.entity.Preference;
+import com.clubhub.entity.Subject;
+
 public class ClubDTO {
 	public UUID id;
 	public String name;
         public String description;
         public String category;
-        public String image;
+       public Subject subject;
+       public Preference interest;
         public String location;
         public String avatar;
         public boolean isJoined;

@@ -14,7 +14,8 @@ CREATE TABLE clubs (
     description VARCHAR,
     location    VARCHAR,
     category    VARCHAR,
-    image       VARCHAR,
+    subject     VARCHAR,
+    interest    VARCHAR,
     is_joined   BOOLEAN,
     members     INTEGER,
     avatar      BYTEA
