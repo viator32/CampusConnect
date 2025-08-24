@@ -29,6 +29,7 @@ export interface Comment {
   time: string;
   likes?: number;
   avatar?: string;
+  liked?: boolean;
 }
 
 export interface PollOption {
@@ -52,6 +53,7 @@ export interface Post {
   commentsList?: Comment[];
   photo?: string;
   poll?: Poll;
+  liked?: boolean;
 }
 
 export type Role = 'ADMIN' | 'MODERATOR' | 'MEMBER';

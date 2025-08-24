@@ -92,16 +92,30 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     onClubUpdate({
       ...club,
       posts: club.posts.map(p =>
-        p.id === post.id ? { ...p, likes: p.likes + (isLiked ? -1 : 1) } : p
+        p.id === post.id
+          ? { ...p, liked: !isLiked, likes: p.likes + (isLiked ? -1 : 1) }
+          : p
       ),
     });
-    try {
-      if (isLiked) await clubService.unlikePost(post.id);
-      else await clubService.likePost(post.id);
-    } catch {}
     setLikedPosts(prev =>
       isLiked ? prev.filter(id => id !== post.id) : [...prev, post.id]
     );
+    try {
+      if (isLiked) await clubService.unlikePost(post.id);
+      else await clubService.likePost(post.id);
+    } catch {
+      onClubUpdate({
+        ...club,
+        posts: club.posts.map(p =>
+          p.id === post.id
+            ? { ...p, liked: isLiked, likes: p.likes + (isLiked ? 1 : -1) }
+            : p
+        ),
+      });
+      setLikedPosts(prev =>
+        isLiked ? [...prev, post.id] : prev.filter(id => id !== post.id)
+      );
+    }
   };
 
   return (

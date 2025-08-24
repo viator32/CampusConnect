@@ -66,7 +66,7 @@ export default function BookmarksPage() {
               {/* Actions */}
               <div className="flex items-center gap-6 text-gray-500">
                 <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
+                  <Heart className={`w-4 h-4 ${post.liked ? 'text-orange-500' : ''}`} />
                   <span className="text-sm">{post.likes}</span>
                 </div>
                 <div className="flex items-center gap-1">

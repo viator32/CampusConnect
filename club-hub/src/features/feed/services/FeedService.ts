@@ -59,6 +59,7 @@ export class FeedService extends BaseService {
         time: c.time ?? c.createdAt ?? '',
         likes: c.likes ?? 0,
         avatar: c.author?.avatar ?? c.avatar ?? '',
+        liked: c.liked ?? c.likedByUser ?? c.likedByMe ?? false,
       })),
     }));
 

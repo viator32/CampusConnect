@@ -34,15 +34,29 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   }, [post.id]);
 
   const handleLikePost = async () => {
+    const isLiked = postData.liked ?? false;
     setPostData(p => {
-      const next = { ...p, likes: p.likes + 1 };
+      const next = {
+        ...p,
+        liked: !isLiked,
+        likes: p.likes + (isLiked ? -1 : 1),
+      };
       onPostUpdate?.(next);
       return next;
     });
     try {
-      await clubService.likePost(postData.id);
+      if (isLiked) await clubService.unlikePost(postData.id);
+      else await clubService.likePost(postData.id);
     } catch {
-      // ignore backend parse errors
+      setPostData(p => {
+        const next = {
+          ...p,
+          liked: isLiked,
+          likes: p.likes + (isLiked ? 1 : -1),
+        };
+        onPostUpdate?.(next);
+        return next;
+      });
     }
   };
 
@@ -51,7 +65,13 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
       const next = {
         ...p,
         commentsList: (p.commentsList ?? []).map(c =>
-          c.id === commentId ? { ...c, likes: (c.likes ?? 0) + 1 } : c
+          c.id === commentId
+            ? {
+                ...c,
+                liked: true,
+                likes: (c.likes ?? 0) + (c.liked ? 0 : 1),
+              }
+            : c
         ),
       };
       onPostUpdate?.(next);
@@ -107,7 +127,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
             className="flex items-center gap-1 hover:text-orange-500"
             onClick={handleLikePost}
           >
-            <Heart className="w-4 h-4" />
+            <Heart className={`w-4 h-4 ${postData.liked ? 'text-orange-500' : ''}`} />
             <span className="text-sm">{postData.likes}</span>
           </button>
           <span className="flex items-center gap-1">
@@ -148,7 +168,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
                 className="flex items-center gap-1 text-gray-500 hover:text-orange-500"
                 onClick={() => handleLikeComment(c.id)}
               >
-                <Heart className="w-4 h-4" />
+                <Heart className={`w-4 h-4 ${c.liked ? 'text-orange-500' : ''}`} />
                 <span className="text-sm">{c.likes ?? 0}</span>
               </button>
             </div>
