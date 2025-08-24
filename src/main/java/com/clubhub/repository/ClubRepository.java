@@ -80,22 +80,23 @@ public class ClubRepository {
                 return query.getResultList();
         }
 
-	public Club findById(UUID id) {
-		try {
-			return em.createQuery("""
-					SELECT c FROM Club c
-					LEFT JOIN FETCH c.events
-					LEFT JOIN FETCH c.posts
-					LEFT JOIN FETCH c.membersList
-					LEFT JOIN FETCH c.forumThreads
-					WHERE c.id = :id
-					""", Club.class)
-					.setParameter("id", id)
-					.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
+        public Club findById(UUID id) {
+                try {
+                        return em.createQuery("""
+                                        SELECT DISTINCT c FROM Club c
+                                        LEFT JOIN FETCH c.events e
+                                        LEFT JOIN FETCH e.attendees
+                                        LEFT JOIN FETCH c.posts
+                                        LEFT JOIN FETCH c.membersList
+                                        LEFT JOIN FETCH c.forumThreads
+                                        WHERE c.id = :id
+                                        """, Club.class)
+                                        .setParameter("id", id)
+                                        .getSingleResult();
+                } catch (NoResultException e) {
+                        return null;
+                }
+        }
 
 	public void save(Club club) {
 		em.persist(club);
