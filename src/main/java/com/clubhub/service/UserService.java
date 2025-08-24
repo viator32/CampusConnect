@@ -147,9 +147,9 @@ public class UserService {
         }
 
     @Transactional
-    public void updateAvatar(UUID id, byte[] avatar) {
+    public void updateAvatar(UUID id, byte[] avatar, String contentType) {
         User existing = getUserById(id);
-        String url = objectStorageService.upload("users/" + id, avatar, "image/png");
+        String url = objectStorageService.upload("users/" + id, avatar, contentType);
         existing.setAvatar(url);
         userRepository.update(existing);
     }

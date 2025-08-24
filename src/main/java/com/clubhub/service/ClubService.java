@@ -120,9 +120,9 @@ public class ClubService {
        }
 
        @Transactional
-       public void updateAvatar(UUID id, byte[] avatar) {
+       public void updateAvatar(UUID id, byte[] avatar, String contentType) {
         Club existing = getClubById(id);
-        String url = objectStorageService.upload("clubs/" + id, avatar, "image/png");
+        String url = objectStorageService.upload("clubs/" + id, avatar, contentType);
         existing.setAvatar(url);
         clubRepository.update(existing);
     }

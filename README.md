@@ -132,11 +132,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/avatar \\
        -H "Authorization: Bearer <token>" \\
-       -H "Content-Type: application/octet-stream" \\
-       --data-binary "@avatar.png"
+       -H "Content-Type: image/jpeg" \\
+       --data-binary "@avatar.jpg"
   ```
 
-  The endpoint expects raw image bytes in the request body. The image is stored in MinIO and the user profile contains the public URL.
+  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile contains the public URL.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 
@@ -197,10 +197,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/avatar \
        -H "Authorization: Bearer <token>" \
+       -H "Content-Type: image/png" \
        --data-binary "@avatar.png"
   ```
 
-  Uploaded images are stored in MinIO and the club DTO contains the resulting URL.
+  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. The same image formats as for user avatars are supported.
 
   - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 

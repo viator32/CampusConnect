@@ -1,6 +1,7 @@
 package com.clubhub.service;
 
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,7 +25,16 @@ public class ObjectStorageService {
     @ConfigProperty(name = "minio.public-url")
     String publicUrl;
 
-    public String upload(String objectName, byte[] data, String contentType) {
+    private static final Map<String, String> EXTENSIONS = Map.of(
+            "image/png", ".png",
+            "image/jpeg", ".jpg",
+            "image/jpg", ".jpg",
+            "image/webp", ".webp",
+            "image/gif", ".gif");
+
+    public String upload(String objectNamePrefix, byte[] data, String contentType) {
+        String extension = EXTENSIONS.getOrDefault(contentType, "");
+        String objectName = objectNamePrefix + extension;
         try (var stream = new ByteArrayInputStream(data)) {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());

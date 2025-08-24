@@ -79,8 +79,8 @@ public class ClubResourceImpl implements ClubResource {
         }
 
        @Override
-       public ClubDTO updateAvatar(UUID id, byte[] avatar) {
-               clubService.updateAvatar(id, avatar);
+       public ClubDTO updateAvatar(UUID id, byte[] avatar, String contentType) {
+               clubService.updateAvatar(id, avatar, contentType);
                return ClubMapper.toDTO(clubService.getClubById(id));
        }
 

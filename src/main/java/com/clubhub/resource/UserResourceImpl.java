@@ -44,8 +44,8 @@ public class UserResourceImpl implements UserResource {
         }
 
        @Override
-       public UserDTO updateAvatar(UUID id, byte[] avatar) {
-               userService.updateAvatar(id, avatar);
+       public UserDTO updateAvatar(UUID id, byte[] avatar, String contentType) {
+               userService.updateAvatar(id, avatar, contentType);
                return userService.getUserProfile(id);
        }
 
