@@ -45,8 +45,8 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-	@Column(columnDefinition = "BYTEA")
-	private byte[] avatar;
+    @Column(name = "avatar")
+    private String avatar;
 
 	@Column(length = 1024)
 	private String description;

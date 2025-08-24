@@ -31,6 +31,8 @@ docker compose up --build
 
 The API will be available at <http://localhost:8080>.
 
+MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (credentials `minio`/`minio123`).
+
 ### Development mode
 
 Alternatively, start the application directly (requires a running PostgreSQL instance):
@@ -134,7 +136,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.png"
   ```
 
-  The endpoint expects raw image bytes in the request body. Avatars are returned as Base64-encoded strings in user profiles.
+  The endpoint expects raw image bytes in the request body. The image is stored in MinIO and the user profile contains the public URL.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 
@@ -198,7 +200,9 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.png"
   ```
 
-- **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
+  Uploaded images are stored in MinIO and the club DTO contains the resulting URL.
+
+  - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \

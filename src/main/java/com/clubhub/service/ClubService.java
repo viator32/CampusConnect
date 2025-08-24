@@ -26,13 +26,16 @@ public class ClubService {
 	@Inject
 	ClubRepository clubRepository;
 
-	@Inject
-	ClubService clubService;
+    @Inject
+    ClubService clubService;
 
-	@Inject
-	EntityManager em;
-	@Inject
-	UserService userService;
+    @Inject
+    EntityManager em;
+    @Inject
+    UserService userService;
+
+    @Inject
+    ObjectStorageService objectStorageService;
 
         public List<Club> getAllClubs() {
                 return clubRepository.findAll();
@@ -118,10 +121,11 @@ public class ClubService {
 
        @Transactional
        public void updateAvatar(UUID id, byte[] avatar) {
-               Club existing = getClubById(id);
-               existing.setAvatar(avatar);
-               clubRepository.update(existing);
-       }
+        Club existing = getClubById(id);
+        String url = objectStorageService.upload("clubs/" + id, avatar, "image/png");
+        existing.setAvatar(url);
+        clubRepository.update(existing);
+    }
 
 	@Transactional
 	public boolean deleteClub(UUID id) {

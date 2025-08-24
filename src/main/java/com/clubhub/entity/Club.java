@@ -47,8 +47,8 @@ public class Club {
         @Enumerated(EnumType.STRING)
         private Preference interest;
 
-	@Column(columnDefinition = "BYTEA")
-	private byte[] avatar;
+    @Column(name = "avatar")
+    private String avatar;
 
 	@Column(name = "is_joined")
 	private boolean isJoined;

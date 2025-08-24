@@ -32,8 +32,11 @@ public class UserService {
         @Inject
         EventRepository eventRepository;
 
-        @Inject
-        PostRepository postRepository;
+    @Inject
+    PostRepository postRepository;
+
+    @Inject
+    ObjectStorageService objectStorageService;
 
 
         @ConfigProperty(name = "auth.pepper")
@@ -143,12 +146,13 @@ public class UserService {
                 return userRepository.update(existing);
         }
 
-       @Transactional
-       public void updateAvatar(UUID id, byte[] avatar) {
-               User existing = getUserById(id);
-               existing.setAvatar(avatar);
-               userRepository.update(existing);
-       }
+    @Transactional
+    public void updateAvatar(UUID id, byte[] avatar) {
+        User existing = getUserById(id);
+        String url = objectStorageService.upload("users/" + id, avatar, "image/png");
+        existing.setAvatar(url);
+        userRepository.update(existing);
+    }
 
        @Transactional
        public void changePassword(UUID id, String currentPassword, String newPassword) {

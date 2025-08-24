@@ -3,7 +3,7 @@ CREATE TABLE users (
     email         VARCHAR NOT NULL UNIQUE,
     username      VARCHAR NOT NULL,
     password_hash VARCHAR NOT NULL,
-    avatar        BYTEA,
+    avatar        TEXT,
     description   VARCHAR(1024),
     subject       VARCHAR
 );
@@ -18,7 +18,7 @@ CREATE TABLE clubs (
     interest    VARCHAR,
     is_joined   BOOLEAN,
     members     INTEGER,
-    avatar      BYTEA
+    avatar      TEXT
 );
 
 CREATE TABLE member (

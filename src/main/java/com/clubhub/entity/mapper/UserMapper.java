@@ -1,7 +1,5 @@
 package com.clubhub.entity.mapper;
 
-import java.util.Base64;
-
 import com.clubhub.entity.Subject;
 import com.clubhub.entity.User;
 import com.clubhub.entity.dto.AuthorDTO;
@@ -15,9 +13,9 @@ public class UserMapper {
                 UserDTO dto = new UserDTO();
                 dto.id = user.getId();
                 dto.email = user.getEmail();
-               dto.username = user.getUsername();
-               dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
-               dto.description = user.getDescription();
+                dto.username = user.getUsername();
+                dto.avatar = user.getAvatar();
+                dto.description = user.getDescription();
                dto.preferences = user.getPreferences();
                 dto.subject = user.getSubject() != null ? user.getSubject() : Subject.NONE;
                 dto.memberships = user.getMemberships()
@@ -32,29 +30,27 @@ public class UserMapper {
                 UserDTO dto = new UserDTO();
                 dto.id = user.getId();
                 dto.email = user.getEmail();
-               dto.username = user.getUsername();
-               dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
-               dto.description = user.getDescription();
+                dto.username = user.getUsername();
+                dto.avatar = user.getAvatar();
+                dto.description = user.getDescription();
                 return dto;
         }
 
        public static AuthorDTO toAuthorDTO(User user) {
-               AuthorDTO dto = new AuthorDTO();
-               dto.id = user.getId();
-               dto.username = user.getUsername();
-               dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
-               return dto;
+                AuthorDTO dto = new AuthorDTO();
+                dto.id = user.getId();
+                dto.username = user.getUsername();
+                dto.avatar = user.getAvatar();
+                return dto;
        }
 
         public static User toEntity(UserDTO dto) {
                 User user = new User();
                 user.setId(dto.id);
                 user.setEmail(dto.email);
-               user.setUsername(dto.username);
-               if (dto.avatar != null) {
-                       user.setAvatar(Base64.getDecoder().decode(dto.avatar));
-               }
-               user.setDescription(dto.description);
+                user.setUsername(dto.username);
+                user.setAvatar(dto.avatar);
+                user.setDescription(dto.description);
                user.setPreferences(dto.preferences);
                user.setSubject(dto.subject);
                return user;
