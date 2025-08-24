@@ -23,6 +23,18 @@ import PostDetail   from '../components/PostDetail';
 
 type TabId = 'about'|'events'|'forum'|'posts'|'members';
 
+const ROLE_COLORS: Record<Role, string> = {
+  ADMIN: 'bg-red-100 text-red-800',
+  MODERATOR: 'bg-blue-100 text-blue-800',
+  MEMBER: 'bg-green-100 text-green-800',
+};
+
+const ROLE_LABELS: Record<Role, string> = {
+  ADMIN: 'Admin',
+  MODERATOR: 'Moderator',
+  MEMBER: 'Member',
+};
+
 export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
@@ -159,30 +171,37 @@ export default function ClubDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-700">
-            ← Back
+          <button onClick={() => navigate('/explore')} className="text-gray-500 hover:text-gray-700">
+            ← Back to Explore
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="text-3xl">{club.image}</div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
-              <p className="text-gray-600">
-                {club.members} members
-                {club.isJoined && userRole ? ` • Your role: ${userRole}` : ''}
+              <p className="text-gray-600 flex flex-wrap items-center gap-1">
+                <span>{club.members} members</span>
+                {club.isJoined && userRole && (
+                  <>
+                    <span>• Your role:</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[userRole]}`}>
+                      {ROLE_LABELS[userRole]}
+                    </span>
+                  </>
+                )}
               </p>
-              </div>
             </div>
           </div>
-        <Button onClick={toggleJoin} className="text-sm">
+        </div>
+        <Button onClick={toggleJoin} className="text-sm self-start sm:self-auto">
           {club.isJoined ? 'Leave Club' : 'Join Club'}
         </Button>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
+      <div className="border-b border-gray-200 overflow-x-auto">
+        <nav className="flex min-w-max space-x-4 sm:space-x-8">
           {tabs.map(tab => {
             const isActive = activeTab === tab.id;
             const Icon     = tab.icon;
@@ -194,7 +213,7 @@ export default function ClubDetailPage() {
                   setSearchParams({ tab: tab.id });
                 }}
                 className={`
-                  flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm
+                  flex items-center whitespace-nowrap gap-2 py-2 px-1 border-b-2 font-medium text-sm
                   ${isActive
                     ? 'border-orange-500 text-orange-600'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}

@@ -12,6 +12,12 @@ const ROLE_OPTIONS: { value: Role; label: string; description: string }[] = [
   { value: 'ADMIN',     label: 'Admin',     description: 'Can change roles of other members and manage everything.' },
 ];
 
+const ROLE_COLORS: Record<Role, string> = {
+  ADMIN: 'bg-red-100 text-red-800',
+  MODERATOR: 'bg-blue-100 text-blue-800',
+  MEMBER: 'bg-green-100 text-green-800',
+};
+
 interface MembersTabProps {
   club: Club;
   onUpdate?: (updated: Member[]) => void;
@@ -107,7 +113,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                   onChange={e => handleRoleChange(member.id, e.target.value as Role)}
                   onClick={e => e.stopPropagation()}
                   title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                  className="border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
+                  className={`border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
                 >
                   {ROLE_OPTIONS.map(opt => (
                     <option key={opt.value} value={opt.value}>
@@ -116,7 +122,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                   ))}
                 </select>
               ) : (
-                <span className="text-sm text-gray-600">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
                   {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
                 </span>
               )}
@@ -148,7 +154,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                   onChange={e => handleRoleChange(member.id, e.target.value as Role)}
                   onClick={e => e.stopPropagation()}
                   title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                  className="mr-4 border px-2 py-1 rounded bg-white border-gray-300 hover:border-gray-400"
+                  className={`mr-4 border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
                 >
                   {ROLE_OPTIONS.map(opt => (
                     <option key={opt.value} value={opt.value}>
@@ -157,7 +163,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                   ))}
                 </select>
               ) : (
-                <span className="mr-4 text-sm text-gray-600">
+                <span className={`mr-4 px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
                   {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
                 </span>
               )}
