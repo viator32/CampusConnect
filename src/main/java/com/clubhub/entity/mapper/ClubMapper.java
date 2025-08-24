@@ -143,21 +143,22 @@ public class ClubMapper {
         }
 
         public static MemberDTO toDTO(Member m) {
-                MemberDTO dto = new MemberDTO();
-                dto.id = m.getId();
-                dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
-                dto.role = m.getRole() != null ? m.getRole().name() : null;
-                dto.avatar = (m.getUser() != null && m.getUser().getAvatar() != null)
-                                ? Base64.getEncoder().encodeToString(m.getUser().getAvatar())
-                                : null;
-                dto.joinedAt = m.getJoinedAt();
+               MemberDTO dto = new MemberDTO();
+               dto.id = m.getId();
+               dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
+               dto.userId = m.getUser() != null ? m.getUser().getId() : null;
+               dto.role = m.getRole() != null ? m.getRole().name() : null;
+               dto.avatar = (m.getUser() != null && m.getUser().getAvatar() != null)
+                               ? Base64.getEncoder().encodeToString(m.getUser().getAvatar())
+                               : null;
+               dto.joinedAt = m.getJoinedAt();
 
-                if (m.getUser() != null) {
-                        dto.name = m.getUser().getUsername();
-                }
+               if (m.getUser() != null) {
+                       dto.name = m.getUser().getUsername();
+               }
 
-		return dto;
-	}
+               return dto;
+       }
 
 	public static ForumThreadDTO toDTO(ForumThread t) {
 		ForumThreadDTO dto = new ForumThreadDTO();
