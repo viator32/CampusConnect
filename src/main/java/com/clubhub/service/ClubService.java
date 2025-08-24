@@ -102,7 +102,10 @@ public class ClubService {
                existing.setInterest(updated.getInterest());
                 existing.setAvatar(updated.getAvatar());
 
-                return clubRepository.update(existing);
+                Club merged = clubRepository.update(existing);
+                // Initialize event attendees to avoid LazyInitializationException
+                merged.getEvents().forEach(e -> e.getAttendees().size());
+                return merged;
         }
 
        @Transactional
