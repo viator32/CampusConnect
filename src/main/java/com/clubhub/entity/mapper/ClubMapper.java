@@ -40,10 +40,11 @@ public class ClubMapper {
 	public static ClubDTO toSummaryDTO(Club club) {
 		ClubDTO dto = new ClubDTO();
 		dto.id = club.getId();
-		dto.name = club.getName();
+                dto.name = club.getName();
                 dto.description = club.getDescription();
                 dto.category = club.getCategory();
-                dto.image = club.getImage();
+               dto.subject = club.getSubject();
+               dto.interest = club.getInterest();
                 dto.location = club.getLocation();
                 dto.avatar = club.getAvatar() != null ? Base64.getEncoder().encodeToString(club.getAvatar()) : null;
                 dto.isJoined = club.isJoined();
@@ -63,7 +64,8 @@ public class ClubMapper {
 		club.setName(dto.name);
                 club.setDescription(dto.description);
                 club.setCategory(dto.category);
-                club.setImage(dto.image);
+               club.setSubject(dto.subject);
+               club.setInterest(dto.interest);
                 club.setLocation(dto.location);
                 if (dto.avatar != null) {
                         club.setAvatar(Base64.getDecoder().decode(dto.avatar));

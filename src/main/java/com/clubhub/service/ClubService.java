@@ -91,7 +91,8 @@ public class ClubService {
                 existing.setDescription(updated.getDescription());
                 existing.setLocation(updated.getLocation());
                 existing.setCategory(updated.getCategory());
-                existing.setImage(updated.getImage());
+               existing.setSubject(updated.getSubject());
+               existing.setInterest(updated.getInterest());
                 existing.setAvatar(updated.getAvatar());
 
                 return clubRepository.update(existing);
