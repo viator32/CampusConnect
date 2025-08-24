@@ -183,7 +183,6 @@ function mapClub(dto: any): Club {
     founded: dto.founded,
     location: dto.location,
     tags: dto.tags ?? [],
-    projects: dto.projects ?? [],
   };
 }
 

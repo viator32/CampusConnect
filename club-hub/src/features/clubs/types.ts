@@ -74,14 +74,6 @@ export interface Thread {
   posts?: Comment[];
 }
 
-// new type for club projects
-export interface Project {
-  id: number;
-  title: string;
-  description?: string;
-  link?: string;
-}
-
 export interface Club {
   id: string;
   name: string;
@@ -100,5 +92,4 @@ export interface Club {
   founded?: string;       // e.g. "2005"
   location?: string;      // e.g. "Engineering Building, Room 101"
   tags?: string[];        // e.g. ["robotics","ai","competitive"]
-  projects?: Project[];   // extra section in AboutTab
 }

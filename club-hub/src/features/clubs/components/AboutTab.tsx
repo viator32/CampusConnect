@@ -1,6 +1,6 @@
 // src/features/clubs/components/AboutTab.tsx
 import React, { useState } from 'react';
-import { Club, Project, Role } from '../types';
+import { Club, Role } from '../types';
 import {
   Users,
   Calendar,
@@ -30,8 +30,7 @@ export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabPr
     image:       club.image,
     founded:     club.founded || '',
     location:    club.location || '',
-    tags:        (club.tags || []).join(', '),
-    projects:    club.projects || [] as Project[]
+    tags:        (club.tags || []).join(', ')
   });
 
   const handleChange = (
@@ -46,30 +45,6 @@ export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabPr
     setShowEmojiPicker(false);
   };
 
-  const addProject = () => {
-    setForm(f => ({
-      ...f,
-      projects: [
-        ...f.projects,
-        { id: Date.now(), title: '', description: '', link: '' }
-      ]
-    }));
-  };
-  const updateProject = (idx: number, field: keyof Project, value: string) => {
-    setForm(f => {
-      const ps = f.projects.map((p,i) =>
-        i === idx ? { ...p, [field]: value } : p
-      );
-      return { ...f, projects: ps };
-    });
-  };
-  const removeProject = (idx: number) => {
-    setForm(f => ({
-      ...f,
-      projects: f.projects.filter((_,i) => i !== idx)
-    }));
-  };
-
   const save = () => {
     const updated: Club = {
       ...club,
@@ -79,8 +54,7 @@ export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabPr
       image:       form.image,
       founded:     form.founded || undefined,
       location:    form.location || undefined,
-      tags:        form.tags.split(',').map(s=>s.trim()).filter(Boolean),
-      projects:    form.projects.filter(p=>p.title.trim())
+      tags:        form.tags.split(',').map(s=>s.trim()).filter(Boolean)
     };
     onUpdate(updated);
     setIsEditing(false);
@@ -88,14 +62,13 @@ export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabPr
 
   // safe arrays
   const tags     = club.tags     ?? [];
-  const projects = club.projects ?? [];
 
   return (
     <div className="space-y-6">
       {/* ── Header Card ── */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {/* Emoji Icon */}
             <div className="relative">
               <div
@@ -262,74 +235,6 @@ export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabPr
           )}
         </div>
 
-        {/* Projects */}
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <h3 className="font-semibold text-gray-900">Projects</h3>
-            {isEditing && (
-              <Button
-                onClick={addProject}
-                className="px-2 py-1 text-sm border rounded hover:bg-gray-100"
-              >
-                + Add Project
-              </Button>
-            )}
-          </div>
-          {isEditing ? (
-            <div className="space-y-3">
-              {form.projects.map((p, i) => (
-                <div key={p.id} className="space-y-1 border border-gray-200 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <input
-                      placeholder="Title"
-                      value={p.title}
-                      onChange={e => updateProject(i, 'title', e.target.value)}
-                      className="w-2/3 border-b border-gray-300 focus:outline-none"
-                    />
-                    <Button
-                      onClick={() => removeProject(i)}
-                      className="px-2 py-1 text-sm text-red-600"
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                  <input
-                    placeholder="Link (optional)"
-                    value={p.link || ''}
-                    onChange={e => updateProject(i, 'link', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-1"
-                  />
-                  <textarea
-                    placeholder="Description (optional)"
-                    rows={2}
-                    value={p.description || ''}
-                    onChange={e => updateProject(i, 'description', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-1 resize-none"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <ul className="list-disc list-inside text-gray-700 space-y-1">
-              {projects.length > 0 ? (
-                projects.map(p => (
-                  <li key={p.id}>
-                    {p.link ? (
-                      <a href={p.link} className="text-orange-600 hover:underline">
-                        {p.title}
-                      </a>
-                    ) : (
-                      p.title
-                    )}
-                    {p.description && ` — ${p.description}`}
-                  </li>
-                ))
-              ) : (
-                <li className="italic text-gray-400">No projects yet.</li>
-              )}
-            </ul>
-          )}
-        </div>
       </div>
     </div>
   );
