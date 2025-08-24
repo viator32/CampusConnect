@@ -5,16 +5,19 @@ import java.util.UUID;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
+import com.clubhub.entity.Preference;
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.EventDTO;
@@ -28,8 +31,14 @@ import org.jboss.resteasy.reactive.ResponseStatus;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ClubResource {
 
-	@GET
-	List<ClubDTO> getAll();
+        @GET
+        List<ClubDTO> getAll(@QueryParam("page") @DefaultValue("0") int page,
+                        @QueryParam("size") @DefaultValue("20") int size,
+                        @QueryParam("interest") Preference interest,
+                        @QueryParam("category") String category,
+                        @QueryParam("name") String name,
+                        @QueryParam("minMembers") Integer minMembers,
+                        @QueryParam("maxMembers") Integer maxMembers);
 
 	@GET
 	@Path("/{id}")
