@@ -102,11 +102,19 @@ public class ClubService {
                existing.setInterest(updated.getInterest());
                 existing.setAvatar(updated.getAvatar());
 
-                Club merged = clubRepository.update(existing);
-                // Initialize event attendees to avoid LazyInitializationException
-                merged.getEvents().forEach(e -> e.getAttendees().size());
-                return merged;
-        }
+               Club merged = clubRepository.update(existing);
+               // Initialize collections to avoid LazyInitializationException
+               merged.getEvents().forEach(e -> e.getAttendees().size());
+               merged.getPosts().forEach(p -> {
+                       p.getCommentsList().size();
+                       p.getLikedBy().size();
+                       p.getBookmarkedBy().size();
+                       if (p.getPoll() != null) {
+                               p.getPoll().getOptions().size();
+                       }
+               });
+               return merged;
+       }
 
        @Transactional
        public void updateAvatar(UUID id, byte[] avatar) {
