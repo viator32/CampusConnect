@@ -194,14 +194,30 @@ export default function ClubDetailPage() {
             </div>
           </div>
         </div>
-        <Button onClick={toggleJoin} className="text-sm self-start sm:self-auto">
-          {club.isJoined ? 'Leave Club' : 'Join Club'}
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button onClick={toggleJoin} className="text-sm">
+            {club.isJoined ? 'Leave Club' : 'Join Club'}
+          </Button>
+          <button
+            onClick={() => {
+              setActiveTab('about');
+              setSearchParams({ tab: 'about' });
+            }}
+            className={`sm:hidden flex items-center gap-1 px-3 py-2 rounded border text-sm font-medium ${
+              activeTab === 'about'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-gray-300 text-gray-600'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            About
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 overflow-x-auto">
-        <nav className="flex min-w-max space-x-4 sm:space-x-8">
+      <div className="border-b border-gray-200">
+        <nav className="flex w-full space-x-2 sm:space-x-8">
           {tabs.map(tab => {
             const isActive = activeTab === tab.id;
             const Icon     = tab.icon;
@@ -212,12 +228,13 @@ export default function ClubDetailPage() {
                   setActiveTab(tab.id);
                   setSearchParams({ tab: tab.id });
                 }}
-                className={`
-                  flex items-center whitespace-nowrap gap-2 py-2 px-1 border-b-2 font-medium text-sm
-                  ${isActive
+                className={`flex items-center justify-center whitespace-nowrap gap-2 py-2 px-1 border-b-2 font-medium text-sm flex-1 sm:flex-none ${
+                  tab.id === 'about' ? 'hidden sm:flex' : ''
+                } ${
+                  isActive
                     ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
-                `}
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
