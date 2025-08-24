@@ -25,7 +25,7 @@ export default function ProfilePage() {
         description: user.description,
         subject: user.subject || '',
         preferences: user.preferences || [],
-        avatar: user.avatar || '',
+        avatar: user.avatar ? `data:image/png;base64,${user.avatar}` : '',
       });
     }
   }, [user, isEditing]);
@@ -104,8 +104,8 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">My Profile</h1>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-start gap-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row items-start gap-6">
           <div className="flex flex-col items-center">
             <div className={`relative ${isEditing ? 'cursor-pointer group' : ''}`}>
               {form.avatar ? (
@@ -138,8 +138,8 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="flex-1">
-            <div className="flex justify-between items-center">
+          <div className="flex-1 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               {isEditing ? (
                 <input
                   name="name"
@@ -267,7 +267,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className="mt-4 flex gap-6">
+            <div className="mt-4 flex flex-col sm:flex-row gap-6">
               <Stat label="Clubs Joined" value={user.clubsJoined} />
               <Stat label="Events Attended" value={user.eventsAttended} />
             </div>

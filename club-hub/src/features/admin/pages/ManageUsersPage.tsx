@@ -49,14 +49,17 @@ export default function ManageUsersPage() {
       />
       <div className="space-y-4">
         {filtered.map(u => (
-          <div key={u.id} className="flex items-center justify-between bg-white p-4 border rounded-lg">
-            <div>
+          <div
+            key={u.id}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-4 border rounded-lg gap-4"
+          >
+            <div className="flex-1">
               <p className="font-medium text-gray-900">
                 {u.name} {u.banned && <span className="text-red-500">(banned)</span>}
               </p>
               <p className="text-sm text-gray-500">{u.email}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
               <select
                 value={u.role}
                 onChange={e => changeRole(u.id, e.target.value as any)}
