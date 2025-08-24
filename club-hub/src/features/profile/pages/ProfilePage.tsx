@@ -139,7 +139,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex-1 w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4">
               {isEditing ? (
                 <input
                   name="name"
@@ -150,12 +150,12 @@ export default function ProfilePage() {
               ) : (
                 <h2 className="text-2xl font-bold">{user.name}</h2>
               )}
-              <div>
+              <div className="flex flex-wrap gap-2 sm:justify-end">
                 {isEditing ? (
                   <>
                     <Button
                       onClick={save}
-                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                     >
                       Save
                     </Button>
