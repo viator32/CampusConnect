@@ -2,6 +2,7 @@ package com.clubhub.entity.mapper;
 
 import java.util.Base64;
 
+import com.clubhub.entity.Subject;
 import com.clubhub.entity.User;
 import com.clubhub.entity.dto.AuthorDTO;
 import com.clubhub.entity.dto.RegisterDTO;
@@ -18,7 +19,7 @@ public class UserMapper {
                dto.avatar = user.getAvatar() != null ? Base64.getEncoder().encodeToString(user.getAvatar()) : null;
                dto.description = user.getDescription();
                dto.preferences = user.getPreferences();
-                dto.subject = user.getSubject();
+                dto.subject = user.getSubject() != null ? user.getSubject() : Subject.NONE;
                 dto.memberships = user.getMemberships()
                                 .stream()
                                 .map(ClubMapper::toDTO)
