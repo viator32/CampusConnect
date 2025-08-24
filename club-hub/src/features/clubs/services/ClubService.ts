@@ -220,6 +220,7 @@ function mapPost(dto: any): Post {
     commentsList: dto.commentsList ?? [],
     photo: dto.photo,
     poll: dto.poll,
+    liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };
 }
 
@@ -231,5 +232,6 @@ function mapComment(dto: any): Comment {
     time: dto.time ?? dto.createdAt ?? '',
     likes: dto.likes ?? 0,
     avatar: dto.author?.avatar ?? dto.avatar ?? '',
+    liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };
 }

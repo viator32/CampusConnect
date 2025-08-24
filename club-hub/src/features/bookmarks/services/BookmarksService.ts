@@ -12,6 +12,7 @@ export interface BookmarkedPost {
   clubId?: string;
   clubName?: string;
   clubImage?: string;
+  liked?: boolean;
 }
 
 export class BookmarksService extends BaseService {
@@ -52,6 +53,7 @@ function mapBookmarkedPost(dto: any): BookmarkedPost {
     clubId: dto.clubId ?? dto.club?.id,
     clubName: dto.clubName ?? dto.club?.name,
     clubImage: dto.clubImage ?? dto.club?.image,
+    liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };
 }
 

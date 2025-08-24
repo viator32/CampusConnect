@@ -63,7 +63,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
             <p className="text-gray-700 mb-3">{post.content}</p>
             <div className="flex items-center gap-4">
               <button className="flex items-center gap-1 text-gray-500 hover:text-orange-500">
-                <Heart className="w-4 h-4" />
+                <Heart className={`w-4 h-4 ${post.liked ? 'text-orange-500' : ''}`} />
                 <span className="text-sm">{post.likes ?? 0}</span>
               </button>
             </div>
