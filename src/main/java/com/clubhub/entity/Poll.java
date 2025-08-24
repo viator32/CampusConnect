@@ -7,6 +7,7 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class Poll {
         @Column(name = "poll_question")
         private String question;
 
-        @ElementCollection
-        @CollectionTable(name = "post_poll_options", joinColumns = @JoinColumn(name = "post_id"))
-        private List<PollOption> options = new ArrayList<>();
+       @ElementCollection(fetch = FetchType.EAGER)
+       @CollectionTable(name = "post_poll_options", joinColumns = @JoinColumn(name = "post_id"))
+       private List<PollOption> options = new ArrayList<>();
 }
