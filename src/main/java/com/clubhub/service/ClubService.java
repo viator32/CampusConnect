@@ -3,6 +3,8 @@ package com.clubhub.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.clubhub.entity.Preference;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -32,9 +34,14 @@ public class ClubService {
 	@Inject
 	UserService userService;
 
-	public List<Club> getAllClubs() {
-		return clubRepository.findAll();
-	}
+        public List<Club> getAllClubs() {
+                return clubRepository.findAll();
+        }
+
+        public List<Club> searchClubs(String name, String category, Preference interest,
+                        Integer minMembers, Integer maxMembers, int page, int size) {
+                return clubRepository.search(name, category, interest, minMembers, maxMembers, page, size);
+        }
 
 	public Club getClubById(UUID id) {
 		Club club = clubRepository.findById(id);

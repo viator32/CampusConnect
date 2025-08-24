@@ -12,6 +12,7 @@ import com.clubhub.entity.Club;
 import com.clubhub.entity.Event;
 import com.clubhub.entity.Member;
 import com.clubhub.entity.MemberRole;
+import com.clubhub.entity.Preference;
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.EventDTO;
@@ -44,12 +45,13 @@ public class ClubResourceImpl implements ClubResource {
 	@Inject
 	EventService eventService;
 
-	@Override
-	public List<ClubDTO> getAll() {
-		return clubService.getAllClubs().stream()
-				.map(ClubMapper::toSummaryDTO)
-				.toList();
-	}
+        @Override
+        public List<ClubDTO> getAll(int page, int size, Preference interest, String category, String name,
+                        Integer minMembers, Integer maxMembers) {
+                return clubService.searchClubs(name, category, interest, minMembers, maxMembers, page, size).stream()
+                                .map(ClubMapper::toSummaryDTO)
+                                .toList();
+        }
 
 	@Override
 	public ClubDTO getById(UUID id, @Context ContainerRequestContext ctx) {
