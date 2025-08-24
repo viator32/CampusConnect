@@ -154,10 +154,14 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 ### Clubs
 
-- **List clubs** – `GET /api/clubs` (200 OK)
+- **Search clubs** – `GET /api/clubs` (200 OK)
+
+  Supports filtering by name, category, interest and member counts. Pagination
+  is controlled via `page` (default `0`) and `size` (default `20`) query
+  parameters.
 
   ```bash
-  curl http://localhost:8080/api/clubs
+  curl "http://localhost:8080/api/clubs?page=0&size=10&name=Chess&interest=GAMING"
   ```
 
 - **Get club** – `GET /api/clubs/{id}` (200 OK)
