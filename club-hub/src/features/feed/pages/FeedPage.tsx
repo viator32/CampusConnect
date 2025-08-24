@@ -27,6 +27,9 @@ interface EventFeedItem extends FeedEventItem {
   attendees?: { id: string; name: string; surname: string; email: string; avatar?: string }[];
 }
 
+const isEvent = (item: FeedItem): item is EventFeedItem =>
+  (item as any).type === 'event';
+
 export default function FeedPage() {
   const navigate = useNavigate();
   const { user } = useProfile();
@@ -38,9 +41,6 @@ export default function FeedPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState<'events' | 'posts'>('events');
-
-  const isEvent = (item: FeedItem): item is EventFeedItem =>
-    (item as any).type === 'event';
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
@@ -74,7 +74,7 @@ export default function FeedPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [page, hasMore, loadingMore, isEvent]);
+  }, [page, hasMore, loadingMore]);
 
   useEffect(() => {
     loadMore();
@@ -109,7 +109,7 @@ export default function FeedPage() {
     if (!loading && visibleItems.length === 0 && hasMore && !loadingMore) {
       loadMore();
     }
-  }, [activeTab, visibleItems.length, hasMore, loadingMore, loadMore, loading]);
+    }, [activeTab, visibleItems.length, hasMore, loadingMore, loadMore, loading]);
 
   useEffect(() => {
     const loadBookmarks = async () => {
@@ -134,7 +134,7 @@ export default function FeedPage() {
       }
     });
     setJoinedEvents(set);
-  }, [items, user, isEvent]);
+  }, [items, user]);
 
   const toggleBookmark = async (post: FeedPost) => {
     const prev = new Set(bookmarked);
