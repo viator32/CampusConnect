@@ -1,5 +1,7 @@
 // src/features/clubs/types.ts
 
+import { Subject, Preference } from '../profile/types';
+
 export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
 
 export interface Participant {
@@ -82,16 +84,13 @@ export interface Club {
   description: string;
   members: number;
   category: string;
-  image: string;
+  subject: Subject;
+  interest: Preference;
+  avatar: string;
   isJoined: boolean;
 
   events: Event[];
   posts: Post[];
   members_list: Member[];
   forum_threads: Thread[];
-
-  // ← newly added optional fields
-  founded?: string;       // e.g. "2005"
-  location?: string;      // e.g. "Engineering Building, Room 101"
-  tags?: string[];        // e.g. ["robotics","ai","competitive"]
 }

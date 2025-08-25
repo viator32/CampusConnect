@@ -1,5 +1,6 @@
 import { BaseService } from '../../../services/BaseService';
 import type { Club, Event as ClubEvent, Post, Comment, Role } from '../types';
+import { Subject, Preference } from '../../profile/types';
 
 export class ClubService extends BaseService {
   async getAll(): Promise<Club[]> {
@@ -13,12 +14,13 @@ export class ClubService extends BaseService {
   }
 
   async createClub(data: Partial<Club>): Promise<Club> {
-    // backend expects: { name, description, category, image? }
+    // backend expects: { name, description, category, subject, interest }
     const payload = this.buildPayload({
       name: data.name,
       description: data.description,
       category: data.category,
-      image: data.image,
+      subject: data.subject ?? Subject.NONE,
+      interest: data.interest ?? Preference.NONE,
     });
     const dto = await this.api.request<any>('/clubs', {
       method: 'POST',
@@ -32,7 +34,8 @@ export class ClubService extends BaseService {
     if (data.name !== undefined) payload.name = data.name;
     if (data.description !== undefined) payload.description = data.description;
     if (data.category !== undefined) payload.category = data.category;
-    if (data.image !== undefined) payload.image = data.image;
+    if (data.subject !== undefined) payload.subject = data.subject;
+    if (data.interest !== undefined) payload.interest = data.interest;
 
     const dto = await this.api.request<any>(`/clubs/${id}`, {
       method: 'PUT',
@@ -51,6 +54,15 @@ export class ClubService extends BaseService {
 
   async leaveClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}/leave`, { method: 'POST' });
+  }
+
+  async updateAvatar(id: string, file: Blob): Promise<Club> {
+    const dto = await this.api.request<any>(`/clubs/${id}/avatar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: file,
+    });
+    return mapClub(dto);
   }
 
   // Posts inside a club
@@ -169,7 +181,9 @@ function mapClub(dto: any): Club {
     name: dto.name,
     description: dto.description ?? '',
     category: dto.category ?? 'General',
-    image: dto.image ?? '🏷️',
+    subject: dto.subject ?? Subject.NONE,
+    interest: dto.interest ?? Preference.NONE,
+    avatar: dto.avatar ?? '',
     members: dto.membersCount ?? dto.members ?? 0,
     isJoined: !!dto.isJoined,
 
@@ -179,10 +193,6 @@ function mapClub(dto: any): Club {
       .sort((a: Post, b: Post) => new Date(b.time).getTime() - new Date(a.time).getTime()),
     members_list: dto.membersList ?? dto.members_list ?? [],
     forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
-
-    founded: dto.founded,
-    location: dto.location,
-    tags: dto.tags ?? [],
   };
 }
 

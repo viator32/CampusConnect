@@ -1,6 +1,7 @@
 import type { Role } from '../clubs/types';
 
 export enum Subject {
+  NONE = 'NONE',
   COMPUTER_SCIENCE = 'COMPUTER_SCIENCE',
   MATHEMATICS = 'MATHEMATICS',
   PHYSICS = 'PHYSICS',
@@ -19,6 +20,7 @@ export enum Subject {
 }
 
 export enum Preference {
+  NONE = 'NONE',
   PROGRAMMING = 'PROGRAMMING',
   PHOTOGRAPHY = 'PHOTOGRAPHY',
   DEBATE = 'DEBATE',
@@ -76,7 +78,7 @@ export interface User {
   email: string;
   avatar: string;
   description: string;
-  subject: Subject | '';
+  subject: Subject;
   preferences: Preference[];
   clubsJoined: number;
   eventsAttended: number;

@@ -9,6 +9,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Club, Role } from '../types';
+import { Subject, Preference } from '../../profile/types';
 import { clubService } from '../services/ClubService';
 import Button from '../../../components/Button';
 import { useProfile } from '../../profile/hooks/useProfile';
@@ -34,6 +35,12 @@ const ROLE_LABELS: Record<Role, string> = {
   MODERATOR: 'Moderator',
   MEMBER: 'Member',
 };
+
+const formatEnum = (v: string) =>
+  v
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
 
 export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
@@ -178,7 +185,17 @@ export default function ClubDetailPage() {
         <div className="flex items-center gap-4">
          
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <div className="text-3xl">{club.image}</div>
+            {club.avatar ? (
+              <img
+                src={club.avatar}
+                alt={club.name}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-3xl">
+                🏷️
+              </div>
+            )}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
               <p className="text-gray-600 flex flex-wrap items-center gap-1">
@@ -192,6 +209,18 @@ export default function ClubDetailPage() {
                   </>
                 )}
               </p>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {club.subject !== Subject.NONE && (
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">
+                    {formatEnum(club.subject)}
+                  </span>
+                )}
+                {club.interest !== Preference.NONE && (
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">
+                    {formatEnum(club.interest)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
