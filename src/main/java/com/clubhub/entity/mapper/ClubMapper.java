@@ -18,6 +18,7 @@ import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PollDTO;
 import com.clubhub.entity.dto.PollOptionDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.service.ObjectStorageService;
 
 public class ClubMapper {
 
@@ -45,7 +46,7 @@ public class ClubMapper {
                dto.subject = club.getSubject();
                dto.interest = club.getInterest();
                 dto.location = club.getLocation();
-                dto.avatar = club.getAvatar();
+                dto.avatar = ObjectStorageService.url(club.getAvatarBucket(), club.getAvatarObject());
                 dto.isJoined = club.isJoined();
                 dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
                 dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
@@ -66,7 +67,7 @@ public class ClubMapper {
                club.setSubject(dto.subject);
                club.setInterest(dto.interest);
                 club.setLocation(dto.location);
-                  club.setAvatar(dto.avatar);
+                // avatar handled separately
                 club.setJoined(dto.isJoined);
                 club.setMembers(dto.members);
 
@@ -147,7 +148,9 @@ public class ClubMapper {
                dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
                dto.userId = m.getUser() != null ? m.getUser().getId() : null;
                dto.role = m.getRole() != null ? m.getRole().name() : null;
-                dto.avatar = (m.getUser() != null) ? m.getUser().getAvatar() : null;
+                dto.avatar = (m.getUser() != null)
+                                ? ObjectStorageService.url(m.getUser().getAvatarBucket(), m.getUser().getAvatarObject())
+                                : null;
                dto.joinedAt = m.getJoinedAt();
 
                if (m.getUser() != null) {

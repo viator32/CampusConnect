@@ -6,6 +6,7 @@ import com.clubhub.entity.dto.AuthorDTO;
 import com.clubhub.entity.dto.RegisterDTO;
 import com.clubhub.entity.dto.UserDTO;
 import com.clubhub.entity.dto.UserUpdateDTO;
+import com.clubhub.service.ObjectStorageService;
 
 public class UserMapper {
 
@@ -14,7 +15,7 @@ public class UserMapper {
                 dto.id = user.getId();
                 dto.email = user.getEmail();
                 dto.username = user.getUsername();
-                dto.avatar = user.getAvatar();
+                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
                 dto.description = user.getDescription();
                dto.preferences = user.getPreferences();
                 dto.subject = user.getSubject() != null ? user.getSubject() : Subject.NONE;
@@ -31,7 +32,7 @@ public class UserMapper {
                 dto.id = user.getId();
                 dto.email = user.getEmail();
                 dto.username = user.getUsername();
-                dto.avatar = user.getAvatar();
+                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
                 dto.description = user.getDescription();
                 return dto;
         }
@@ -40,7 +41,7 @@ public class UserMapper {
                 AuthorDTO dto = new AuthorDTO();
                 dto.id = user.getId();
                 dto.username = user.getUsername();
-                dto.avatar = user.getAvatar();
+                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
                 return dto;
        }
 
@@ -49,7 +50,7 @@ public class UserMapper {
                 user.setId(dto.id);
                 user.setEmail(dto.email);
                 user.setUsername(dto.username);
-                user.setAvatar(dto.avatar);
+                // avatar handled separately
                 user.setDescription(dto.description);
                user.setPreferences(dto.preferences);
                user.setSubject(dto.subject);

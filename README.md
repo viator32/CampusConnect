@@ -143,7 +143,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.jpg"
   ```
 
-  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile contains the public URL.
+  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile contains the public URL. Only the bucket name and object key are persisted in the database.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 
@@ -208,7 +208,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.png"
   ```
 
-  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. The same image formats as for user avatars are supported.
+  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. Only the bucket name and object key are saved in the database. The same image formats as for user avatars are supported.
 
   - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 

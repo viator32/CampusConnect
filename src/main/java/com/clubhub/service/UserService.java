@@ -131,9 +131,6 @@ public class UserService {
                 if (user.getUsername() != null) {
                         existing.setUsername(user.getUsername());
                 }
-                if (user.getAvatar() != null) {
-                        existing.setAvatar(user.getAvatar());
-                }
                 if (user.getDescription() != null) {
                         existing.setDescription(user.getDescription());
                 }
@@ -149,8 +146,10 @@ public class UserService {
     @Transactional
     public void updateAvatar(UUID id, byte[] avatar, String contentType) {
         User existing = getUserById(id);
-        String url = objectStorageService.upload("users/" + id, avatar, contentType);
-        existing.setAvatar(url);
+        var stored = objectStorageService.upload("users/" + id, avatar, contentType);
+        existing.setAvatarBucket(stored.bucket());
+        existing.setAvatarObject(stored.objectKey());
+        existing.setAvatarEtag(stored.etag());
         userRepository.update(existing);
     }
 

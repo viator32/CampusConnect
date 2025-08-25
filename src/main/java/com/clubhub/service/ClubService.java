@@ -103,7 +103,6 @@ public class ClubService {
                 existing.setCategory(updated.getCategory());
                existing.setSubject(updated.getSubject());
                existing.setInterest(updated.getInterest());
-                existing.setAvatar(updated.getAvatar());
 
                Club merged = clubRepository.update(existing);
                // Initialize collections to avoid LazyInitializationException
@@ -122,8 +121,10 @@ public class ClubService {
        @Transactional
        public void updateAvatar(UUID id, byte[] avatar, String contentType) {
         Club existing = getClubById(id);
-        String url = objectStorageService.upload("clubs/" + id, avatar, contentType);
-        existing.setAvatar(url);
+        var stored = objectStorageService.upload("clubs/" + id, avatar, contentType);
+        existing.setAvatarBucket(stored.bucket());
+        existing.setAvatarObject(stored.objectKey());
+        existing.setAvatarEtag(stored.etag());
         clubRepository.update(existing);
     }
 
