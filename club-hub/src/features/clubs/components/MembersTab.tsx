@@ -5,6 +5,7 @@ import { Grid, List } from 'lucide-react';
 import { Club, Member, Role } from '../types';
 import { clubService } from '../services/ClubService';
 import Avatar from '../../../components/Avatar';
+import { useProfile } from '../../profile/hooks/useProfile';
 
 const ROLE_OPTIONS: { value: Role; label: string; description: string }[] = [
   { value: 'MEMBER',    label: 'Member',    description: 'Regular member; can post, join events, and comment.' },
@@ -29,6 +30,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
   const [members, setMembers] = useState<Member[]>(club.members_list);
   const [view, setView]     = useState<'grid'|'list'>('grid');
   const [search, setSearch] = useState('');
+  const { user } = useProfile();
 
   // Sync props → state
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
   const handleRoleChange = async (id: number | string, newRole: Role) => {
     const target = members.find(m => m.id === id);
     if (!target) return;
+    if (String(id) === String(user?.id)) return; // cannot change your own role
     const admins = members.filter(m => m.role === 'ADMIN');
     if (target.role === 'ADMIN' && newRole !== 'ADMIN' && admins.length <= 1) {
       return; // must keep at least one admin
@@ -92,90 +95,96 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
 
       {view === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filtered.map(member => (
-            <div
-              key={member.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow"
-            >
-              {/* Only avatar is clickable */}
+          {filtered.map(member => {
+            const isSelf = String(member.id) === String(user?.id);
+            return (
               <div
-                onClick={() => navigate(`/users/${member.id}`)}
-                className="cursor-pointer text-3xl"
+                key={member.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow"
               >
-                <Avatar avatar={member.avatar} size={48} />
-              </div>
-
-              <p className="font-medium text-gray-900">{member.name}</p>
-
-              {currentUserRole === 'ADMIN' ? (
-                <select
-                  value={member.role}
-                  onChange={e => handleRoleChange(member.id, e.target.value as Role)}
-                  onClick={e => e.stopPropagation()}
-                  title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                  className={`border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
+                {/* Only avatar is clickable */}
+                <div
+                  onClick={() => navigate(`/users/${member.id}`)}
+                  className="cursor-pointer text-3xl"
                 >
-                  {ROLE_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
-                  {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
-                </span>
-              )}
-            </div>
-          ))}
+                  <Avatar avatar={member.avatar} size={48} />
+                </div>
+
+                <p className="font-medium text-gray-900">{member.name}</p>
+
+                {currentUserRole === 'ADMIN' && !isSelf ? (
+                  <select
+                    value={member.role}
+                    onChange={e => handleRoleChange(member.id, e.target.value as Role)}
+                    onClick={e => e.stopPropagation()}
+                    title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
+                    className={`border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
+                  >
+                    {ROLE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
+                    {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map(member => (
-            <div
-              key={member.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
-            >
-              {/* Avatar click */}
+          {filtered.map(member => {
+            const isSelf = String(member.id) === String(user?.id);
+            return (
               <div
-                onClick={() => navigate(`/users/${member.id}`)}
-                className="cursor-pointer text-3xl"
+                key={member.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
               >
-                <Avatar avatar={member.avatar} size={32} />
-              </div>
-
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">{member.name}</p>
-              </div>
-
-              {currentUserRole === 'ADMIN' ? (
-                <select
-                  value={member.role}
-                  onChange={e => handleRoleChange(member.id, e.target.value as Role)}
-                  onClick={e => e.stopPropagation()}
-                  title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
-                  className={`mr-4 border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
+                {/* Avatar click */}
+                <div
+                  onClick={() => navigate(`/users/${member.id}`)}
+                  className="cursor-pointer text-3xl"
                 >
-                  {ROLE_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span className={`mr-4 px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
-                  {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
-                </span>
-              )}
+                  <Avatar avatar={member.avatar} size={32} />
+                </div>
 
-              <button
-                onClick={() => navigate(`/users/${member.id}`)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                View Profile →
-              </button>
-            </div>
-          ))}
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{member.name}</p>
+                </div>
+
+                {currentUserRole === 'ADMIN' && !isSelf ? (
+                  <select
+                    value={member.role}
+                    onChange={e => handleRoleChange(member.id, e.target.value as Role)}
+                    onClick={e => e.stopPropagation()}
+                    title={ROLE_OPTIONS.find(r=>r.value===member.role)?.description}
+                    className={`mr-4 border px-2 py-1 rounded ${ROLE_COLORS[member.role]} border-gray-300 hover:border-gray-400`}
+                  >
+                    {ROLE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className={`mr-4 px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
+                    {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
+                  </span>
+                )}
+
+                <button
+                  onClick={() => navigate(`/users/${member.id}`)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  View Profile →
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
