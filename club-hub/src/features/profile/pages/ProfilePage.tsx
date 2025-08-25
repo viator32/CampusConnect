@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    subject: '' as Subject | '',
+    subject: Subject.NONE as Subject,
     preferences: [] as Preference[],
     avatar: '',
   });
@@ -23,7 +23,7 @@ export default function ProfilePage() {
       setForm({
         name: user.name,
         description: user.description,
-        subject: user.subject || '',
+        subject: user.subject ?? Subject.NONE,
         preferences: user.preferences || [],
         avatar: user.avatar ? `data:image/png;base64,${user.avatar}` : '',
       });
@@ -97,8 +97,8 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
-  const subjectOptions = Object.values(Subject);
-  const preferenceOptions = Object.values(Preference);
+  const subjectOptions = Object.values(Subject).filter(s => s !== Subject.NONE);
+  const preferenceOptions = Object.values(Preference).filter(p => p !== Preference.NONE);
 
   return (
     <div className="space-y-6">
@@ -194,7 +194,7 @@ export default function ProfilePage() {
                   onChange={handleSubjectChange}
                   className="border rounded px-3 py-2 w-full"
                 >
-                  <option value="">Select subject</option>
+                  <option value={Subject.NONE}>Select subject</option>
                   {subjectOptions.map(s => (
                     <option key={s} value={s}>
                       {formatEnum(s)}
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                 </select>
               ) : (
                 <p className="text-gray-700">
-                  {user.subject ? (
+                  {user.subject !== Subject.NONE ? (
                     formatEnum(user.subject)
                   ) : (
                     <span className="italic text-gray-400">No subject selected.</span>

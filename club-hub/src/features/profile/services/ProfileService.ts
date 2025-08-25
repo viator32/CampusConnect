@@ -1,5 +1,6 @@
 import { BaseService } from '../../../services/BaseService';
 import type { User } from '../types';
+import { Subject } from '../types';
 
 export class ProfileService extends BaseService {
   /** Fetch the current user via the `/users/me` endpoint */
@@ -39,7 +40,7 @@ function mapUser(dto: any): User {
     email: dto.email ?? '',
     avatar: dto.avatar ?? '',
     description: dto.description ?? '',
-    subject: dto.subject ?? '',
+    subject: dto.subject ?? Subject.NONE,
     preferences: dto.preferences ?? [],
     clubsJoined: dto.clubsJoined ?? 0,
     eventsAttended: dto.eventsAttended ?? 0,

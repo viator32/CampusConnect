@@ -1,16 +1,22 @@
 // src/features/clubs/pages/MyClubsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, X, Smile, Loader2 } from 'lucide-react';
+import { Plus, Users, X, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import ProcessingBox from '../../../components/ProcessingBox';
 import type { Club } from '../types';
 import { clubService } from '../services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
 
-import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
+import { Subject, Preference } from '../../profile/types';
 
 const categories = ['Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
+
+const formatEnum = (v: string) =>
+  v
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
 
 export default function MyClubsPage() {
   const navigate = useNavigate();
@@ -49,24 +55,32 @@ export default function MyClubsPage() {
     }
   };
 
-  // modal + emoji state
+  // modal state
   const [showModal, setShowModal] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [form, setForm] = useState<Pick<Club, 'name'|'description'|'category'|'image'>>({
+  const [form, setForm] = useState({
     name: '',
     description: '',
     category: categories[0],
-    image: '🏷️'
+    subject: Subject.NONE,
+    interest: Preference.NONE,
+    avatar: '',
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
   };
 
-  const onEmojiClick = (emojiData: EmojiClickData) => {
-    setForm(f => ({ ...f, image: emojiData.emoji }));
-    setShowEmojiPicker(false);
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm(f => ({ ...f, avatar: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,20 +88,39 @@ export default function MyClubsPage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const created = await clubService.createClub(form);
+      const created = await clubService.createClub({
+        name: form.name,
+        description: form.description,
+        category: form.category,
+        subject: form.subject,
+        interest: form.interest,
+      });
+      let avatar = created.avatar;
+      if (avatarFile) {
+        const updated = await clubService.updateAvatar(created.id, avatarFile);
+        avatar = updated.avatar;
+        setAvatarFile(null);
+      }
       // ensure newly created club appears joined for the creator
       setClubs(prev => [
         ...prev,
         {
           ...created,
+          avatar,
           isJoined: true,
           members: created.members || 1,
         },
       ]);
       await refresh();
       setShowModal(false);
-      setShowEmojiPicker(false);
-      setForm({ name: '', description: '', category: categories[0], image: '🏷️' });
+      setForm({
+        name: '',
+        description: '',
+        category: categories[0],
+        subject: Subject.NONE,
+        interest: Preference.NONE,
+        avatar: '',
+      });
     } catch (err: any) {
       setSubmitError(err?.message ?? 'Failed to create club');
     } finally {
@@ -132,7 +165,15 @@ export default function MyClubsPage() {
             >
               <div className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="text-2xl">{club.image}</div>
+                  {club.avatar ? (
+                    <img
+                      src={club.avatar}
+                      alt={club.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xl">🏷️</div>
+                  )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{club.name}</h3>
                     <p className="text-sm text-gray-600">{club.category}</p>
@@ -173,7 +214,15 @@ export default function MyClubsPage() {
             <button
               onClick={() => {
                 setShowModal(false);
-                setShowEmojiPicker(false);
+                setAvatarFile(null);
+                setForm({
+                  name: '',
+                  description: '',
+                  category: categories[0],
+                  subject: Subject.NONE,
+                  interest: Preference.NONE,
+                  avatar: '',
+                });
               }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
@@ -185,34 +234,18 @@ export default function MyClubsPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Emoji selector now at the very top */}
-              <div className="relative">
-                <label className="block text-gray-700 mb-1">Icon (emoji)</label>
-                <button
-                  type="button"
-                  onClick={() => setShowEmojiPicker(v => !v)}
-                  className="flex items-center gap-1 border px-3 py-2 rounded hover:bg-gray-100"
-                >
-                  <Smile className="w-5 h-5 text-gray-600" />
-                  <span className="text-xl">{form.image}</span>
-                </button>
-                {showEmojiPicker && (
-                  <div
-                    className={`
-                      absolute z-20 top-full left-0 -mt-2 mb-1
-                      shadow-lg bg-white rounded-lg overflow-hidden
-                    `}
-                  >
-                    <div className="w-[350px] h-[400px]">
-                      <EmojiPicker
-                        onEmojiClick={onEmojiClick}
-                        theme={Theme.AUTO}
-                        height={400}
-                        width="100%"
-                      />
-                    </div>
-                  </div>
-                )}
+              <div>
+                <label className="block text-gray-700 mb-1">Avatar</label>
+                <div className="flex items-center gap-2">
+                  {form.avatar && (
+                    <img
+                      src={form.avatar}
+                      alt="preview"
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  )}
+                  <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                </div>
               </div>
 
               <div>
@@ -248,6 +281,32 @@ export default function MyClubsPage() {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Subject</label>
+                <select
+                  name="subject"
+                  value={form.subject}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded"
+                >
+                  {Object.values(Subject).map(s => (
+                    <option key={s} value={s}>{formatEnum(s)}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Interest</label>
+                <select
+                  name="interest"
+                  value={form.interest}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded"
+                >
+                  {Object.values(Preference).map(p => (
+                    <option key={p} value={p}>{formatEnum(p)}</option>
+                  ))}
+                </select>
+              </div>
 
               {submitError && (
                 <p className="text-sm text-red-500 text-center">{submitError}</p>
@@ -257,7 +316,15 @@ export default function MyClubsPage() {
                   type="button"
                   onClick={() => {
                     setShowModal(false);
-                    setShowEmojiPicker(false);
+                    setAvatarFile(null);
+                    setForm({
+                      name: '',
+                      description: '',
+                      category: categories[0],
+                      subject: Subject.NONE,
+                      interest: Preference.NONE,
+                      avatar: '',
+                    });
                   }}
                 >
                   Cancel
