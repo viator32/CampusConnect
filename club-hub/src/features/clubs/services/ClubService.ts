@@ -2,10 +2,33 @@ import { BaseService } from '../../../services/BaseService';
 import type { Club, Event as ClubEvent, Post, Comment, Role } from '../types';
 import { Subject, Preference } from '../../profile/types';
 
+export interface ClubSearchParams {
+  page?: number;
+  size?: number;
+  name?: string;
+  category?: string;
+  interest?: Preference;
+  minMembers?: number;
+  maxMembers?: number;
+}
+
 export class ClubService extends BaseService {
-  async getAll(): Promise<Club[]> {
-    const arr = await this.api.request<any[]>('/clubs'); // public in docs
-    return arr.map(mapClub);
+  async getAll(params: ClubSearchParams = {}): Promise<{ clubs: Club[]; totalPages: number }> {
+    const search = new URLSearchParams();
+    if (params.page !== undefined) search.set('page', String(params.page));
+    if (params.size !== undefined) search.set('size', String(params.size));
+    if (params.name) search.set('name', params.name);
+    if (params.category) search.set('category', params.category);
+    if (params.interest && params.interest !== Preference.NONE)
+      search.set('interest', params.interest);
+    if (params.minMembers !== undefined) search.set('minMembers', String(params.minMembers));
+    if (params.maxMembers !== undefined) search.set('maxMembers', String(params.maxMembers));
+
+    const query = search.toString();
+    const dto = await this.api.request<any>(`/clubs${query ? `?${query}` : ''}`); // public in docs
+    const content = Array.isArray(dto) ? dto : dto.content ?? [];
+    const totalPages = dto.totalPages ?? 1;
+    return { clubs: content.map(mapClub), totalPages };
   }
 
   async getById(id: string): Promise<Club | undefined> {
