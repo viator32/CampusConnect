@@ -100,13 +100,10 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
             return (
               <div
                 key={member.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow"
+                onClick={() => navigate(`/users/${member.userId}`)}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow cursor-pointer"
               >
-                {/* Only avatar is clickable */}
-                <div
-                  onClick={() => navigate(`/users/${member.userId}`)}
-                  className="cursor-pointer text-3xl"
-                >
+                <div className="text-3xl">
                   <Avatar avatar={member.avatar} size={48} />
                 </div>
 
@@ -142,13 +139,10 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
             return (
               <div
                 key={member.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
+                onClick={() => navigate(`/users/${member.userId}`)}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer"
               >
-                {/* Avatar click */}
-                <div
-                  onClick={() => navigate(`/users/${member.userId}`)}
-                  className="cursor-pointer text-3xl"
-                >
+                <div className="text-3xl">
                   <Avatar avatar={member.avatar} size={32} />
                 </div>
 
@@ -175,13 +169,6 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                     {ROLE_OPTIONS.find(r => r.value === member.role)?.label ?? member.role}
                   </span>
                 )}
-
-                <button
-                  onClick={() => navigate(`/users/${member.userId}`)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  View Profile →
-                </button>
               </div>
             );
           })}
