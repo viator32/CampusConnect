@@ -3,30 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import { useAuth } from '../hooks/useAuth';
+import { ApiError } from '../../../services/api';
 
 type FieldErrors = Partial<Record<'name' | 'email' | 'password' | 'confirmPassword', string>>;
 
 function parseError(err: unknown): { message: string; fieldErrors: FieldErrors; status?: number } {
   const fallback = { message: 'Something went wrong. Please try again.', fieldErrors: {} as FieldErrors };
-  const anyErr = err as any;
-
-  // Axios-like
-  if (anyErr?.response) {
-    const status = anyErr.response.status;
-    const data = anyErr.response.data ?? {};
-    const message = data.message || data.error || `Request failed (${status})`;
-    const fieldErrors: FieldErrors = {};
-    if (Array.isArray(data.errors)) {
-      data.errors.forEach((e: any) => {
-        if (e?.field && e?.message) (fieldErrors as any)[e.field] = e.message;
-      });
-    } else if (data.errors && typeof data.errors === 'object') {
-      Object.entries(data.errors).forEach(([k, v]) => ((fieldErrors as any)[k] = String(v)));
-    }
-    return { message, fieldErrors, status };
+  if (err instanceof ApiError) {
+    return { message: err.message, fieldErrors: {}, status: err.status };
   }
-
-  // Fetch-like or generic
+  const anyErr = err as any;
   if (typeof anyErr?.message === 'string') {
     return { message: anyErr.message, fieldErrors: {}, status: anyErr.status };
   }
