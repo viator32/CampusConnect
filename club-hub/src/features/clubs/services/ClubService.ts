@@ -176,6 +176,10 @@ export const clubService = new ClubService();
 // ─── mappers ────────────────────────────────────────────────────────────────
 function mapClub(dto: any): Club {
   const rawId = dto.id ?? dto.clubId ?? dto._id;
+  const rawAvatar = dto.avatar ?? '';
+  const avatar = rawAvatar && !rawAvatar.startsWith('data:')
+    ? `data:image/png;base64,${rawAvatar}`
+    : rawAvatar;
   return {
     id: String(rawId),
     name: dto.name,
@@ -183,7 +187,7 @@ function mapClub(dto: any): Club {
     category: dto.category ?? 'General',
     subject: dto.subject ?? Subject.NONE,
     interest: dto.interest ?? Preference.NONE,
-    avatar: dto.avatar ?? '',
+    avatar,
     members: dto.membersCount ?? dto.members ?? 0,
     isJoined: !!dto.isJoined,
 
