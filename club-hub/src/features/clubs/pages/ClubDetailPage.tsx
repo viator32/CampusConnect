@@ -64,7 +64,7 @@ export default function ClubDetailPage() {
         const joined =
           c.isJoined ||
           !!user?.memberships.some(m => m.clubId === c.id) ||
-          c.members_list.some(m => String(m.id) === String(user?.id));
+          c.members_list.some(m => String(m.userId) === String(user?.id));
         setClub({ ...c, isJoined: joined });
       })
       .catch(err => setError(err.message ?? 'Failed to load club'))
@@ -147,7 +147,7 @@ export default function ClubDetailPage() {
         if (updated) {
           const joined =
             updated.isJoined ||
-            updated.members_list.some(m => String(m.id) === String(user?.id));
+            updated.members_list.some(m => String(m.userId) === String(user?.id));
           setClub({ ...updated, isJoined: joined });
           setActiveTab('about');
           setSearchParams({ tab: 'about' });
@@ -165,7 +165,7 @@ export default function ClubDetailPage() {
         if (updated) {
           const joined =
             updated.isJoined ||
-            updated.members_list.some(m => String(m.id) === String(user?.id));
+            updated.members_list.some(m => String(m.userId) === String(user?.id));
           setClub({ ...updated, isJoined: joined });
         }
       } catch (err: any) {

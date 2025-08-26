@@ -1,4 +1,4 @@
-import type { Club, Event as ClubEvent, Post, Comment } from './types';
+import type { Club, Event as ClubEvent, Post, Comment, Member } from './types';
 import { Subject, Preference } from '../profile/types';
 
 export function mapClub(dto: any): Club {
@@ -22,8 +22,18 @@ export function mapClub(dto: any): Club {
     posts: (dto.posts ?? [])
       .map(mapPost)
       .sort((a: Post, b: Post) => new Date(b.time).getTime() - new Date(a.time).getTime()),
-    members_list: dto.membersList ?? dto.members_list ?? [],
+    members_list: (dto.membersList ?? dto.members_list ?? []).map(mapMember),
     forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
+  };
+}
+
+export function mapMember(dto: any): Member {
+  return {
+    id: dto.id ?? dto.membershipId ?? '',
+    userId: dto.userId ?? dto.user_id ?? dto.id ?? '',
+    name: dto.name ?? dto.username ?? '',
+    role: dto.role ?? 'MEMBER',
+    avatar: dto.avatar ?? '',
   };
 }
 

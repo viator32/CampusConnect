@@ -5,6 +5,7 @@ import ExplorePage from '../features/clubs/pages/ExplorePage';
 import ClubDetailPage from '../features/clubs/pages/ClubDetailPage';
 import FeedPage from '../features/feed/pages/FeedPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
+import UserProfilePage from '../features/profile/pages/UserProfilePage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
 import SupportPage from '../features/support/SupportPage';
 import LoginPage from '../features/auth/pages/LoginPage';
@@ -41,6 +42,7 @@ export default function AppRoutes() {
             <Route path="/clubs/:clubId/threads/:threadId" element={<ClubDetailPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/users/:userId" element={<UserProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/my-clubs" element={<MyClubsPage />} />
