@@ -49,7 +49,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
   const handleRoleChange = async (id: number | string, newRole: Role) => {
     const target = members.find(m => m.id === id);
     if (!target) return;
-    if (String(id) === String(user?.id)) return; // cannot change your own role
+    if (String(target.userId) === String(user?.id)) return; // cannot change your own role
     const admins = members.filter(m => m.role === 'ADMIN');
     if (target.role === 'ADMIN' && newRole !== 'ADMIN' && admins.length <= 1) {
       return; // must keep at least one admin
@@ -96,7 +96,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
       {view === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {filtered.map(member => {
-            const isSelf = String(member.id) === String(user?.id);
+            const isSelf = String(member.userId) === String(user?.id);
             return (
               <div
                 key={member.id}
@@ -104,7 +104,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
               >
                 {/* Only avatar is clickable */}
                 <div
-                  onClick={() => navigate(`/users/${member.id}`)}
+                  onClick={() => navigate(`/users/${member.userId}`)}
                   className="cursor-pointer text-3xl"
                 >
                   <Avatar avatar={member.avatar} size={48} />
@@ -138,7 +138,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
       ) : (
         <div className="space-y-2">
           {filtered.map(member => {
-            const isSelf = String(member.id) === String(user?.id);
+            const isSelf = String(member.userId) === String(user?.id);
             return (
               <div
                 key={member.id}
@@ -146,7 +146,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
               >
                 {/* Avatar click */}
                 <div
-                  onClick={() => navigate(`/users/${member.id}`)}
+                  onClick={() => navigate(`/users/${member.userId}`)}
                   className="cursor-pointer text-3xl"
                 >
                   <Avatar avatar={member.avatar} size={32} />
@@ -177,7 +177,7 @@ export default function MembersTab({ club, onUpdate, currentUserRole }: MembersT
                 )}
 
                 <button
-                  onClick={() => navigate(`/users/${member.id}`)}
+                  onClick={() => navigate(`/users/${member.userId}`)}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   View Profile →

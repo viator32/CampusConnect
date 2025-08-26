@@ -61,7 +61,10 @@ export interface Post {
 export type Role = 'ADMIN' | 'MODERATOR' | 'MEMBER';
 
 export interface Member {
+  /** Unique membership identifier */
   id: number | string;
+  /** Actual user identifier used to fetch profile */
+  userId: number | string;
   name: string;
   role: Role;
   avatar: string;

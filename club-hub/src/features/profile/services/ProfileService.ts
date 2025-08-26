@@ -9,6 +9,12 @@ export class ProfileService extends BaseService {
     return mapUser(dto);
   }
 
+  /** Fetch any user by id */
+  async getById(id: string | number): Promise<User> {
+    const dto = await this.api.request<any>(`/users/${id}`);
+    return mapUser(dto);
+  }
+
   /** Update the current user (partial PUT is fine) */
   async updateCurrent(id: string, partial: Partial<User>): Promise<User> {
     const dto = await this.api.request<any>(`/users/${id}`, {
