@@ -1,6 +1,10 @@
 // src/services/api.ts
+import { ApiError } from './ApiError';
+
 export class EnvironmentApi {
   public readonly baseUrl: string;
+  /** Optional callback invoked when a 401 response is received */
+  public onUnauthorized?: () => void;
 
   constructor(base?: string) {
     // default to local quarkus + /api when env is missing
@@ -50,23 +54,19 @@ export class EnvironmentApi {
     }
 
     const res = await fetch(url, { ...options, headers });
-    // Redirect to login if the session is no longer valid
+    // Invoke callback and clear token when session is invalid
     if (res.status === 401) {
       EnvironmentApi.setAuthToken(null);
-      // Avoid redirect loop when already on the login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
-      throw new Error('401 Unauthorized');
+      this.onUnauthorized?.();
     }
 
-    // No refresh endpoint is required beyond POST /auth/refresh with { token }, so we simply throw on other non-ok responses.
+    // Throw ApiError on non-ok responses.
     if (!res.ok) {
       const text = await res.text();
       let data: any = null;
       try { data = text ? JSON.parse(text) : null; } catch { data = text; }
       const msg = (data && (data.message || data.error)) || res.statusText;
-      throw new Error(`${res.status} ${msg}`);
+      throw new ApiError(res.status, msg);
     }
 
     if (res.status === 204) return undefined as unknown as T;

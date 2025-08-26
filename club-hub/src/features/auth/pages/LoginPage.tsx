@@ -3,19 +3,17 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import { useAuth } from '../hooks/useAuth';
+import { ApiError } from '../../../services/api';
 
 type FieldErrors = Partial<Record<'email' | 'password', string>>;
 type FlashState = { flash?: { type?: string; message?: string } };
 
 function parseError(err: unknown): { message: string; status?: number } {
   const fallback = { message: 'Login failed. Please try again.' };
-  const anyErr = err as any;
-  if (anyErr?.response) {
-    const status = anyErr.response.status;
-    const data = anyErr.response.data ?? {};
-    const message = data.message || data.error || `Request failed (${status})`;
-    return { message, status };
+  if (err instanceof ApiError) {
+    return { message: err.message, status: err.status };
   }
+  const anyErr = err as any;
   if (typeof anyErr?.message === 'string') return { message: anyErr.message, status: anyErr.status };
   if (typeof err === 'string') return { message: err };
   if (err instanceof Error) return { message: err.message };

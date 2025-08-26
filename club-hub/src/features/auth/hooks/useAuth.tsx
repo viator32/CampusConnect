@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/AuthService';
-import { setAuthToken } from '../../../services/api';
+import { setAuthToken, environmentApi } from '../../../services/api';
 
 interface AuthContextValue {
   token: string | null;
@@ -27,6 +27,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     setAuthToken(token);
   }, [token]);
+
+  // handle 401 responses globally
+  useEffect(() => {
+    environmentApi.onUnauthorized = () => {
+      setToken(null);
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    };
+    return () => {
+      environmentApi.onUnauthorized = undefined;
+    };
+  }, []);
 
   // automatically refresh auth token every 15 minutes
   useEffect(() => {
