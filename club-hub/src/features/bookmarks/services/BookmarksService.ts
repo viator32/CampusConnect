@@ -1,19 +1,7 @@
 // src/features/bookmarks/services/BookmarksService.ts
 import { BaseService } from '../../../services/BaseService';
-
-export interface BookmarkedPost {
-  id: string;
-  author: string;
-  authorAvatar?: string;
-  content: string;
-  time: string;
-  likes: number;
-  comments: number;
-  clubId?: string;
-  clubName?: string;
-  clubImage?: string;
-  liked?: boolean;
-}
+import type { BookmarkedPost } from '../types';
+import { mapBookmarkedPost } from '../mappers';
 
 export class BookmarksService extends BaseService {
   async getAll(): Promise<BookmarkedPost[]> {
@@ -39,22 +27,6 @@ export class BookmarksService extends BaseService {
       { method: 'DELETE' }
     );
   }
-}
-
-function mapBookmarkedPost(dto: any): BookmarkedPost {
-  return {
-    id: String(dto.id),
-    author: dto.author?.username ?? dto.author ?? dto.username ?? 'Unknown',
-    authorAvatar: dto.author?.avatar ?? '',
-    content: dto.content ?? '',
-    time: dto.time ?? dto.createdAt ?? '',
-    likes: dto.likes ?? 0,
-    comments: dto.comments ?? 0,
-    clubId: dto.clubId ?? dto.club?.id,
-    clubName: dto.clubName ?? dto.club?.name,
-    clubImage: dto.clubImage ?? dto.club?.image,
-    liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
-  };
 }
 
 export const bookmarksService = new BookmarksService();
