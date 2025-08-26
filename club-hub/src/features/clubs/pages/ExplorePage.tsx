@@ -1,5 +1,5 @@
 // src/features/clubs/pages/ExplorePage.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -16,44 +16,57 @@ import ClubList from '../components/ClubList';
 import type { Club } from '../types';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
+import { Preference } from '../../profile/types';
 
 const categories = ['All', 'Academic', 'Creative', 'Sports', 'Cultural', 'Technical'];
-const joinedStatuses = ['All', 'Joined', 'Not Joined'] as const;
-type JoinedStatus = typeof joinedStatuses[number];
+const interests = ['All', ...Object.values(Preference).filter(i => i !== Preference.NONE)];
+const formatEnum = (v: string) =>
+  v
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
 type SortKey = 'members_desc' | 'members_asc' | 'name_asc' | 'name_desc';
 
 export default function ExplorePage() {
-  const { clubs, joinClub, leaveClub, loading, error } = useClubs();
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 10;
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedInterest, setSelectedInterest] = useState<Preference | 'All'>('All');
+  const [minMembers, setMinMembers] = useState('');
+  const [maxMembers, setMaxMembers] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('members_desc');
+
+  const { clubs, joinClub, leaveClub, loading, error, totalPages } = useClubs({
+    page,
+    size: PAGE_SIZE,
+    name: search || undefined,
+    category: selectedCategory === 'All' ? undefined : selectedCategory,
+    interest: selectedInterest === 'All' ? undefined : selectedInterest,
+    minMembers: minMembers ? Number(minMembers) : undefined,
+    maxMembers: maxMembers ? Number(maxMembers) : undefined,
+  });
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedJoinedStatus, setSelectedJoinedStatus] = useState<JoinedStatus>('All');
-  const [sortKey, setSortKey] = useState<SortKey>('members_desc');
 
   const resetFilters = () => {
     setSearch('');
     setSelectedCategory('All');
-    setSelectedJoinedStatus('All');
+    setSelectedInterest('All');
+    setMinMembers('');
+    setMaxMembers('');
     setSortKey('members_desc');
+    setPage(0);
   };
 
-  const filtered = useMemo(() => {
-    let arr = clubs.filter(c => {
-      const q = search.toLowerCase();
-      const matchesSearch =
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q);
-      const matchesCategory = selectedCategory === 'All' || c.category === selectedCategory;
-      const matchesJoined =
-        selectedJoinedStatus === 'All' ||
-        (selectedJoinedStatus === 'Joined' && c.isJoined) ||
-        (selectedJoinedStatus === 'Not Joined' && !c.isJoined);
-      return matchesSearch && matchesCategory && matchesJoined;
-    });
+  useEffect(() => {
+    setPage(0);
+  }, [search, selectedCategory, selectedInterest, minMembers, maxMembers]);
+
+  const sorted = useMemo(() => {
+    let arr = [...clubs];
 
     switch (sortKey) {
       case 'members_desc':
@@ -71,7 +84,7 @@ export default function ExplorePage() {
     }
 
     return arr;
-  }, [clubs, search, selectedCategory, selectedJoinedStatus, sortKey]);
+  }, [clubs, sortKey]);
 
   const handleJoin = (club: Club) => {
     club.isJoined ? leaveClub(club.id) : joinClub(club.id);
@@ -120,7 +133,7 @@ export default function ExplorePage() {
                   {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {showFilters && (
-<div className="absolute top-full left-1/2 mt-2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
+                  <div className="absolute top-full left-1/2 mt-2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
                     <div className="flex flex-col lg:flex-row gap-8">
                       {/* Category */}
                       <div className="flex-1 min-w-[140px]">
@@ -144,28 +157,54 @@ export default function ExplorePage() {
                         </div>
                       </div>
 
-                      {/* Membership */}
+                      {/* Interest */}
                       <div className="flex-1 min-w-[140px]">
                         <div className="mb-1">
-                          <h3 className="font-medium text-sm">Membership</h3>
+                          <h3 className="font-medium text-sm">Interest</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {joinedStatuses.map(s => (
+                          {interests.map(i => (
                             <button
-                              key={s}
-                              onClick={() => setSelectedJoinedStatus(s)}
+                              key={i}
+                              onClick={() => setSelectedInterest(i as any)}
                               className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                                selectedJoinedStatus === s
+                                selectedInterest === i
                                   ? 'bg-orange-500 text-white'
                                   : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
                               }`}
                             >
-                              {s}
+                              {i === 'All' ? 'All' : formatEnum(i)}
                             </button>
                           ))}
                         </div>
-                         {/* Sort */}
-                        <div className="mb-1 mt-4">
+                      </div>
+
+                      {/* Members */}
+                      <div className="flex-1 min-w-[140px]">
+                        <div className="mb-1">
+                          <h3 className="font-medium text-sm">Members</h3>
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            value={minMembers}
+                            onChange={e => setMinMembers(e.target.value)}
+                            placeholder="Min"
+                            className="w-24 px-3 py-2 text-sm border rounded-lg"
+                          />
+                          <Input
+                            type="number"
+                            value={maxMembers}
+                            onChange={e => setMaxMembers(e.target.value)}
+                            placeholder="Max"
+                            className="w-24 px-3 py-2 text-sm border rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Sort */}
+                      <div className="flex-1 min-w-[140px]">
+                        <div className="mb-1">
                           <h3 className="font-medium text-sm">Sort By</h3>
                         </div>
                         <select
@@ -179,10 +218,7 @@ export default function ExplorePage() {
                           <option value="name_desc">Name (Z → A)</option>
                         </select>
                       </div>
-                      </div>
-
-                     
-                  
+                    </div>
 
                     {/* Clear All on its own line */}
                     <div className="mt-4">
@@ -230,17 +266,31 @@ export default function ExplorePage() {
       <div>
         {viewMode === 'grid' ? (
           <ClubGrid
-            clubs={filtered}
+            clubs={sorted}
             onSelect={c => navigate(`/clubs/${c.id}`)}
             onJoin={handleJoin}
           />
         ) : (
           <ClubList
-            clubs={filtered}
+            clubs={sorted}
             onSelect={c => navigate(`/clubs/${c.id}`)}
             onJoin={handleJoin}
           />
         )}
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <Button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
+            Previous
+          </Button>
+          <span className="text-sm text-gray-600">
+            Page {totalPages === 0 ? 0 : page + 1} of {totalPages}
+          </span>
+          <Button
+            onClick={() => setPage(p => p + 1)}
+            disabled={page + 1 >= totalPages}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

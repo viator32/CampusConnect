@@ -1,30 +1,42 @@
 import { useEffect, useState } from 'react';
 import { Club } from '../types';
-import { clubService } from '../services/ClubService';
+import { clubService, ClubSearchParams } from '../services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
 
-export function useClubs() {
+export function useClubs(params: ClubSearchParams = {}) {
   const { user } = useProfile();
   const [clubs, setClubs] = useState<Club[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    page,
+    size,
+    name,
+    category,
+    interest,
+    minMembers,
+    maxMembers,
+  } = params;
 
   useEffect(() => {
     setLoading(true);
     setError(null);
     clubService
-      .getAll()
-      .then(arr =>
+      .getAll({ page, size, name, category, interest, minMembers, maxMembers })
+      .then(res => {
         setClubs(
-          arr.map(c => ({
+          res.clubs.map(c => ({
             ...c,
-            isJoined: c.isJoined || !!user?.memberships.some(m => m.clubId === c.id)
+            isJoined: c.isJoined || !!user?.memberships.some(m => m.clubId === c.id),
           }))
-        )
-      )
+        );
+        setTotalPages(res.totalPages);
+      })
       .catch(err => setError(err.message ?? 'Failed to load clubs'))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, page, size, name, category, interest, minMembers, maxMembers]);
   
   /** locally adds a club; later you can call clubService.create() too */
   const addClub = (newClub: Club) => {
@@ -69,5 +81,5 @@ export function useClubs() {
     });
   };
 
-  return { clubs, addClub, joinClub, leaveClub, loading, error };
+  return { clubs, addClub, joinClub, leaveClub, loading, error, totalPages };
 }
