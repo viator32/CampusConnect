@@ -1,6 +1,7 @@
 import { BaseService } from '../../../services/BaseService';
 import type { Comment } from '../../clubs/types';
 
+/** Post item appearing in the feed. */
 export interface FeedPost {
   id: string;
   clubId: string;
@@ -16,14 +17,20 @@ export interface FeedPost {
   commentsList?: Comment[];
 }
 
+/** Event item appearing in the feed stream. */
 export interface FeedEventItem {
   type: 'event';
   [key: string]: any;
 }
 
+/** Union of all possible feed items. */
 export type FeedItem = FeedPost | FeedEventItem;
 
 export class FeedService extends BaseService {
+  /**
+   * Fetch a page of the global feed.
+   * Accepts multiple possible backend payload shapes and normalizes to an array.
+   */
   async getPage(page = 0, size = 10): Promise<FeedItem[]> {
     const res = await this.api.request<
       | FeedItem[]
@@ -92,6 +99,7 @@ export class FeedService extends BaseService {
     return [...posts, ...events];
   }
 
+  /** Create a new post in the feed. */
   async addPost(post: Omit<FeedPost, 'id'>): Promise<FeedPost> {
     const payload = this.buildPayload(post);
     return this.api.request<FeedPost>('/feed', {
@@ -100,6 +108,7 @@ export class FeedService extends BaseService {
     });
   }
 
+  /** Add a comment to a feed post. */
   async addComment(postId: string, comment: Omit<Comment, 'id'>) {
     return this.api.request<Comment>(`/feed/${postId}/comments`, {
       method: 'POST',

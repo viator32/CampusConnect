@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { notificationsService, type Notification as NotificationType } from '../services/NotificationsService';
 
+/** Notifications center: lists notifications and mark-as-read actions. */
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(true);

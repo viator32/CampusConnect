@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Club, Thread } from '../types';
 import Button from '../../../components/Button';
 
+/** Props for the club Forum tab. */
 interface ForumTabProps {
   club: Club;
   onClubUpdate: (c: Club) => void;
   onSelectThread: (t: Thread) => void;
 }
 
+/**
+ * Forum tab for creating and browsing discussion threads inside a club.
+ */
 export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTabProps) {
   const [title, setTitle]   = useState('');
   const [content, setContent] = useState('');

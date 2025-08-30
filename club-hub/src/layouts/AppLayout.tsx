@@ -18,6 +18,11 @@ import { useProfile } from '../features/profile/hooks/useProfile';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import Avatar from '../components/Avatar';
 
+/**
+ * Application shell that renders the sidebar, top bar (on mobile),
+ * and the page content. It also manages the mobile drawer state and
+ * handles logout and profile quick access.
+ */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();

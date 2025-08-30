@@ -18,6 +18,10 @@ const formatEnum = (v: string) =>
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
 
+/**
+ * Page listing clubs the user has joined, with the ability to leave
+ * and a modal to create a new club.
+ */
 export default function MyClubsPage() {
   const navigate = useNavigate();
   const { user, refresh } = useProfile();

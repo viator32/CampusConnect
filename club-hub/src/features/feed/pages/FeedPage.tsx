@@ -30,6 +30,10 @@ interface EventFeedItem extends FeedEventItem {
 const isEvent = (item: FeedItem): item is EventFeedItem =>
   (item as any).type === 'event';
 
+/**
+ * Unified feed combining upcoming events and recent posts.
+ * Supports infinite scroll, bookmarking, liking, and event joins.
+ */
 export default function FeedPage() {
   const navigate = useNavigate();
   const { user } = useProfile();

@@ -1,6 +1,7 @@
 import type { Club, Event as ClubEvent, Post, Comment, Member } from './types';
 import { Subject, Preference } from '../profile/types';
 
+/** Normalize a backend club DTO to the app's `Club` model. */
 export function mapClub(dto: any): Club {
   const rawId = dto.id ?? dto.clubId ?? dto._id;
   const rawAvatar = dto.avatar ?? '';
@@ -27,6 +28,7 @@ export function mapClub(dto: any): Club {
   };
 }
 
+/** Normalize a backend member DTO into a `Member`. */
 export function mapMember(dto: any): Member {
   return {
     id: dto.id ?? dto.membershipId ?? '',
@@ -37,6 +39,7 @@ export function mapMember(dto: any): Member {
   };
 }
 
+/** Normalize a backend event DTO into an `Event`. */
 export function mapEvent(dto: any): ClubEvent {
   return {
     id: dto.id,
@@ -58,6 +61,7 @@ export function mapEvent(dto: any): ClubEvent {
   };
 }
 
+/** Normalize a backend post DTO into a `Post`. */
 export function mapPost(dto: any): Post {
   return {
     id: dto.id,
@@ -74,6 +78,7 @@ export function mapPost(dto: any): Post {
   };
 }
 
+/** Normalize a backend comment DTO into a `Comment`. */
 export function mapComment(dto: any): Comment {
   return {
     id: dto.id,

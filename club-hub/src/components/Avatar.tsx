@@ -1,10 +1,14 @@
 import React from 'react';
 
+/** Props for displaying a user or club avatar. */
 interface AvatarProps {
   avatar?: string | null;
   size?: number; // pixel size
 }
 
+/**
+ * Circular avatar image with fallback emoji. Accepts base64 image data.
+ */
 export default function Avatar({ avatar, size = 32 }: AvatarProps) {
   const dimension = { width: size, height: size } as React.CSSProperties;
   return (

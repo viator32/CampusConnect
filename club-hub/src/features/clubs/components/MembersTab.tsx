@@ -19,12 +19,16 @@ const ROLE_COLORS: Record<Role, string> = {
   MEMBER: 'bg-green-100 text-green-800',
 };
 
+/** Props for the club Members tab. */
 interface MembersTabProps {
   club: Club;
   onUpdate?: (updated: Member[]) => void;
   currentUserRole?: Role;
 }
 
+/**
+ * Members tab with grid/list views, search, and role management.
+ */
 export default function MembersTab({ club, onUpdate, currentUserRole }: MembersTabProps) {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>(club.members_list);

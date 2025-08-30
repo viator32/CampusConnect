@@ -2,6 +2,10 @@ import React from 'react';
 import { Club } from '../types';
 import ClubCard from './ClubCard';
 
+/**
+ * Grid layout wrapper that renders clubs as `ClubCard` items.
+ * Calls `onSelect` or `onJoin` when the corresponding actions happen.
+ */
 export default function ClubGrid({
   clubs,
   onSelect,

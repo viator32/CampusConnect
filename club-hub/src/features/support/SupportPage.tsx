@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Button from '../../components/Button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
+/** Support page with feedback form and simple FAQ accordion. */
 export default function SupportPage() {
   const [subject, setSubject]   = useState('');
   const [email, setEmail]       = useState('');

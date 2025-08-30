@@ -7,6 +7,7 @@ import { useProfile } from '../../profile/hooks/useProfile';
 import { clubService } from '../services/ClubService';
 import Avatar from '../../../components/Avatar';
 
+/** Props for the club Events tab. */
 interface EventsTabProps {
   club: Club;
   onClubUpdate: (c: Club) => void;
@@ -20,6 +21,9 @@ const STATUSES = [
 ] as const;
 type Status = typeof STATUSES[number]['value'];
 
+/**
+ * Events tab with a mini-calendar, CRUD for events, and CSV export of attendees.
+ */
 export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabProps) {
   const { user } = useProfile();
   const today = new Date();

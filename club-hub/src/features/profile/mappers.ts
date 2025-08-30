@@ -1,6 +1,7 @@
 import type { User } from './types';
 import { Subject } from './types';
 
+/** Map a backend user DTO into the app's `User` model. */
 export function mapUser(dto: any): User {
   return {
     id: String(dto.id),
@@ -26,6 +27,10 @@ export function mapUser(dto: any): User {
   };
 }
 
+/**
+ * Map a partial `User` object into a minimal DTO understood by the backend.
+ * Only whitelists fields that are currently supported server-side.
+ */
 export function mapUserToDto(p: Partial<User>) {
   const out: any = {};
   if (p.name !== undefined) out.username = p.name;

@@ -19,6 +19,10 @@ import ModerationPage from '../features/admin/pages/ModerationPage';
 import RequireAuth from '../features/auth/components/RequireAuth';
 import { useAuth } from '../features/auth/hooks/useAuth';
 
+/**
+ * Top-level route configuration for the app.
+ * Includes public auth routes and protected sections wrapped by `RequireAuth`.
+ */
 export default function AppRoutes() {
   const { token } = useAuth();
   return (

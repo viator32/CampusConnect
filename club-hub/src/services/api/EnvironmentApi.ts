@@ -1,22 +1,51 @@
-// src/services/api.ts
 import { ApiError } from './ApiError';
 
+/**
+ * Small wrapper for `fetch` that centralizes API base URL resolution and
+ * bearer-token handling for requests.
+ *
+ * Base URL resolution order (the '/api' suffix is always appended):
+ * - Constructor `base` argument, when provided
+ * - `import.meta.env.VITE_API_URL`, when defined (Vite)
+ * - Fallback `http://localhost:8080`
+ */
 export class EnvironmentApi {
+  /** Resolved API base URL including the '/api' suffix (no trailing slash). */
   public readonly baseUrl: string;
-  /** Optional callback invoked when a 401 response is received */
+
+  /**
+   * Optional callback invoked when a request receives a 401 Unauthorized.
+   * The access token is cleared before this callback runs. Useful for
+   * triggering logout flows or redirecting to a sign-in page.
+   */
   public onUnauthorized?: () => void;
 
+  /**
+   * Create a new EnvironmentApi instance.
+   *
+   * @param base Optional override for the server root URL
+   *             (e.g., `https://example.com`). If omitted, uses
+   *             `import.meta.env.VITE_API_URL` or `http://localhost:8080`.
+   */
   constructor(base?: string) {
     // default to local quarkus + /api when env is missing
     const env = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-    const root = (env ?? 'http://localhost:8080').replace(/\/+$/, '');
+    const root = (base ?? env ?? 'http://localhost:8080').replace(/\/+$/, '');
     // Ensure we always hit /api
     this.baseUrl = `${root}/api`;
   }
 
+  /** In-memory bearer token used for Authorization header. */
   private static accessToken: string | null = null;
 
-  /** Call this after login/register (and on bootstrap if you load token from storage) */
+  /**
+   * Set (or clear) the bearer access token. The token is stored in
+   * `localStorage` under the key `access_token`.
+   *
+   * Call after login/registration, and pass `null` on logout.
+   *
+   * @param token The access token string, or `null` to clear it.
+   */
   static setAuthToken(token: string | null) {
     EnvironmentApi.accessToken = token;
     try {
@@ -25,7 +54,10 @@ export class EnvironmentApi {
     } catch {}
   }
 
-  /** Restore token on app start (optional) */
+  /**
+   * Restore a previously persisted token from `localStorage` into memory.
+   * Safe to call during application bootstrap.
+   */
   static bootstrapTokenFromStorage() {
     try {
       const t = localStorage.getItem('access_token');
@@ -33,6 +65,26 @@ export class EnvironmentApi {
     } catch {}
   }
 
+  /**
+   * Perform an HTTP request against the API.
+   *
+   * Behavior:
+   * - Accepts a relative `path` (joined to `baseUrl`) or an absolute URL.
+   * - Adds `Authorization: Bearer <token>` when a token is set.
+   * - Sets `Content-Type: application/json` when the body is not `FormData`
+   *   and no `Content-Type` is already provided.
+   * - Does not JSON-serialize the body for you; provide a string body if
+   *   sending JSON (e.g., `body: JSON.stringify(payload)`).
+   * - On 401: clears the token and invokes `onUnauthorized`.
+   * - On non-2xx: throws `ApiError` with the status and a parsed message.
+   * - On 204: resolves to `undefined`.
+   *
+   * @typeParam T Expected JSON shape of the successful response.
+   * @param path Relative API path (e.g., `/users`) or absolute URL.
+   * @param options Standard `fetch` options.
+   * @returns Parsed JSON as `T`, or `undefined` for 204 responses.
+   * @throws ApiError When the response is not OK (non-2xx).
+   */
   async request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const isAbsolute = /^https?:\/\//i.test(path);
     const url = isAbsolute
@@ -74,6 +126,7 @@ export class EnvironmentApi {
   }
 }
 
+/** Shared EnvironmentApi instance configured from environment variables. */
 export const environmentApi = new EnvironmentApi();
 
 // handy re-export

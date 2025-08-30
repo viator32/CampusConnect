@@ -3,6 +3,9 @@ import { useProfile } from '../hooks/useProfile';
 import Button from '../../../components/Button';
 import { Subject, Preference } from '../types';
 
+/**
+ * Authenticated user's profile page with inline editing and avatar upload.
+ */
 export default function ProfilePage() {
   const { user, updateUser, updateAvatar } = useProfile();
   const [isEditing, setIsEditing] = useState(false);

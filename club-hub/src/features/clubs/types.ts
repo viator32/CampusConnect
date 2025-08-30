@@ -1,9 +1,9 @@
-// src/features/clubs/types.ts
-
 import { Subject, Preference } from '../profile/types';
 
+/** Possible lifecycle states for a club event. */
 export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
 
+/** Event attendee details. */
 export interface Participant {
   id: string;
   name: string;
@@ -12,6 +12,7 @@ export interface Participant {
   avatar?: string;
 }
 
+/** Normalized event model used within club features. */
 export interface Event {
   id: number;
   title: string;
@@ -24,6 +25,7 @@ export interface Event {
   participants?: Participant[];
 }
 
+/** Comment on posts or threads. */
 export interface Comment {
   id: string;
   author: string;
@@ -34,16 +36,19 @@ export interface Comment {
   liked?: boolean;
 }
 
+/** Single option within a poll. */
 export interface PollOption {
   text: string;
   votes: number;
 }
 
+/** Poll attached to a post. */
 export interface Poll {
   question: string;
   options: PollOption[];
 }
 
+/** Post created inside a club. */
 export interface Post {
   id: string;
   author: string;
@@ -58,8 +63,10 @@ export interface Post {
   liked?: boolean;
 }
 
+/** Club member role. */
 export type Role = 'ADMIN' | 'MODERATOR' | 'MEMBER';
 
+/** Membership record used in club member lists. */
 export interface Member {
   /** Unique membership identifier */
   id: number | string;
@@ -70,6 +77,7 @@ export interface Member {
   avatar: string;
 }
 
+/** Forum thread inside a club. */
 export interface Thread {
   id: number;
   title: string;
@@ -81,6 +89,9 @@ export interface Thread {
   posts?: Comment[];
 }
 
+/**
+ * Aggregated club model containing basic info, content and membership lists.
+ */
 export interface Club {
   id: string;
   name: string;

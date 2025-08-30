@@ -1,7 +1,12 @@
 import React from 'react';
 
+/** Props accepted by the shared `Button` component. */
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
+/**
+ * Styled button with orange primary variant and disabled styling.
+ * Accepts all native button attributes.
+ */
 export default function Button(props: ButtonProps) {
   return (
     <button

@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
 
+/** Props for the transient toast message. */
 interface ToastProps {
   message: string;
   onClose: () => void;
 }
 
+/**
+ * Small toast notification that auto-dismisses after 3 seconds.
+ */
 export default function Toast({ message, onClose }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(onClose, 3000);
@@ -17,4 +21,3 @@ export default function Toast({ message, onClose }: ToastProps) {
     </div>
   );
 }
-

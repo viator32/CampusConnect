@@ -1,3 +1,4 @@
+/** Minimal view model for a bookmarked post. */
 export interface BookmarkedPost {
   id: string;
   author: string;

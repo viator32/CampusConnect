@@ -3,6 +3,7 @@ import type { Club, Event as ClubEvent, Post, Comment, Role } from '../types';
 import { Subject, Preference } from '../../profile/types';
 import { mapClub, mapEvent, mapPost, mapComment } from '../mappers';
 
+/** Query parameters used to search/filter clubs. */
 export interface ClubSearchParams {
   page?: number;
   size?: number;
@@ -13,7 +14,9 @@ export interface ClubSearchParams {
   maxMembers?: number;
 }
 
+/** Service for all club-related operations (CRUD, posts, events, members). */
 export class ClubService extends BaseService {
+  /** List clubs with optional filters/pagination. */
   async getAll(params: ClubSearchParams = {}): Promise<{ clubs: Club[]; totalPages: number }> {
     const search = new URLSearchParams();
     if (params.page !== undefined) search.set('page', String(params.page));
@@ -32,11 +35,13 @@ export class ClubService extends BaseService {
     return { clubs: content.map(mapClub), totalPages };
   }
 
+  /** Fetch a single club by ID. */
   async getById(id: string): Promise<Club | undefined> {
     const dto = await this.api.request<any>(`/clubs/${id}`);
     return mapClub(dto);
   }
 
+  /** Create a new club. */
   async createClub(data: Partial<Club>): Promise<Club> {
     // backend expects: { name, description, category, subject, interest }
     const payload = this.buildPayload({
@@ -53,6 +58,7 @@ export class ClubService extends BaseService {
     return mapClub(dto);
   }
 
+  /** Update an existing club by ID. */
   async updateClub(id: string, data: Partial<Club>): Promise<Club> {
     const payload: any = {};
     if (data.name !== undefined) payload.name = data.name;
@@ -68,18 +74,22 @@ export class ClubService extends BaseService {
     return mapClub(dto);
   }
 
+  /** Delete a club by ID. */
   async deleteClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}`, { method: 'DELETE' });
   }
 
+  /** Join a club by ID. */
   async joinClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}/join`, { method: 'POST' });
   }
 
+  /** Leave a club by ID. */
   async leaveClub(id: string): Promise<void> {
     await this.api.request<void>(`/clubs/${id}/leave`, { method: 'POST' });
   }
 
+  /** Upload or replace a club avatar image. */
   async updateAvatar(id: string, file: Blob): Promise<Club> {
     const dto = await this.api.request<any>(`/clubs/${id}/avatar`, {
       method: 'PUT',
@@ -90,6 +100,7 @@ export class ClubService extends BaseService {
   }
 
   // Posts inside a club
+  /** List all posts for a club, newest first. */
   async listPosts(clubId: string): Promise<Post[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts`);
     return arr
@@ -97,6 +108,7 @@ export class ClubService extends BaseService {
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
   }
 
+  /** Create a new post inside a club. */
   async createPost(clubId: string, content: string): Promise<Post> {
     const dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
       method: 'POST',
@@ -105,6 +117,7 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
+  /** Update a club post content by IDs. */
   async updatePost(clubId: string, postId: string, content: string): Promise<Post> {
     const dto = await this.api.request<any>(`/clubs/${clubId}/posts/${postId}`, {
       method: 'PUT',
@@ -113,24 +126,29 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
+  /** Delete a club post by IDs. */
   async deletePost(clubId: string, postId: string): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/posts/${postId}`, { method: 'DELETE' });
   }
 
+  /** Like a post by ID. */
   async likePost(postId: string): Promise<void> {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'POST' });
   }
 
+  /** Remove like from a post by ID. */
   async unlikePost(postId: string): Promise<void> {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'DELETE' });
   }
 
   // Events inside a club
+  /** List all events for a club. */
   async listEvents(clubId: string): Promise<ClubEvent[]> {
     const arr = await this.api.request<any[]>(`/clubs/${clubId}/events`);
     return arr.map(mapEvent);
   }
 
+  /** Create a new club event. */
   async createEvent(clubId: string, ev: Partial<ClubEvent>): Promise<ClubEvent> {
     const payload: any = {};
     if (ev.title !== undefined) payload.title = ev.title;
@@ -146,6 +164,7 @@ export class ClubService extends BaseService {
     return mapEvent(dto);
   }
 
+  /** Update an existing club event. */
   async updateEvent(clubId: string, eventId: number, ev: Partial<ClubEvent>): Promise<ClubEvent> {
     const payload: any = {};
     if (ev.title !== undefined) payload.title = ev.title;
@@ -161,14 +180,17 @@ export class ClubService extends BaseService {
     return mapEvent(dto);
   }
 
+  /** Delete a club event by ID. */
   async deleteEvent(clubId: string, eventId: number): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/events/${eventId}`, { method: 'DELETE' });
   }
 
+  /** Join a club event. */
   async joinEvent(clubId: string, eventId: number): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/events/${eventId}/join`, { method: 'POST' });
   }
 
+  /** Change a member's role within the club. */
   async updateMemberRole(clubId: string, memberId: number | string, role: Role): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/members/${memberId}/role`, {
       method: 'PUT',
@@ -177,11 +199,13 @@ export class ClubService extends BaseService {
   }
 
   // Comments on a post
+  /** List comments for a post. */
   async listComments(postId: string): Promise<Comment[]> {
     const arr = await this.api.request<any[]>(`/posts/${postId}/comments`);
     return arr.map(mapComment);
   }
 
+  /** Add a new comment to a post. */
   async addComment(postId: string, content: string): Promise<Comment> {
     const dto = await this.api.request<any>(`/posts/${postId}/comments`, {
       method: 'POST',
@@ -190,10 +214,10 @@ export class ClubService extends BaseService {
     return mapComment(dto);
   }
 
+  /** Like a comment by ID. */
   async likeComment(commentId: string): Promise<void> {
     await this.api.request<void>(`/comments/${commentId}/like`, { method: 'POST' });
   }
 }
 
 export const clubService = new ClubService();
-

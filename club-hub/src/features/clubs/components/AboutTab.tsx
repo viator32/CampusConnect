@@ -5,6 +5,7 @@ import Button from '../../../components/Button';
 import { Subject, Preference } from '../../profile/types';
 import { clubService } from '../services/ClubService';
 
+/** Props for the club About tab. */
 interface AboutTabProps {
   club: Club;
   onUpdate: (updated: Club) => void;
@@ -17,6 +18,9 @@ const formatEnum = (v: string) =>
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
 
+/**
+ * About tab for viewing and editing club metadata.
+ */
 export default function AboutTab({ club, onUpdate, currentUserRole }: AboutTabProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);

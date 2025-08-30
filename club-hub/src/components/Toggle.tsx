@@ -1,10 +1,14 @@
 import React from 'react';
 
+/** Props for a simple on/off toggle button. */
 type ToggleProps = {
   checked: boolean;
   onChange: () => void;
 };
 
+/**
+ * Accessible toggle switch with animated knob. Calls `onChange` when toggled.
+ */
 export default function Toggle({ checked, onChange }: ToggleProps) {
   return (
     <button

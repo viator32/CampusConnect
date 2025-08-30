@@ -1,5 +1,6 @@
 import type { Role } from '../clubs/types';
 
+/** Academic subject majors. */
 export enum Subject {
   NONE = 'NONE',
   COMPUTER_SCIENCE = 'COMPUTER_SCIENCE',
@@ -19,6 +20,7 @@ export enum Subject {
   INDUSTRIAL_ENGINEERING = 'INDUSTRIAL_ENGINEERING',
 }
 
+/** User interest tags/preferences. */
 export enum Preference {
   NONE = 'NONE',
   PROGRAMMING = 'PROGRAMMING',
@@ -35,6 +37,7 @@ export enum Preference {
   DANCE = 'DANCE',
 }
 
+/** Notification settings for the user. */
 export interface Notifications {
   email: boolean;
   push: boolean;
@@ -43,6 +46,7 @@ export interface Notifications {
   forumReplies: boolean;
 }
 
+/** Privacy preferences controlling profile visibility. */
 export interface Privacy {
   profileVisibility: 'public' | 'private';
   showEmail: boolean;
@@ -50,18 +54,21 @@ export interface Privacy {
   allowMessages: boolean;
 }
 
+/** UI/user preferences such as theme and locale. */
 export interface PreferencesSettings {
   theme: 'light' | 'dark';
   language: string;
   timeFormat: string;
 }
 
+/** Aggregated user settings. */
 export interface Settings {
   notifications: Notifications;
   privacy: Privacy;
   preferences: PreferencesSettings;
 }
 
+/** Membership record tying a user to a club. */
 export interface Membership {
   id: string;
   clubId: string;
@@ -71,6 +78,7 @@ export interface Membership {
   joinedAt: string;
 }
 
+/** Normalized user model used by the app. */
 export interface User {
   id: string;
   role: string;

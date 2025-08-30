@@ -5,11 +5,13 @@ import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
 
+/** Props for the dedicated thread view. */
 interface ThreadDetailProps {
   thread: Thread;
   onBack: () => void;
 }
 
+/** Detailed thread view with replies and share actions. */
 export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
   const [showShare, setShowShare] = useState(false);
 

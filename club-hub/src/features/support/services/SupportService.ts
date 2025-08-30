@@ -1,7 +1,9 @@
 // src/features/support/services/SupportService.ts
 import { BaseService } from '../../../services/BaseService';
 
+/** Service for submitting support/feedback requests. */
 export class SupportService extends BaseService {
+  /** Send a feedback/support message to the backend. */
   async sendFeedback(
     subject: string,
     email: string,

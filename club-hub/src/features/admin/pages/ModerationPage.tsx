@@ -13,6 +13,7 @@ type FlaggedItem = {
   date: string;
 };
 
+/** Admin/moderator queue for reviewing flagged content. */
 export default function ModerationPage() {
   const { user } = useProfile();
   const [queue, setQueue] = useState<FlaggedItem[]>([

@@ -5,6 +5,9 @@ import type { BookmarkedPost } from '../types';
 import Toast from '../../../components/Toast';
 import Avatar from '../../../components/Avatar';
 
+/**
+ * Page listing the user's bookmarked posts with basic actions.
+ */
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
   const [error, setError] = useState<string | null>(null);

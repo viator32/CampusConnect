@@ -27,6 +27,10 @@ const formatEnum = (v: string) =>
     .replace(/\b\w/g, c => c.toUpperCase());
 type SortKey = 'members_desc' | 'members_asc' | 'name_asc' | 'name_desc';
 
+/**
+ * Explore page for discovering clubs with filters, search, sorting
+ * and grid/list presentation modes.
+ */
 export default function ExplorePage() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 10;

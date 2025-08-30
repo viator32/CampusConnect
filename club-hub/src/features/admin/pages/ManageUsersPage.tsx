@@ -1,4 +1,3 @@
-// src/features/admin/pages/ManageUsersPage.tsx
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useProfile } from '../../profile/hooks/useProfile';
@@ -12,6 +11,7 @@ interface UserRecord {
   banned: boolean;
 }
 
+/** Admin page for searching users, changing roles, and bans. */
 export default function ManageUsersPage() {
   const { user } = useProfile();
   const [users, setUsers] = useState<UserRecord[]>([

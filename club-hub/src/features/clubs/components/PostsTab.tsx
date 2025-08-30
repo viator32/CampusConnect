@@ -16,12 +16,17 @@ import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import ProcessingBox from '../../../components/ProcessingBox';
 
+/** Props for the club Posts tab. */
 interface PostsTabProps {
   club: Club;
   onClubUpdate: (c: Club) => void;
   onSelectPost: (p: Post) => void;
 }
 
+/**
+ * Posts tab for composing posts, listing them, and quick actions
+ * such as like, comment, share, and bookmark.
+ */
 export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabProps) {
   const [text, setText]   = useState('');
   const [photo, setPhoto] = useState<File|null>(null);

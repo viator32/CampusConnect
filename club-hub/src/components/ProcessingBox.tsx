@@ -1,10 +1,15 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
+/** Props for the modal-like processing overlay. */
 interface ProcessingBoxProps {
   message?: string;
 }
 
+/**
+ * Full-screen translucent overlay with a spinner and message.
+ * Useful while saving or loading.
+ */
 export default function ProcessingBox({ message = 'Processing...' }: ProcessingBoxProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">

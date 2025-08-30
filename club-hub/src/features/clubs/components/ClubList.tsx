@@ -4,6 +4,9 @@ import { Users } from 'lucide-react';
 import Button from '../../../components/Button';
 import { Subject, Preference } from '../../profile/types';
 
+/**
+ * List layout that renders clubs with metadata and a join button.
+ */
 export default function ClubList({
   clubs,
   onSelect,

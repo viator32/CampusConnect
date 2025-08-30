@@ -42,6 +42,10 @@ const formatEnum = (v: string) =>
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
 
+/**
+ * Club detail view with tabs for About, Events, Forum, Posts, and Members.
+ * Handles join/leave and routing into post/thread single views.
+ */
 export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { profileService } from '../services/ProfileService';
 import type { User } from '../types';
 
+/** Read-only view of another user's profile. */
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<User | null>(null);

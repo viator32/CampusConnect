@@ -1,4 +1,3 @@
-// src/features/admin/pages/AdminPage.tsx
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useProfile } from '../../profile/hooks/useProfile';
@@ -8,6 +7,7 @@ import Button from '../../../components/Button';
 type ClubRequest = { id: number; name: string; requestedBy: string; date: string };
 type ExternalAccountRequest = { id: number; email: string; reason: string; date: string };
 
+/** Admin hub with quick actions for requests and tools. */
 export default function AdminPage() {
   const { user } = useProfile();
   const navigate = useNavigate();

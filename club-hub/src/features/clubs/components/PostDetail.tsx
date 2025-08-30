@@ -7,12 +7,14 @@ import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import Avatar from '../../../components/Avatar';
 
+/** Props for the dedicated post view. */
 interface PostDetailProps {
   post: Post;
   onBack: () => void;
   onPostUpdate?: (p: Post) => void;
 }
 
+/** Detailed post view with comments, likes, and sharing. */
 export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailProps) {
   const [showShare, setShowShare] = useState(false);
   const [postData, setPostData] = useState(post);

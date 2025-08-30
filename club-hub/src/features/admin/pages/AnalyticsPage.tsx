@@ -1,8 +1,8 @@
-// src/features/admin/pages/AnalyticsPage.tsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useProfile } from '../../profile/hooks/useProfile';
 
+/** Placeholder analytics dashboard for admins/moderators. */
 export default function AnalyticsPage() {
   const { user } = useProfile();
 

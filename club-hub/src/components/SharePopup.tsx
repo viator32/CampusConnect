@@ -8,11 +8,15 @@ import {
   WhatsappIcon
 } from 'react-share';
 
+/** Props for the inline share actions popover. */
 interface SharePopupProps {
   url: string;
   onClose: () => void;
 }
 
+/**
+ * Inline social share popover. Also provides a quick “Copy Link” action.
+ */
 export default function SharePopup({ url, onClose }: SharePopupProps) {
   const copyLink = () => {
     navigator.clipboard.writeText(url);

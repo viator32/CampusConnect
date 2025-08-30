@@ -1,5 +1,6 @@
 import type { BookmarkedPost } from './types';
 
+/** Normalize a backend DTO into a `BookmarkedPost`. */
 export function mapBookmarkedPost(dto: any): BookmarkedPost {
   return {
     id: String(dto.id),
