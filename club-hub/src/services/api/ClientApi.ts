@@ -9,7 +9,7 @@ import { ApiError } from './ApiError';
  * - `import.meta.env.VITE_API_URL`, when defined (Vite)
  * - Fallback `http://localhost:8080`
  */
-export class EnvironmentApi {
+export class ClientApi {
   /** Resolved API base URL including the '/api' suffix (no trailing slash). */
   public readonly baseUrl: string;
 
@@ -21,7 +21,7 @@ export class EnvironmentApi {
   public onUnauthorized?: () => void;
 
   /**
-   * Create a new EnvironmentApi instance.
+   * Create a new ClientApi instance.
    *
    * @param base Optional override for the server root URL
    *             (e.g., `https://example.com`). If omitted, uses
@@ -47,7 +47,7 @@ export class EnvironmentApi {
    * @param token The access token string, or `null` to clear it.
    */
   static setAuthToken(token: string | null) {
-    EnvironmentApi.accessToken = token;
+    ClientApi.accessToken = token;
     try {
       if (token) localStorage.setItem('access_token', token);
       else localStorage.removeItem('access_token');
@@ -61,7 +61,7 @@ export class EnvironmentApi {
   static bootstrapTokenFromStorage() {
     try {
       const t = localStorage.getItem('access_token');
-      EnvironmentApi.accessToken = t;
+      ClientApi.accessToken = t;
     } catch {}
   }
 
@@ -101,14 +101,14 @@ export class EnvironmentApi {
       headers['Content-Type'] = 'application/json';
     }
 
-    if (EnvironmentApi.accessToken) {
-      headers['Authorization'] = `Bearer ${EnvironmentApi.accessToken}`;
+    if (ClientApi.accessToken) {
+      headers['Authorization'] = `Bearer ${ClientApi.accessToken}`;
     }
 
     const res = await fetch(url, { ...options, headers });
     // Invoke callback and clear token when session is invalid
     if (res.status === 401) {
-      EnvironmentApi.setAuthToken(null);
+      ClientApi.setAuthToken(null);
       this.onUnauthorized?.();
     }
 
@@ -126,9 +126,9 @@ export class EnvironmentApi {
   }
 }
 
-/** Shared EnvironmentApi instance configured from environment variables. */
-export const environmentApi = new EnvironmentApi();
+/** Shared ClientApi instance configured from environment variables. */
+export const clientApi = new ClientApi();
 
 // handy re-export
-export const setAuthToken = EnvironmentApi.setAuthToken;
-EnvironmentApi.bootstrapTokenFromStorage();
+export const setAuthToken = ClientApi.setAuthToken;
+ClientApi.bootstrapTokenFromStorage();

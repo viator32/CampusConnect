@@ -1,38 +1,40 @@
 # ClubHub
 
-ClubHub is a social hub for organizations and interest groups. Members can discover new clubs, post updates, coordinate events and stay in touch with their communities from a single dashboard. This repository contains the client-side application written in TypeScript and React.
-
-## Features
-- Browse and search the club directory
-- View a personalized feed with posts and announcements
-- Bookmark clubs and content for quick access
-- Receive real-time notifications
-- Authenticate and manage user profiles
-- Administrative tools for managing club content
+ClubHub is a social student hub for organizations and interest groups. Members can discover clubs, post updates, coordinate events, and stay in touch from a single dashboard. This repository contains the client-side application (React + TypeScript).
 
 ## Tech Stack
-- **React** with **TypeScript** for the UI
-- **Tailwind CSS** for styling
-- Feature-first folder structure with dedicated service layer
+
+- React + TypeScript
+- Tailwind CSS
+- Vite-style env via `import.meta.env`
+- Feature-first folder structure with a small service layer
 
 ## Getting Started
 
-1. Navigate into the project folder:
+1. Navigate into the app directory:
    ```bash
    cd club-hub
    ```
-2. Install dependencies (requires access to the private npm registry):
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Configure environment (optional):
+   - `VITE_API_URL` to point to your backend root (client app appends `/api`)
+4. Start the development server:
    ```bash
    npm start
    ```
+5. Open http://localhost:3000
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+## Documentation
 
-## Screenshots
-<!-- TODO: Add screenshots of the platform -->
+- Architecture: `docs/ARCHITECTURE.md`
+- API & Data Layer: `docs/API_DATA_LAYER.md`
+- Coding Guidelines: `docs/CODING_GUIDELINES.md`
+- Pages Overview: `docs/PAGES_CLUBS_PROFILE_FEED.md`
+- Build a Page/Tab: `docs/BUILDING_PAGES_AND_TABS.md`
+- ADRs (decisions): `docs/ADR/README.md`
+- Contributing: `CONTRIBUTING.md`
 
-For architecture and code details see [club-hub/README.md](club-hub/README.md).
+For a feature-level overview also see `club-hub/README.md`.

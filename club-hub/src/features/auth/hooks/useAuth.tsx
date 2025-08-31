@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/AuthService';
-import { setAuthToken, environmentApi } from '../../../services/api';
+import { setAuthToken, clientApi } from '../../../services/api';
 
 /** Context value exposed by the auth provider. */
 interface AuthContextValue {
@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 /**
  * Provider that manages the auth token lifecycle, including persistence,
- * refresh, and global 401 handling via `environmentApi.onUnauthorized`.
+ * refresh, and global 401 handling via `clientApi.onUnauthorized`.
  */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(() => {
@@ -35,14 +35,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // handle 401 responses globally
   useEffect(() => {
-    environmentApi.onUnauthorized = () => {
+    clientApi.onUnauthorized = () => {
       setToken(null);
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
     };
     return () => {
-      environmentApi.onUnauthorized = undefined;
+      clientApi.onUnauthorized = undefined;
     };
   }, []);
 

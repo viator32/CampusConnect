@@ -1,17 +1,17 @@
-import { EnvironmentApi, environmentApi } from './api';
+import { ClientApi, clientApi } from './api';
 
 /**
  * Base class for feature services that call the backend.
- * Holds a reference to the shared `EnvironmentApi` instance.
+ * Holds a reference to the shared `ClientApi` instance.
  */
 export abstract class BaseService {
   /** API client used for HTTP requests. */
-  protected api: EnvironmentApi;
+  protected api: ClientApi;
 
   /**
-   * @param api API client instance. Defaults to the shared `environmentApi`.
+   * @param api API client instance. Defaults to the shared `clientApi`.
    */
-  constructor(api: EnvironmentApi = environmentApi) {
+  constructor(api: ClientApi = clientApi) {
     this.api = api;
   }
 
