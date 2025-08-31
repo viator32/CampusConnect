@@ -156,6 +156,7 @@ export class ClubService extends BaseService {
     if (ev.date !== undefined) payload.date = ev.date;
     if (ev.time !== undefined) payload.time = ev.time;
     if (ev.location !== undefined) payload.location = ev.location;
+    if (ev.status !== undefined) payload.status = ev.status;
 
     const dto = await this.api.request<any>(`/clubs/${clubId}/events`, {
       method: 'POST',
@@ -172,6 +173,7 @@ export class ClubService extends BaseService {
     if (ev.date !== undefined) payload.date = ev.date;
     if (ev.time !== undefined) payload.time = ev.time;
     if (ev.location !== undefined) payload.location = ev.location;
+     if (ev.status !== undefined) payload.status = ev.status;
 
     const dto = await this.api.request<any>(`/clubs/${clubId}/events/${eventId}`, {
       method: 'PUT',

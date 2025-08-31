@@ -138,6 +138,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
           name: user.name,
           surname: (user as any).surname || '',
           email: user.email,
+          avatar: user.avatar,
         };
         return { ...e, participants: [...parts, next] };
       }
@@ -151,9 +152,9 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
 
   const downloadCSV = (ev: ClubEvent) => {
     const parts = ev.participants || [];
-    let csv = 'Name,Surname,Email\n';
+    let csv = 'Name,Email\n';
     parts.forEach(p => {
-      csv += `${p.name},${p.surname},${p.email}\n`;
+      csv += `${p.name},${p.email}\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -335,14 +336,12 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                   >
                     {isJoined ? 'Joined' : 'Join Event'}
                   </Button>
-                  {ev.participants && ev.participants.length > 0 && (
-                    <Button
-                      onClick={() => downloadCSV(ev)}
-                      className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
-                    >
-                      Download CSV
-                    </Button>
-                  )}
+                  <Button
+                    onClick={() => downloadCSV(ev)}
+                    className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
+                  >
+                    Download CSV
+                  </Button>
                 </div>
               </div>
             );
