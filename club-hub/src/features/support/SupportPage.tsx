@@ -27,12 +27,8 @@ export default function SupportPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to your support API
-    console.log({ subject, email, message });
-    alert('Thank you! Your feedback has been sent.');
-    setSubject('');
-    setEmail('');
-    setMessage('');
+    // Temporarily disabled until backend is implemented
+    // Intentionally do nothing
   };
 
   const toggle = (idx: number) => {
@@ -77,8 +73,8 @@ export default function SupportPage() {
               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-500 resize-none"
             />
           </div>
-          <Button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-            Submit
+          <Button type="submit" disabled className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed">
+            Available soon
           </Button>
         </form>
       </div>

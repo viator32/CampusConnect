@@ -144,9 +144,9 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
     const updated = club.events.map(e => {
       if (e.id !== ev.id) return e;
       const parts = e.participants ? [...e.participants] : [];
-      const exists = parts.find(p => p.email === user.email);
+      const exists = parts.find(p => String(p.id) === String(user.id));
       if (exists) {
-        const filtered = parts.filter(p => p.email !== user.email);
+        const filtered = parts.filter(p => String(p.id) !== String(user.id));
         return { ...e, participants: filtered };
       } else {
         const next: Participant = {
@@ -160,7 +160,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
       }
     });
     onClubUpdate({ ...club, events: updated });
-    const exists = ev.participants?.find(p => p.email === user.email);
+    const exists = ev.participants?.find(p => String(p.id) === String(user.id));
     if (!exists) {
       try { await clubService.joinEvent(club.id, ev.id); } catch {}
     }

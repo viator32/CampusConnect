@@ -10,6 +10,16 @@ import { notificationsService, type Notification as NotificationType } from '../
 
 /** Notifications center: lists notifications and mark-as-read actions. */
 export default function NotificationsPage() {
+  // Coming soon placeholder; keep implementation for later enablement
+  return (
+    <div className="flex items-center justify-center h-64 text-center">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Notifications</h1>
+        <p className="text-gray-600">Coming soon…</p>
+      </div>
+    </div>
+  );
+  // The code below is preserved for future backend integration
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
