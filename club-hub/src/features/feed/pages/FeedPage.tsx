@@ -44,7 +44,7 @@ export default function FeedPage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [activeTab, setActiveTab] = useState<'events' | 'posts'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'posts'>('posts');
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
@@ -264,16 +264,6 @@ export default function FeedPage() {
     <div className="flex flex-col space-y-4">
       <div className="flex space-x-4 border-b">
         <button
-          onClick={() => setActiveTab('events')}
-          className={`px-4 py-2 -mb-px font-medium ${
-            activeTab === 'events'
-              ? 'border-b-2 border-orange-500 text-orange-500'
-              : 'text-gray-600'
-          }`}
-        >
-          Events
-        </button>
-        <button
           onClick={() => setActiveTab('posts')}
           className={`px-4 py-2 -mb-px font-medium ${
             activeTab === 'posts'
@@ -282,6 +272,16 @@ export default function FeedPage() {
           }`}
         >
           Recent Posts
+        </button>
+        <button
+          onClick={() => setActiveTab('events')}
+          className={`px-4 py-2 -mb-px font-medium ${
+            activeTab === 'events'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-gray-600'
+          }`}
+        >
+          Events
         </button>
       </div>
       <div className="flex space-x-6">
