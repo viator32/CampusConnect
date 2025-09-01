@@ -48,7 +48,7 @@ export function mapEvent(dto: any): ClubEvent {
     date: dto.date,
     time: dto.time,
     location: dto.location,
-    status: dto.status,
+    status: (dto.status ?? 'SCHEDULED') as any,
     joined:
       dto.participantsCount ?? dto.joined ?? dto.attendeesCount ?? dto.attendees?.length,
     participants: (dto.participants ?? dto.attendees ?? []).map((p: any) => ({

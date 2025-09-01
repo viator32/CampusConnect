@@ -15,9 +15,9 @@ interface EventsTabProps {
 }
 
 const STATUSES = [
-  { value: 'Scheduled', label: 'Scheduled', bg: 'bg-orange-100', text: 'text-orange-600' },
-  { value: 'Completed',  label: 'Completed',  bg: 'bg-gray-100',   text: 'text-gray-600'   },
-  { value: 'Cancelled',  label: 'Cancelled',  bg: 'bg-red-100',    text: 'text-red-600'    },
+  { value: 'SCHEDULED', label: 'Scheduled',  bg: 'bg-orange-100', text: 'text-orange-600' },
+  { value: 'COMPLETED', label: 'Completed',  bg: 'bg-gray-100',   text: 'text-gray-600'   },
+  { value: 'CANCELLED', label: 'Cancelled',  bg: 'bg-red-100',    text: 'text-red-600'    },
 ] as const;
 type Status = typeof STATUSES[number]['value'];
 
@@ -39,7 +39,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
   const [time, setTime]           = useState('');
   const [location, setLocation]   = useState('');
   const [desc, setDesc]           = useState('');
-  const [status, setStatus]       = useState<Status>('Scheduled');
+  const [status, setStatus]       = useState<Status>('SCHEDULED');
   const [error, setError]         = useState<string|null>(null);
   const [saving, setSaving]       = useState(false);
 
@@ -47,6 +47,20 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
   useEffect(() => {
     if (!showForm) setEditingId(null);
   }, [showForm]);
+
+  // Fetch fresh events for this club so attendees are up to date
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const events = await clubService.listEvents(club.id);
+        if (active) onClubUpdate({ ...club, events });
+      } catch {
+        // Ignore fetch errors; UI will keep existing events
+      }
+    })();
+    return () => { active = false; };
+  }, [club.id]);
 
   const prev = () => {
     const m = month === 0 ? 11 : month - 1;
@@ -67,12 +81,14 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
       setTime(ev.time);
       setLocation(ev.location || '');
       setDesc(ev.description || '');
-      setStatus(ev.status || 'Scheduled');
+      // Normalize to backend enum (uppercase)
+      const s = (ev.status as any)?.toUpperCase?.() || 'SCHEDULED';
+      setStatus(s as Status);
     } else {
       setEditingId(null);
       setTitle(''); setDate(''); setTime('');
       setLocation(''); setDesc('');
-      setStatus('Scheduled');
+      setStatus('SCHEDULED');
     }
     setError(null);
     setShowForm(true);
@@ -273,9 +289,10 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
         {/* Event Cards */}
         {filtered.length > 0 ? (
           filtered.map(ev => {
-            const st = STATUSES.find(s => s.value === ev.status) ?? STATUSES[0];
+            const statusKey = (ev.status as any)?.toUpperCase?.() || 'SCHEDULED';
+            const st = STATUSES.find(s => s.value === statusKey) ?? STATUSES[0];
             const isJoined = user
-              ? !!ev.participants?.find(p => p.email === user.email)
+              ? !!ev.participants?.some(p => String(p.id) === String(user.id))
               : false;
 
             return (

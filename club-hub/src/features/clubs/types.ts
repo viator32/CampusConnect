@@ -1,7 +1,8 @@
 import { Subject, Preference } from '../profile/types';
 
 /** Possible lifecycle states for a club event. */
-export type EventStatus = 'Scheduled' | 'Completed' | 'Cancelled';
+/** Possible lifecycle states for a club event (backend enum). */
+export type EventStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 
 /** Event attendee details. */
 export interface Participant {
