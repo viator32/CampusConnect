@@ -12,6 +12,7 @@ import { Club, Role } from '../types';
 import { Subject, Preference } from '../../profile/types';
 import { clubService } from '../services/ClubService';
 import Button from '../../../components/Button';
+import Toast from '../../../components/Toast';
 import { useProfile } from '../../profile/hooks/useProfile';
 
 import AboutTab     from '../components/AboutTab';
@@ -56,6 +57,7 @@ export default function ClubDetailPage() {
   const [activeTab, setActiveTab] = useState<TabId>('about');
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
+  const [toast, setToast]         = useState<string | null>(null);
 
   useEffect(() => {
     if (!clubId) return;
@@ -143,22 +145,18 @@ export default function ClubDetailPage() {
     setError(null);
     const prev = club;
     if (club.isJoined) {
-      setClub({ ...club, isJoined: false, members: Math.max(0, club.members - 1) });
+      // Do not optimistically change view/state; only act on success.
       try {
         await clubService.leaveClub(club.id);
         await refresh();
-        const updated = await clubService.getById(club.id);
-        if (updated) {
-          const joined =
-            updated.isJoined ||
-            updated.members_list.some(m => String(m.userId) === String(user?.id));
-          setClub({ ...updated, isJoined: joined });
-          setActiveTab('about');
-          setSearchParams({ tab: 'about' });
-        }
+        navigate('/explore');
+        return;
       } catch (err: any) {
-        setClub(prev);
-        setError(err.message ?? 'Failed to leave club');
+        const title = (err && err.title) ? String(err.title) : 'Cannot leave club';
+        const details = (err && err.details) ? String(err.details) : (err?.message ?? 'Failed to leave club');
+        setToast(`${title}\n${details}`);
+        // Do not set page-level error to avoid view change
+        return;
       }
     } else {
       setClub({ ...club, isJoined: true, members: club.members + 1 });
@@ -314,6 +312,7 @@ export default function ClubDetailPage() {
           onUpdate={members => updateClub({ ...club, members_list: members })}
         />
       )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }

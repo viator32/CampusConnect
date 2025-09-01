@@ -112,13 +112,21 @@ export class ClientApi {
       this.onUnauthorized?.();
     }
 
-    // Throw ApiError on non-ok responses.
+    // Throw ApiError on non-ok responses with structured details if present.
     if (!res.ok) {
       const text = await res.text();
       let data: any = null;
       try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-      const msg = (data && (data.message || data.error)) || res.statusText;
-      throw new ApiError(res.status, msg);
+      const msg = (data && (data.message || data.error || data.title || data.details)) || res.statusText;
+      const err = new ApiError(res.status, msg);
+      if (data && typeof data === 'object') {
+        err.code = (data as any).errorCode || (data as any).code;
+        err.title = (data as any).title;
+        err.details = (data as any).details || (data as any).detail;
+        err.params = (data as any).messageParameters || (data as any).params;
+        err.raw = data;
+      }
+      throw err;
     }
 
     if (res.status === 204) return undefined as unknown as T;
