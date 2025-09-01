@@ -13,6 +13,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
+import io.minio.SetBucketPolicyArgs;
 
 @ApplicationScoped
 public class ObjectStorageService {
@@ -44,6 +45,25 @@ public class ObjectStorageService {
         try (var stream = new ByteArrayInputStream(data)) {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+
+                String policy = String.format("""
+                        {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": "*",
+                              "Action": ["s3:GetObject"],
+                              "Resource": ["arn:aws:s3:::%s/*"]
+                            }
+                          ]
+                        }
+                        """, bucket);
+
+                minioClient.setBucketPolicy(SetBucketPolicyArgs.builder()
+                        .bucket(bucket)
+                        .config(policy)
+                        .build());
             }
             var response = minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
