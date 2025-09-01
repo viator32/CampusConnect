@@ -4,10 +4,7 @@ import { Subject, Preference } from '../profile/types';
 /** Normalize a backend club DTO to the app's `Club` model. */
 export function mapClub(dto: any): Club {
   const rawId = dto.id ?? dto.clubId ?? dto._id;
-  const rawAvatar = dto.avatar ?? '';
-  const avatar = rawAvatar && !rawAvatar.startsWith('data:')
-    ? `data:image/png;base64,${rawAvatar}`
-    : rawAvatar;
+  const avatar = dto.avatar ?? '';
   return {
     id: String(rawId),
     name: dto.name,

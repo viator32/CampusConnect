@@ -31,7 +31,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col items-center">
             {user.avatar ? (
               <img
-                src={`data:image/png;base64,${user.avatar}`}
+                src={user.avatar}
                 alt="avatar"
                 className="w-20 h-20 rounded-full object-cover"
               />

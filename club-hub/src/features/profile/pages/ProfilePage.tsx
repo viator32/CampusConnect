@@ -28,7 +28,7 @@ export default function ProfilePage() {
         description: user.description,
         subject: user.subject ?? Subject.NONE,
         preferences: user.preferences || [],
-        avatar: user.avatar ? `data:image/png;base64,${user.avatar}` : '',
+        avatar: user.avatar ?? '',
       });
     }
   }, [user, isEditing]);
