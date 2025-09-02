@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent, useEffect, useRef } from 'react';
+import EmojiPicker from 'emoji-picker-react';
 import { Club, Post } from '../types';
 import {
   MessageCircle,
@@ -6,7 +7,8 @@ import {
   Share2,
   Image as PhotoIcon,
   BarChart2,
-  Bookmark as BookmarkIcon
+  Bookmark as BookmarkIcon,
+  Smile
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
@@ -29,6 +31,7 @@ interface PostsTabProps {
  */
 export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabProps) {
   const [text, setText]   = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [photo, setPhoto] = useState<File|null>(null);
   const [isPoll, setIsPoll] = useState(false);
   const [question, setQuestion] = useState('');
@@ -38,6 +41,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
 
   useEffect(() => {
     setLikedPosts(club.posts.filter((p: any) => p.liked).map(p => p.id));
@@ -92,6 +96,28 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     }
   };
 
+  const insertEmoji = (emoji: string) => {
+    const el = textareaRef.current;
+    if (!el) {
+      setText(prev => prev + emoji);
+      setEmojiOpen(false);
+      return;
+    }
+    const start = el.selectionStart ?? text.length;
+    const end = el.selectionEnd ?? text.length;
+    const before = text.slice(0, start);
+    const after = text.slice(end);
+    const next = before + emoji + after;
+    setText(next);
+    setEmojiOpen(false);
+    // restore caret after inserted emoji
+    requestAnimationFrame(() => {
+      el.focus();
+      const caret = start + emoji.length;
+      el.setSelectionRange(caret, caret);
+    });
+  };
+
   const handleLike = async (post: Post) => {
     const isLiked = likedPosts.includes(post.id);
     onClubUpdate({
@@ -135,6 +161,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           rows={3}
           value={text}
           onChange={e => setText(e.target.value)}
+          ref={textareaRef}
         />
 
         {isPoll && (
@@ -166,7 +193,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           </div>
         )}
 
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex items-center gap-4 mt-2 relative">
           <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
             <PhotoIcon className="w-5 h-5 text-gray-500" />
             <input
@@ -183,6 +210,26 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           >
             <BarChart2 className="w-5 h-5 text-gray-500" />
           </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setEmojiOpen(o => !o)}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <Smile className="w-5 h-5 text-gray-500" />
+            </button>
+            {emojiOpen && (
+              <div className="absolute z-10 mt-2">
+                <EmojiPicker
+                  width={300}
+                  height={300}
+                  skinTonesDisabled
+                  previewConfig={{ showPreview: false }}
+                  onEmojiClick={(emojiData) => insertEmoji(emojiData.emoji)}
+                />
+              </div>
+            )}
+          </div>
           <Button
             onClick={handlePost}
             className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
