@@ -89,8 +89,15 @@ export default function MyClubsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitError(null);
+
+    // Frontend validation: subject and interest are mandatory
+    if (form.subject === Subject.NONE || form.interest === Preference.NONE) {
+      setSubmitError('Please select both Subject and Interest.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const created = await clubService.createClub({
         name: form.name,
@@ -293,9 +300,12 @@ export default function MyClubsPage() {
                   onChange={handleChange}
                   className="w-full border px-3 py-2 rounded"
                 >
-                  {Object.values(Subject).map(s => (
-                    <option key={s} value={s}>{formatEnum(s)}</option>
-                  ))}
+                  <option value={Subject.NONE}>Select subject</option>
+                  {Object.values(Subject)
+                    .filter(s => s !== Subject.NONE)
+                    .map(s => (
+                      <option key={s} value={s}>{formatEnum(s)}</option>
+                    ))}
                 </select>
               </div>
               <div>
@@ -306,9 +316,12 @@ export default function MyClubsPage() {
                   onChange={handleChange}
                   className="w-full border px-3 py-2 rounded"
                 >
-                  {Object.values(Preference).map(p => (
-                    <option key={p} value={p}>{formatEnum(p)}</option>
-                  ))}
+                  <option value={Preference.NONE}>Select interest</option>
+                  {Object.values(Preference)
+                    .filter(p => p !== Preference.NONE)
+                    .map(p => (
+                      <option key={p} value={p}>{formatEnum(p)}</option>
+                    ))}
                 </select>
               </div>
 
@@ -335,7 +348,9 @@ export default function MyClubsPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={submitting}
+                  disabled={
+                    submitting || form.subject === Subject.NONE || form.interest === Preference.NONE
+                  }
                   className="bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
                 >
                   {submitting ? 'Creating...' : 'Create'}
