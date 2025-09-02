@@ -59,8 +59,8 @@ script following the `V<version>__description.sql` naming convention.
 
 Each club member is assigned one of the following roles, which determine what actions are allowed inside a club:
 
-- **Member** – Default role for new members. Can view club content, create posts and comments, interact with posts (like, share, bookmark) and comments (like), update or delete only their own posts and comments, and join events. Members cannot create, update or delete events, and they cannot modify other members' roles.
-- **Moderator** – Inherits all member abilities and can additionally create, update and delete events, update or delete any post, and delete any comment.
+- **Member** – Default role for new members. Can view club content, create comments, interact with posts (like, share, bookmark) and comments (like), update or delete only their own comments, and join events. Members cannot create, update or delete posts or events, and they cannot modify other members' roles.
+- **Moderator** – Inherits all member abilities and can additionally create posts, create, update and delete events, update or delete any post, and delete any comment.
 - **Admin** – Highest privilege level. In addition to moderator capabilities, admins can change the roles of other members. At least one admin must remain in every club.
 
 ## API Endpoints
@@ -247,7 +247,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        http://localhost:8080/api/clubs/<clubId>/posts
   ```
 
-- **Create post in a club** – `POST /api/clubs/{clubId}/posts` (201 Created)
+- **Create post in a club** – `POST /api/clubs/{clubId}/posts` (201 Created, moderators and admins only)
 
   ```bash
   curl -X POST http://localhost:8080/api/clubs/<clubId>/posts \
@@ -256,7 +256,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"content":"Hello Club!"}'
   ```
 
-- **Update post in a club** – `PUT /api/clubs/{clubId}/posts/{postId}` (200 OK)
+- **Update post in a club** – `PUT /api/clubs/{clubId}/posts/{postId}` (200 OK, moderators and admins only)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/posts/<postId> \
@@ -265,7 +265,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"content":"Updated content"}'
   ```
 
-- **Delete post in a club** – `DELETE /api/clubs/{clubId}/posts/{postId}` (200 OK)
+- **Delete post in a club** – `DELETE /api/clubs/{clubId}/posts/{postId}` (200 OK, moderators and admins only)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
