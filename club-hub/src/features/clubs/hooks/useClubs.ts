@@ -4,7 +4,7 @@ import { clubService, ClubSearchParams } from '../services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
 
 export function useClubs(params: ClubSearchParams = {}) {
-  const { user } = useProfile();
+  const { user, refresh } = useProfile();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -50,16 +50,19 @@ export function useClubs(params: ClubSearchParams = {}) {
         c.id === id ? { ...c, isJoined: true, members: c.members + 1 } : c
       )
     );
-    clubService.joinClub(id).catch(err => {
-      setClubs(prev =>
-        prev.map(c =>
-          c.id === id
-            ? { ...c, isJoined: false, members: Math.max(0, c.members - 1) }
-            : c
-        )
-      );
-      setError(err.message ?? 'Failed to join club');
-    });
+    clubService
+      .joinClub(id)
+      .then(() => refresh())
+      .catch(err => {
+        setClubs(prev =>
+          prev.map(c =>
+            c.id === id
+              ? { ...c, isJoined: false, members: Math.max(0, c.members - 1) }
+              : c
+          )
+        );
+        setError(err.message ?? 'Failed to join club');
+      });
   };
 
   const leaveClub = (id: string) => {
