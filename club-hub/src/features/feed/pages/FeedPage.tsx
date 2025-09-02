@@ -225,7 +225,8 @@ export default function FeedPage() {
       })
     );
     try {
-      await clubService.joinEvent(ev.clubId, Number(ev.id));
+      // Use the raw event id as provided by the feed (string or number)
+      await clubService.joinEvent(ev.clubId, ev.id);
     } catch {
       setJoinedEvents(prev => {
         const next = new Set(prev);
