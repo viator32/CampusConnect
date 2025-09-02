@@ -11,6 +11,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -54,8 +55,8 @@ public interface ClubResource {
 
        @PUT
        @Path("/{id}/avatar")
-       @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-       ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar);
+       @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+       ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
 
 	@DELETE
 	@Path("/{id}")

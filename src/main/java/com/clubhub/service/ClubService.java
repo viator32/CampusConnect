@@ -26,13 +26,16 @@ public class ClubService {
 	@Inject
 	ClubRepository clubRepository;
 
-	@Inject
-	ClubService clubService;
+    @Inject
+    ClubService clubService;
 
-	@Inject
-	EntityManager em;
-	@Inject
-	UserService userService;
+    @Inject
+    EntityManager em;
+    @Inject
+    UserService userService;
+
+    @Inject
+    ObjectStorageService objectStorageService;
 
         public List<Club> getAllClubs() {
                 return clubRepository.findAll();
@@ -100,7 +103,6 @@ public class ClubService {
                 existing.setCategory(updated.getCategory());
                existing.setSubject(updated.getSubject());
                existing.setInterest(updated.getInterest());
-                existing.setAvatar(updated.getAvatar());
 
                Club merged = clubRepository.update(existing);
                // Initialize collections to avoid LazyInitializationException
@@ -117,11 +119,14 @@ public class ClubService {
        }
 
        @Transactional
-       public void updateAvatar(UUID id, byte[] avatar) {
-               Club existing = getClubById(id);
-               existing.setAvatar(avatar);
-               clubRepository.update(existing);
-       }
+       public void updateAvatar(UUID id, byte[] avatar, String contentType) {
+        Club existing = getClubById(id);
+        var stored = objectStorageService.upload("clubs/" + id, avatar, contentType);
+        existing.setAvatarBucket(stored.bucket());
+        existing.setAvatarObject(stored.objectKey());
+        existing.setAvatarEtag(stored.etag());
+        clubRepository.update(existing);
+    }
 
 	@Transactional
 	public boolean deleteClub(UUID id) {

@@ -31,6 +31,15 @@ docker compose up --build
 
 The API will be available at <http://localhost:8080>.
 
+MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (credentials `minio`/`minio123`).
+
+### MinIO setup
+
+1. Open <http://localhost:9001> in your browser.
+2. Log in using `minio` as the username and `minio123` as the password.
+3. Create a bucket named `avatars` (must match `MINIO_BUCKET` in `.env`).
+
+
 ### Development mode
 
 Alternatively, start the application directly (requires a running PostgreSQL instance):
@@ -130,11 +139,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X PUT http://localhost:8080/api/users/<userId>/avatar \\
        -H "Authorization: Bearer <token>" \\
-       -H "Content-Type: application/octet-stream" \\
-       --data-binary "@avatar.png"
+       -H "Content-Type: image/jpeg" \\
+       --data-binary "@avatar.jpg"
   ```
 
-  The endpoint expects raw image bytes in the request body. Avatars are returned as Base64-encoded strings in user profiles.
+  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile contains the public URL. Only the bucket name and object key are persisted in the database.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 
@@ -195,10 +204,13 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId>/avatar \
        -H "Authorization: Bearer <token>" \
+       -H "Content-Type: image/png" \
        --data-binary "@avatar.png"
   ```
 
-- **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
+  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. Only the bucket name and object key are saved in the database. The same image formats as for user avatars are supported.
+
+  - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \

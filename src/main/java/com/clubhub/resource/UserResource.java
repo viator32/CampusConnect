@@ -9,6 +9,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
@@ -41,8 +42,8 @@ public interface UserResource {
 
        @PUT
        @Path("/{id}/avatar")
-       @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-       UserDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar);
+       @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+       UserDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
 
         @PUT
         @Path("/{id}/password")

@@ -1,7 +1,6 @@
 package com.clubhub.entity.mapper;
 
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.UUID;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Comment;
@@ -19,6 +18,7 @@ import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PollDTO;
 import com.clubhub.entity.dto.PollOptionDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.service.ObjectStorageService;
 
 public class ClubMapper {
 
@@ -46,7 +46,7 @@ public class ClubMapper {
                dto.subject = club.getSubject();
                dto.interest = club.getInterest();
                 dto.location = club.getLocation();
-                dto.avatar = club.getAvatar() != null ? Base64.getEncoder().encodeToString(club.getAvatar()) : null;
+                dto.avatar = ObjectStorageService.url(club.getAvatarBucket(), club.getAvatarObject());
                 dto.isJoined = club.isJoined();
                 dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
                 dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
@@ -67,9 +67,7 @@ public class ClubMapper {
                club.setSubject(dto.subject);
                club.setInterest(dto.interest);
                 club.setLocation(dto.location);
-                if (dto.avatar != null) {
-                        club.setAvatar(Base64.getDecoder().decode(dto.avatar));
-                }
+                // avatar handled separately
                 club.setJoined(dto.isJoined);
                 club.setMembers(dto.members);
 
@@ -150,9 +148,9 @@ public class ClubMapper {
                dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
                dto.userId = m.getUser() != null ? m.getUser().getId() : null;
                dto.role = m.getRole() != null ? m.getRole().name() : null;
-               dto.avatar = (m.getUser() != null && m.getUser().getAvatar() != null)
-                               ? Base64.getEncoder().encodeToString(m.getUser().getAvatar())
-                               : null;
+                dto.avatar = (m.getUser() != null)
+                                ? ObjectStorageService.url(m.getUser().getAvatarBucket(), m.getUser().getAvatarObject())
+                                : null;
                dto.joinedAt = m.getJoinedAt();
 
                if (m.getUser() != null) {

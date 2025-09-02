@@ -47,8 +47,14 @@ public class Club {
         @Enumerated(EnumType.STRING)
         private Preference interest;
 
-	@Column(columnDefinition = "BYTEA")
-	private byte[] avatar;
+    @Column(name = "avatar_bucket")
+    private String avatarBucket;
+
+    @Column(name = "avatar_object")
+    private String avatarObject;
+
+    @Column(name = "avatar_etag")
+    private String avatarEtag;
 
 	@Column(name = "is_joined")
 	private boolean isJoined;
