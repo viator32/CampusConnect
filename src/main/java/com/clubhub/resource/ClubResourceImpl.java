@@ -135,18 +135,27 @@ public class ClubResourceImpl implements ClubResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var user = userService.getUserById(userId);
 		var club = clubService.getClubById(clubId);
-		Member membership = club.getMembersList().stream()
-				.filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
-				.findFirst().orElse(null);
-		if (membership == null) {
-			throw new ValidationException(ErrorPayload.builder()
-					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-					.title("User not a member")
-					.details("User must be a member of the club to create posts.")
-					.messageParameter("clubId", clubId.toString())
-					.messageParameter("userId", userId.toString())
-					.build());
-		}
+                Member membership = club.getMembersList().stream()
+                                .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
+                                .findFirst().orElse(null);
+                if (membership == null) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to create posts.")
+                                        .messageParameter("clubId", clubId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                if (membership.getRole() == MemberRole.MEMBER) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                                        .title("Insufficient permissions")
+                                        .details("Only moderators and admins can create posts.")
+                                        .messageParameter("clubId", clubId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
                 var post = PostMapper.toEntity(dto, club, user);
                 if (post.getTime() == null) {
                         post.setTime(java.time.LocalDateTime.now());
