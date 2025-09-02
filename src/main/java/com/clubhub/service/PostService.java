@@ -20,6 +20,9 @@ import com.clubhub.exception.NotFoundException;
 import com.clubhub.exception.ValidationException;
 import com.clubhub.repository.MemberRepository;
 import com.clubhub.repository.PostRepository;
+import com.clubhub.service.ObjectStorageService;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class PostService {
@@ -38,6 +41,12 @@ public class PostService {
 
     @Inject
     MemberRepository memberRepository;
+
+    @Inject
+    ObjectStorageService objectStorageService;
+
+    @ConfigProperty(name = "minio.post-bucket")
+    String postBucket;
 
     @Transactional
     public Post createPost(UUID clubId, Post post) {
@@ -153,6 +162,36 @@ public class PostService {
     }
 
     @Transactional
+    public void updatePhoto(UUID postId, UUID userId, byte[] photo, String contentType) {
+        Post post = getPost(postId);
+        Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
+        if (membership == null) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                    .title("User not a member")
+                    .details("User must be a member of the club to update posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(userId);
+        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+            throw new ValidationException(ErrorPayload.builder()
+                    .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                    .title("Insufficient permissions")
+                    .details("Members can only update their own posts.")
+                    .messageParameter("postId", postId.toString())
+                    .messageParameter("userId", userId.toString())
+                    .build());
+        }
+        var stored = objectStorageService.uploadTo(postBucket, "posts/" + postId, photo, contentType);
+        post.setPhotoBucket(stored.bucket());
+        post.setPhotoObject(stored.objectKey());
+        post.setPhotoEtag(stored.etag());
+        postRepository.update(post);
+    }
+
+    @Transactional
     public void updatePost(UUID clubId, UUID postId, PostDTO dto, UUID userId) {
         Post post = getPost(postId);
         if (post.getClub() == null || !post.getClub().getId().equals(clubId)) {
@@ -186,7 +225,6 @@ public class PostService {
                     .build());
         }
         post.setContent(dto.content);
-        post.setPhoto(dto.photo);
         postRepository.update(post);
     }
 

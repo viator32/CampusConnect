@@ -76,11 +76,20 @@ public class PostResourceImpl implements PostResource {
                 return ClubMapper.toDTO(post, userId);
 	}
 
-	@Override
-	public PostDTO sharePost(UUID postId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		postService.share(postId, userId);
-		var post = postService.getPost(postId);
+        @Override
+        public PostDTO sharePost(UUID postId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.share(postId, userId);
+                var post = postService.getPost(postId);
                 return ClubMapper.toDTO(post, userId);
-	}
+        }
+
+        @Override
+        public PostDTO updatePhoto(UUID postId, byte[] photo, String contentType,
+                        @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                postService.updatePhoto(postId, userId, photo, contentType);
+                var post = postService.getPost(postId);
+                return ClubMapper.toDTO(post, userId);
+        }
 }

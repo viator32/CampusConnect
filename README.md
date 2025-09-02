@@ -37,7 +37,7 @@ MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web conso
 
 1. Open <http://localhost:9001> in your browser.
 2. Log in using `minio` as the username and `minio123` as the password.
-3. Create a bucket named `avatars` (must match `MINIO_BUCKET` in `.env`).
+3. Create buckets named `avatars` and `posts` (must match `MINIO_BUCKET` and `MINIO_POST_BUCKET` in `.env`).
 
 
 ### Development mode
@@ -424,6 +424,17 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
   curl -X POST http://localhost:8080/api/posts/<postId>/share \
        -H "Authorization: Bearer <token>"
   ```
+
+- **Update post photo** – `PUT /api/posts/{postId}/photo` (200 OK)
+
+  ```bash
+  curl -X PUT http://localhost:8080/api/posts/<postId>/photo \
+       -H "Authorization: Bearer <token>" \
+       -H "Content-Type: image/jpeg" \
+       --data-binary "@photo.jpg"
+  ```
+
+  Uploaded images are stored in the `posts` bucket in MinIO. Only the bucket name and object key are persisted in the database.
 
 ## Error Codes
 

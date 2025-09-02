@@ -104,7 +104,7 @@ public class ClubMapper {
                 dto.bookmarks = p.getBookmarks();
                 dto.shares = p.getShares();
                 dto.time = p.getTime();
-                dto.photo = p.getPhoto();
+                dto.photo = ObjectStorageService.url(p.getPhotoBucket(), p.getPhotoObject());
 
                 dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
                 dto.commentsList = p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
