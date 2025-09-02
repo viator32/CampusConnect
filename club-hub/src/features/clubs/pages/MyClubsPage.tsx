@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, X, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import ProcessingBox from '../../../components/ProcessingBox';
-import type { Club } from '../types';
+import type { Club, Role } from '../types';
 import { clubService } from '../services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
 
@@ -17,6 +17,12 @@ const formatEnum = (v: string) =>
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
+
+const ROLE_COLORS: Record<Role, string> = {
+  ADMIN: 'bg-red-100 text-red-800',
+  MODERATOR: 'bg-blue-100 text-blue-800',
+  MEMBER: 'bg-green-100 text-green-800',
+};
 
 /**
  * Page listing clubs the user has joined, with the ability to leave
@@ -168,48 +174,58 @@ export default function MyClubsPage() {
       {/* Joined Clubs List */}
       {clubs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {clubs.map(club => (
-            <div
-              key={club.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/clubs/${club.id}`)}
-            >
-              <div className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  {club.avatar ? (
-                    <img
-                      src={club.avatar}
-                      alt={club.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xl">🏷️</div>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{club.name}</h3>
-                    <p className="text-sm text-gray-600">{club.category}</p>
+          {clubs.map(club => {
+            const role = user?.memberships.find(m => m.clubId === club.id)?.role;
+            return (
+              <div
+                key={club.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate(`/clubs/${club.id}`)}
+              >
+                <div className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    {club.avatar ? (
+                      <img
+                        src={club.avatar}
+                        alt={club.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xl">🏷️</div>
+                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{club.name}</h3>
+                      <p className="text-sm text-gray-600">{club.category}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <Users className="w-4 h-4" />
+                      <span className="text-sm">{club.members}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <Users className="w-4 h-4" />
-                    <span className="text-sm">{club.members}</span>
+                  <p className="text-gray-600 text-sm mb-3">{club.description}</p>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">Joined</span>
+                      {role && (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${ROLE_COLORS[role as Role]}`}>
+                          {formatEnum(role)}
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      className="text-sm"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleLeaveClub(club.id);
+                      }}
+                    >
+                      Leave
+                    </Button>
                   </div>
-                </div>
-                <p className="text-gray-600 text-sm mb-3">{club.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-600">Joined</span>
-                  <Button
-                    className="text-sm"
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleLeaveClub(club.id);
-                    }}
-                  >
-                    Leave
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12 text-gray-600">
