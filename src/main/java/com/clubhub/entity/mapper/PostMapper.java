@@ -15,7 +15,6 @@ public class PostMapper {
                 post.setBookmarks(dto.bookmarks);
                 post.setShares(dto.shares);
                 post.setTime(dto.time);
-                post.setPhoto(dto.photo);
                 post.setClub(club);
                 return post;
         }

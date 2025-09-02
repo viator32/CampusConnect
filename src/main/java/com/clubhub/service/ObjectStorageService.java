@@ -40,11 +40,15 @@ public class ObjectStorageService {
     }
 
     public StoredObject upload(String objectNamePrefix, byte[] data, String contentType) {
+        return uploadTo(bucket, objectNamePrefix, data, contentType);
+    }
+
+    public StoredObject uploadTo(String targetBucket, String objectNamePrefix, byte[] data, String contentType) {
         String extension = EXTENSIONS.getOrDefault(contentType, "");
         String objectName = objectNamePrefix + extension;
         try (var stream = new ByteArrayInputStream(data)) {
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(targetBucket).build())) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(targetBucket).build());
 
                 String policy = String.format("""
                         {
@@ -58,20 +62,20 @@ public class ObjectStorageService {
                             }
                           ]
                         }
-                        """, bucket);
+                        """, targetBucket);
 
                 minioClient.setBucketPolicy(SetBucketPolicyArgs.builder()
-                        .bucket(bucket)
+                        .bucket(targetBucket)
                         .config(policy)
                         .build());
             }
             var response = minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucket)
+                    .bucket(targetBucket)
                     .object(objectName)
                     .stream(stream, data.length, -1)
                     .contentType(contentType)
                     .build());
-            return new StoredObject(bucket, objectName, response.etag());
+            return new StoredObject(targetBucket, objectName, response.etag());
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload object", e);
         }

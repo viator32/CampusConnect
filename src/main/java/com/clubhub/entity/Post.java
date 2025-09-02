@@ -50,7 +50,14 @@ public class Post {
 	@Column(name = "time")
 	private LocalDateTime time;
 
-	private String photo;
+        @Column(name = "photo_bucket")
+        private String photoBucket;
+
+        @Column(name = "photo_object")
+        private String photoObject;
+
+        @Column(name = "photo_etag")
+        private String photoEtag;
 
 	@Embedded
 	private Poll poll;

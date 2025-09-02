@@ -7,12 +7,14 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.HeaderParam;
 
 import com.clubhub.entity.dto.PostDTO;
 
@@ -41,7 +43,13 @@ public interface PostResource {
 	@Path("/posts/{postId}/bookmark")
 	PostDTO bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/posts/{postId}/share")
-	PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+        @POST
+        @Path("/posts/{postId}/share")
+        PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+
+        @PUT
+        @Path("/posts/{postId}/photo")
+        @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+        PostDTO updatePhoto(@PathParam("postId") UUID postId, byte[] photo,
+                        @HeaderParam("Content-Type") String contentType, @Context ContainerRequestContext ctx);
 }
