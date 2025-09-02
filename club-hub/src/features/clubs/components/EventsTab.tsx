@@ -279,7 +279,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
             </div>
             <div className="flex justify-end gap-2">
               <Button onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button onClick={handleSave} className="bg-orange-500 text-white px-4 py-2 hover:bg-orange-600">
+              <Button onClick={handleSave} variant="primary">
                 {editingId != null ? 'Save' : 'Add'}
               </Button>
             </div>

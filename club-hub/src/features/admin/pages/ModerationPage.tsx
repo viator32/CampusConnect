@@ -42,7 +42,7 @@ export default function ModerationPage() {
                 Reported by {item.reportedBy} on {item.date} — {item.reason}
               </p>
             </div>
-            <Button onClick={() => resolve(item.id)} className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+            <Button onClick={() => resolve(item.id)} variant="success" size="sm">
               Resolve
             </Button>
           </div>

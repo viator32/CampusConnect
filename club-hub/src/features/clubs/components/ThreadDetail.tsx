@@ -81,7 +81,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
           rows={3}
         />
         <div className="flex justify-end mt-3">
-          <Button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+          <Button variant="primary">
             Post Reply
           </Button>
         </div>
