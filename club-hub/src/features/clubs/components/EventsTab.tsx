@@ -353,12 +353,14 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                   >
                     {isJoined ? 'Joined' : 'Join Event'}
                   </Button>
-                  <Button
-                    onClick={() => downloadCSV(ev)}
-                    className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
-                  >
-                    Download CSV
-                  </Button>
+                  {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
+                    <Button
+                      onClick={() => downloadCSV(ev)}
+                      className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
+                    >
+                      Download CSV
+                    </Button>
+                  )}
                 </div>
               </div>
             );
