@@ -35,6 +35,37 @@ See `src/services/api/ClientApi.ts` for details.
   - `useProfile` fetches and updates the current user profile.
 - No global state library is used; domains keep state co-located and simple.
 
+## Feature Hooks
+
+- `useAuth` (`features/auth/hooks/useAuth.tsx`):
+  - Persists token to `localStorage` via `ClientApi.setAuthToken` and restores on boot.
+  - Refreshes tokens on an interval; clears token and redirects on 401 using `clientApi.onUnauthorized`.
+  - Exposes `login`, `register`, and `logout` helpers.
+
+- `useProfile` (`features/profile/hooks/useProfile.tsx`):
+  - In-memory cache of the authenticated `user` in a React context.
+  - Loads user whenever the auth token changes; exposes `refresh`, `updateUser`, `updateAvatar`.
+  - This is not a persistent cache; it’s reset on logout or reload.
+
+- Feature hooks (example `useClubs`):
+  - Own their local state (`clubs`, `loading`, `error`, `totalPages`).
+  - Implement optimistic updates with rollback. Example join/leave:
+
+```ts
+// Optimistically join
+setClubs(prev => prev.map(c => c.id === id ? { ...c, isJoined: true, members: c.members + 1 } : c));
+clubService.joinClub(id).catch(err => {
+  // Roll back on failure
+  setClubs(prev => prev.map(c => c.id === id ? { ...c, isJoined: false, members: Math.max(0, c.members - 1) } : c));
+  setError(err.message ?? 'Failed to join club');
+});
+```
+
+Guidance:
+- Keep optimistic updates simple and reversible; compute rollbacks from previous state.
+- For multi-entity updates, prefer deriving rollbacks from IDs, not indices.
+- If a mutation changes server-calculated fields, re-fetch after success when needed (e.g., `useProfile().refresh()`).
+
 ## Feature Organization
 
 Each feature folder typically includes:
@@ -59,6 +90,28 @@ This “feature-first” structure keeps related code close together and reduces
 - Auth 401s trigger a token clear and redirect to `/login` via `clientApi.onUnauthorized`.
 - Pages show friendly messages where appropriate (e.g., feed or club loading errors).
 
+### Cross-cutting errors: banners vs. toasts
+
+- Use inline banners for blocking or form-level errors (e.g., Login/Register pages’ `ErrorBanner`).
+  - Accessibility: `role="alert"` and `aria-live="assertive"` for errors; provide a close button with `aria-label`.
+- Use `Toast` (`src/components/Toast.tsx`) for transient operation errors/success (e.g., bookmarking or join failures).
+  - Default auto-dismiss is ~3s; keep messages short.
+- Parse errors consistently:
+
+```ts
+import { ApiError } from '@/services/api';
+
+function toMessage(err: unknown, fallback = 'Something went wrong.') {
+  if (err instanceof ApiError) return err.message?.trim() || `Request failed (HTTP ${err.status})`;
+  if (typeof (err as any)?.message === 'string') return (err as any).message;
+  if (typeof err === 'string') return err;
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+```
+
+Consider a future `GlobalErrorBoundary` for unrecoverable render errors; for now, prefer page-level handling.
+
 ## Build & Environment
 
 - Vite-style env usage via `import.meta.env.VITE_API_URL` (ensures `.../api` suffix).
@@ -73,3 +126,45 @@ To discover:
 - `src/features/auth/hooks/useAuth.tsx` (auth flow)
 - `src/routes/index.tsx` + `src/layouts/AppLayout.tsx` (routing + shell)
 - A feature folder like `src/features/clubs/` (real end-to-end example)
+
+## Routing
+
+- Router: `src/routes/index.tsx` builds routes with React Router v6:
+  - Public: `/login`, `/register` redirect to `/explore` when already authenticated.
+  - Guarded: Most app routes are nested under `<RequireAuth>` (see `features/auth/components/RequireAuth.tsx`).
+  - Dynamic segments: Club pages use `/clubs/:clubId` plus sub-routes for posts/threads.
+
+Example structure:
+
+```tsx
+<Route element={<RequireAuth />}>
+  <Route path="/explore" element={<ExplorePage />} />
+  <Route path="/clubs/:clubId" element={<ClubDetailPage />} />
+  <Route path="/clubs/:clubId/posts/:postId" element={<ClubDetailPage />} />
+  <Route path="/feed" element={<FeedPage />} />
+  <Route path="/admin" element={<AdminPage />} />
+  <Route path="*" element={<Navigate to="/explore" replace />} />
+</Route>
+```
+
+Route guards:
+- Auth guard: `RequireAuth` redirects to `/login` when no token.
+- Role guard (pattern): Wrap admin-only routes with a `RequireRole` that consults `useProfile()`:
+
+```tsx
+function RequireRole({ role }: { role: 'ADMIN' | 'MODERATOR' }) {
+  const { user } = useProfile();
+  if (!user) return <Navigate to="/login" replace />;
+  return user.role === role ? <Outlet /> : <Navigate to="/explore" replace />;
+}
+
+// Usage
+<Route element={<RequireAuth />}>
+  <Route element={<RequireRole role="ADMIN" />}>
+    <Route path="/admin" element={<AdminPage />} />
+    <Route path="/admin/analytics" element={<AnalyticsPage />} />
+  </Route>
+</Route>
+```
+
+For deeper nesting under clubs (e.g., settings, members), add child routes under `/clubs/:clubId/*` and render an outlet in `ClubDetailPage` or a dedicated `ClubLayout`.

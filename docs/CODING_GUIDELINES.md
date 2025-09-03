@@ -45,6 +45,64 @@ Concise conventions to keep the codebase consistent and easy to maintain.
 - Keep presentational components dumb; handle side effects in pages/containers.
 - Prefer accessibility attributes (`aria-*`, labels) on interactive elements.
 
+### Accessibility Examples
+
+- Buttons: include `aria-label` when the visible text is not descriptive or when the button is icon-only.
+
+```tsx
+// Icon-only button
+<button
+  type="button"
+  aria-label="Close dialog"
+  className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+>
+  <X size={16} />
+</button>
+```
+
+- Inputs: prefer a visible `<label>` bound via `htmlFor`. When a visible label is not feasible, use `aria-label`.
+
+```tsx
+<label htmlFor="email" className="block text-sm font-medium">Email</label>
+<input
+  id="email"
+  type="email"
+  required
+  className="mt-1 w-full border rounded px-3 py-2"
+  aria-invalid={!!error}
+  aria-describedby={error ? 'email-error' : undefined}
+/>
+{error && <p id="email-error" className="mt-1 text-xs text-red-600">{error}</p>}
+```
+
+- Toggles: use `role="switch"` and `aria-checked` for custom toggles; ensure keyboard operability.
+
+```tsx
+<button
+  role="switch"
+  aria-checked={enabled}
+  onClick={() => setEnabled(v => !v)}
+  className={`inline-flex h-6 w-11 items-center rounded-full ${enabled ? 'bg-green-600' : 'bg-gray-300'}`}
+>
+  <span className={`h-5 w-5 bg-white rounded-full transform transition ${enabled ? 'translate-x-5' : 'translate-x-1'}`} />
+  <span className="sr-only">Enable notifications</span>
+</button>
+```
+
+- Alerts/banners: errors should use `role="alert"` and live region.
+
+```tsx
+<div role="alert" aria-live="assertive" className="border border-red-200 bg-red-50 text-red-800 p-3 rounded">
+  Could not save changes.
+</div>
+```
+
+- Images/avatars: provide `alt` text; hide decorative images with empty `alt`.
+
+```tsx
+<img src={avatarUrl} alt={`${user.name}'s avatar`} className="h-8 w-8 rounded-full" />
+```
+
 ## Testing
 
 - Unit test pure helpers and mappers where practical.
