@@ -137,10 +137,10 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
 	@Override
-	public PostDTO createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		var user = userService.getUserById(userId);
-		var club = clubService.getClubById(clubId);
+        public PostDTO createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var user = userService.getUserById(userId);
+                var club = clubService.getClubById(clubId);
                 Member membership = club.getMembersList().stream()
                                 .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
                                 .findFirst().orElse(null);
@@ -168,7 +168,21 @@ public class ClubResourceImpl implements ClubResource {
                 }
                 var created = postService.createPost(clubId, post);
                 return ClubMapper.toDTO(created, userId);
-	}
+        }
+
+        @Override
+        public PostDTO createPost(UUID clubId, PostCreateForm form, @Context ContainerRequestContext ctx) {
+                PostDTO dto = new PostDTO();
+                dto.content = form.content;
+                var created = createPost(clubId, dto, ctx);
+                if (form.photo != null && form.photo.length > 0) {
+                        UUID userId = (UUID) ctx.getProperty("userId");
+                        postService.updatePhoto(created.id, userId, form.photo, form.photoContentType);
+                        var post = postService.getPost(created.id);
+                        return ClubMapper.toDTO(post, userId);
+                }
+                return created;
+        }
 
 	@Override
 	public PostDTO updatePost(UUID clubId, UUID postId, PostDTO dto, @Context ContainerRequestContext ctx) {

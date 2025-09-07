@@ -30,7 +30,7 @@ import org.jboss.resteasy.reactive.ResponseStatus;
 
 @Path("/api/clubs")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@Consumes({ MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA })
 public interface ClubResource {
 
         @GET
@@ -80,10 +80,18 @@ public interface ClubResource {
 	@Path("/{clubId}/posts")
 	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-	@POST
-	@Path("/{clubId}/posts")
-	@ResponseStatus(201)
-	PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+        @POST
+        @Path("/{clubId}/posts")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @ResponseStatus(201)
+        PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+
+        @POST
+        @Path("/{clubId}/posts")
+        @Consumes(MediaType.MULTIPART_FORM_DATA)
+        @ResponseStatus(201)
+        PostDTO createPost(@PathParam("clubId") UUID clubId, PostCreateForm form,
+                        @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{clubId}/posts/{postId}")
