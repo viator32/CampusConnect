@@ -175,16 +175,11 @@ public class ClubResourceImpl implements ClubResource {
                 PostDTO dto = new PostDTO();
                 dto.content = form.content;
                 var created = createPost(clubId, dto, ctx);
-                if (form.photo != null) {
-                        try {
-                                byte[] bytes = java.nio.file.Files.readAllBytes(form.photo.uploadedFile());
-                                UUID userId = (UUID) ctx.getProperty("userId");
-                                postService.updatePhoto(created.id, userId, bytes, form.photo.contentType());
-                                var post = postService.getPost(created.id);
-                                return ClubMapper.toDTO(post, userId);
-                        } catch (java.io.IOException e) {
-                                throw new RuntimeException("Failed to read uploaded photo", e);
-                        }
+                if (form.photo != null && form.photo.length > 0) {
+                        UUID userId = (UUID) ctx.getProperty("userId");
+                        postService.updatePhoto(created.id, userId, form.photo, form.photoContentType);
+                        var post = postService.getPost(created.id);
+                        return ClubMapper.toDTO(post, userId);
                 }
                 return created;
         }
