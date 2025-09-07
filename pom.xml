@@ -78,6 +78,12 @@
                         <artifactId>quarkus-rest-jackson</artifactId>
                 </dependency>
 
+                <dependency>
+                        <groupId>io.quarkus</groupId>
+                        <artifactId>quarkus-rest-multipart</artifactId>
+                        <version>${quarkus.platform.version}</version>
+                </dependency>
+
                 <!-- MinIO client -->
                 <dependency>
                         <groupId>io.minio</groupId>
