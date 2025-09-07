@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.MediaType;
 import com.clubhub.entity.Preference;
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
+import com.clubhub.entity.dto.ClubListDTO;
 import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
@@ -33,7 +34,7 @@ import org.jboss.resteasy.reactive.ResponseStatus;
 public interface ClubResource {
 
         @GET
-        List<ClubDTO> getAll(@QueryParam("page") @DefaultValue("0") int page,
+        ClubListDTO getAll(@QueryParam("page") @DefaultValue("0") int page,
                         @QueryParam("size") @DefaultValue("20") int size,
                         @QueryParam("interest") Preference interest,
                         @QueryParam("category") String category,

@@ -15,6 +15,7 @@ import com.clubhub.entity.MemberRole;
 import com.clubhub.entity.Preference;
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
+import com.clubhub.entity.dto.ClubListDTO;
 import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
@@ -46,11 +47,16 @@ public class ClubResourceImpl implements ClubResource {
 	EventService eventService;
 
         @Override
-        public List<ClubDTO> getAll(int page, int size, Preference interest, String category, String name,
+        public ClubListDTO getAll(int page, int size, Preference interest, String category, String name,
                         Integer minMembers, Integer maxMembers) {
-                return clubService.searchClubs(name, category, interest, minMembers, maxMembers, page, size).stream()
+                var clubs = clubService.searchClubs(name, category, interest, minMembers, maxMembers, page, size)
+                                .stream()
                                 .map(ClubMapper::toSummaryDTO)
                                 .toList();
+                ClubListDTO dto = new ClubListDTO();
+                dto.clubs = clubs;
+                dto.totalCount = clubService.getClubCount();
+                return dto;
         }
 
 	@Override
