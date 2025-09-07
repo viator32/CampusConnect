@@ -2,6 +2,9 @@ package com.clubhub.resource;
 
 import java.util.List;
 import java.util.UUID;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -175,14 +178,24 @@ public class ClubResourceImpl implements ClubResource {
                 PostDTO dto = new PostDTO();
                 dto.content = form.content;
                 var created = createPost(clubId, dto, ctx);
-                if (form.photo != null && form.photo.length > 0) {
+               if (form.photo != null && form.photo.length > 0) {
                         UUID userId = (UUID) ctx.getProperty("userId");
-                        postService.updatePhoto(created.id, userId, form.photo, form.photoContentType);
-                        var post = postService.getPost(created.id);
-                        return ClubMapper.toDTO(post, userId);
-                }
-                return created;
-        }
+                        String contentType = form.photoContentType;
+                        if (contentType == null) {
+                                try (var is = new ByteArrayInputStream(form.photo)) {
+                                        contentType = URLConnection.guessContentTypeFromStream(is);
+                                } catch (IOException e) {
+                                        contentType = null;
+                                }
+                        }
+                        if (contentType != null) {
+                                postService.updatePhoto(created.id, userId, form.photo, contentType);
+                                var post = postService.getPost(created.id);
+                                return ClubMapper.toDTO(post, userId);
+                        }
+               }
+               return created;
+       }
 
 	@Override
 	public PostDTO updatePost(UUID clubId, UUID postId, PostDTO dto, @Context ContainerRequestContext ctx) {
