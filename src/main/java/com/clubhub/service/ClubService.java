@@ -23,8 +23,8 @@ import com.clubhub.repository.ClubRepository;
 @ApplicationScoped
 public class ClubService {
 
-	@Inject
-	ClubRepository clubRepository;
+        @Inject
+        ClubRepository clubRepository;
 
     @Inject
     ClubService clubService;
@@ -44,6 +44,10 @@ public class ClubService {
         public List<Club> searchClubs(String name, String category, Preference interest,
                         Integer minMembers, Integer maxMembers, int page, int size) {
                 return clubRepository.search(name, category, interest, minMembers, maxMembers, page, size);
+        }
+
+        public long getClubCount() {
+                return clubRepository.countAll();
         }
 
 	public Club getClubById(UUID id) {

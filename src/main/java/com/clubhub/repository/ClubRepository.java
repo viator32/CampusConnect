@@ -106,11 +106,16 @@ public class ClubRepository {
 		return em.merge(club);
 	}
 
-	public void delete(UUID id) {
-		Club club = findById(id);
-		if (club != null) {
-			em.remove(club);
-		}
-	}
+        public void delete(UUID id) {
+                Club club = findById(id);
+                if (club != null) {
+                        em.remove(club);
+                }
+        }
+
+        public long countAll() {
+                return em.createQuery("SELECT COUNT(c) FROM Club c", Long.class)
+                                .getSingleResult();
+        }
 
 }
