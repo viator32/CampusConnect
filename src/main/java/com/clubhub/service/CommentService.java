@@ -67,7 +67,7 @@ public class CommentService {
         }
         User user = userService.getUserById(userId);
         Comment comment = new Comment();
-        comment.setAuthor(user.getUsername());
+        comment.setAuthor(user);
         comment.setContent(content);
         comment.setLikes(0);
         comment.setTime(LocalDateTime.now().toString());
@@ -140,7 +140,7 @@ public class CommentService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        if (!comment.getAuthor().equals(user.getUsername())) {
+        if (!comment.getAuthor().getId().equals(user.getId())) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
                     .title("Insufficient permissions")
@@ -170,7 +170,7 @@ public class CommentService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        boolean isAuthor = comment.getAuthor().equals(user.getUsername());
+        boolean isAuthor = comment.getAuthor().getId().equals(user.getId());
         if (!isAuthor && membership.getRole() == MemberRole.MEMBER) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
