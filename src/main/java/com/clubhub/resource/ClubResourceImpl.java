@@ -58,7 +58,7 @@ public class ClubResourceImpl implements ClubResource {
                                 .toList();
                 ClubListDTO dto = new ClubListDTO();
                 dto.clubs = clubs;
-                dto.totalCount = clubService.getClubCount();
+                dto.totalCount = clubService.getClubCount(name, category, interest, minMembers, maxMembers);
                 return dto;
         }
 

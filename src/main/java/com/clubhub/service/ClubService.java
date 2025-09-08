@@ -50,6 +50,11 @@ public class ClubService {
                 return clubRepository.countAll();
         }
 
+       public long getClubCount(String name, String category, Preference interest,
+                       Integer minMembers, Integer maxMembers) {
+               return clubRepository.countSearch(name, category, interest, minMembers, maxMembers);
+       }
+
 	public Club getClubById(UUID id) {
 		Club club = clubRepository.findById(id);
 		if (club == null) {
