@@ -8,6 +8,7 @@ import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import Avatar from '../../../components/Avatar';
+import ImageLightbox from '../../../components/ImageLightbox';
 
 /** Props for the dedicated post view. */
 interface PostDetailProps {
@@ -22,6 +23,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   const [postData, setPostData] = useState(post);
   const [commentText, setCommentText] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     clubService
@@ -133,6 +135,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   };
 
   return (
+    <>
     <div className="space-y-6">
       {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
@@ -149,11 +152,19 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         </div>
         <p className="text-gray-700 mb-4">{postData.content}</p>
         {postData.picture && (
-          <img
-            src={postData.picture}
-            alt="attachment"
-            className="mb-4 rounded-lg max-h-[30rem] object-cover w-full"
-          />
+          <button
+            className="w-full rounded-lg bg-gray-100 mb-4 flex items-center justify-center h-72 md:h-96 lg:h-[32rem] overflow-hidden"
+            onClick={() => setLightboxSrc(postData.picture!)}
+            aria-label="Open image"
+          >
+            <img
+              src={postData.picture}
+              alt="attachment"
+              className="max-h-full max-w-full object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
         )}
         <div className="flex items-center gap-6 text-gray-500">
           <button
@@ -228,5 +239,9 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         </div>
       </div>
     </div>
+    {lightboxSrc && (
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+    )}
+  </>
   );
 }

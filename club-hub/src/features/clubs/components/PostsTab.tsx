@@ -19,6 +19,7 @@ import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import { useProfile } from '../../profile/hooks/useProfile';
 import ProcessingBox from '../../../components/ProcessingBox';
+import ImageLightbox from '../../../components/ImageLightbox';
 import Toast from '../../../components/Toast';
 import { ApiError } from '../../../services/api';
 
@@ -48,6 +49,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [posting, setPosting] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   // Role-based permissions: only Admin/Moderator can post in a club
   const { user } = useProfile();
@@ -328,11 +330,19 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             <p className="text-gray-700 mb-2">{post.content}</p>
 
             {post.picture && (
-              <img
-                src={post.picture}
-                alt="attachment"
-                className="mb-2 rounded-lg max-h-60 object-cover w-full"
-              />
+              <button
+                className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
+                onClick={() => setLightboxSrc(post.picture!)}
+                aria-label="Open image"
+              >
+                <img
+                  src={post.picture}
+                  alt="attachment"
+                  className="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
             )}
 
             {post.poll && (
@@ -391,6 +401,9 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         );
       })}
     </div>
+    {lightboxSrc && (
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+    )}
   </>
   );
 }

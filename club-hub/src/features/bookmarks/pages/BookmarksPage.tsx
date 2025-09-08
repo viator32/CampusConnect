@@ -4,6 +4,7 @@ import { bookmarksService } from '../services/BookmarksService';
 import type { BookmarkedPost } from '../types';
 import Toast from '../../../components/Toast';
 import Avatar from '../../../components/Avatar';
+import ImageLightbox from '../../../components/ImageLightbox';
 import { formatDateTime } from '../../../utils/date';
 import { ApiError } from '../../../services/api';
 
@@ -13,6 +14,7 @@ import { ApiError } from '../../../services/api';
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -73,12 +75,19 @@ export default function BookmarksPage() {
               {/* Content */}
               <p className="text-gray-700 mb-3">{post.content}</p>
               {post.picture && (
-                <img
-                  src={post.picture}
-                  alt="attachment"
-                  className="mb-3 rounded-lg max-h-96 object-cover w-full"
-                  loading="lazy"
-                />
+                <button
+                  className="w-full rounded-lg bg-gray-100 mb-3 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
+                  onClick={() => setLightboxSrc(post.picture!)}
+                  aria-label="Open image"
+                >
+                  <img
+                    src={post.picture}
+                    alt="attachment"
+                    className="max-h-full max-w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
               )}
 
               {/* Actions */}
@@ -112,6 +121,9 @@ export default function BookmarksPage() {
         </div>
       )}
       {error && <Toast message={error} onClose={() => setError(null)} />}
+      {lightboxSrc && (
+        <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      )}
     </div>
   );
 }
