@@ -25,12 +25,15 @@ This directory contains the source code for the ClubHub web application built wi
 - Bookmark content and receive notifications
 - Administrative tools for managing club content
 
-## Available Scripts
+## Available Scripts (Vite)
 
 ```bash
-npm start        # run the development server
-npm test         # execute the test suite
-npm run build    # create a production build
+npm run dev      # run the development server (http://localhost:3000)
+npm run build    # create a production build (dist/)
+npm run preview  # preview the production build locally
 ```
+
+Environment:
+- Configure backend URL with `VITE_API_URL` (the client app will append `/api`).
 
 Refer to the repository root README for additional details.

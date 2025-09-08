@@ -211,7 +211,7 @@ Note: 401 triggers token clearing and optional `onUnauthorized` callback before 
 
 ## Feed.getPage payload shapes
 
-`features/feed/services/FeedService.ts#getPage(page, size)` accepts and normalizes several backend response variants into `FeedItem[]`:
+`features/feed/services/FeedService.ts#getPage(offset, limit)` accepts and normalizes several backend response variants into `FeedItem[]`:
 
 - Array form: `FeedItem[]`
 - Page wrapper: `{ content: FeedItem[] }`
@@ -220,7 +220,7 @@ Note: 401 triggers token clearing and optional `onUnauthorized` callback before 
 Example inputs and normalized output:
 
 ```json
-// Array form
+// Array form (server applies offset/limit)
 [
   {"id":"p1","clubId":"42","author":"alice","content":"hi","likes":3,"comments":0,"time":"..."},
   {"type":"event","id":2,"clubId":"42","title":"Meetup","date":"2025-09-01","time":"18:00","location":"Room 101"}
@@ -242,6 +242,29 @@ Example inputs and normalized output:
 
 Normalization rules (see implementation in `FeedService.ts`):
 
-- Posts: derive `clubId/name/image` from `post.club` when present; author from `author.username | author`; `liked` from `liked | likedByUser | likedByMe`; map `commentsList` when provided
+- Posts: derive `clubId/name/image` from `post.club` when present; author from `author.username | author`; `liked` from `liked | likedByUser | likedByMe`; map `commentsList` when provided; map image as `picture` from `picture | photo`
 - Events: ensure a `type: 'event'` discriminator; normalize `clubId/name/image`; capture joined counts from `attendeesCount | attendees.length | joinedCount`; map attendees to `{ id, name, surname, email, avatar }[]`
 - Empty inputs produce an empty array (not an error), enabling empty-feed UIs without retries
+
+Pagination contract:
+
+- Client requests: `GET /api/feed?offset=<offset>&limit=<limit>`.
+- Infinite scroll advances `offset += limit` per page; if the response length is `< limit`, the client stops requesting more.
+
+Author shape:
+
+- Each comment post and thread includes a structured `author` object:
+  `{ id: string; username: string; avatar?: string }`.
+
+Post creation and images:
+
+- Creating a post supports two content types at the same endpoint `POST /api/clubs/{clubId}/posts`:
+  - JSON body when no image is attached: `{ content: string }`.
+  - Multipart form when an image is attached: `FormData` fields
+    - `content`: string
+    - `picture`: single file (image/\*, max 100MB).
+
+Likes API:
+
+- Posts: `POST /api/posts/{postId}/like`, `DELETE /api/posts/{postId}/like` (unlike).
+- Comments: `POST /api/comments/{commentId}/like`, `DELETE /api/comments/{commentId}/like` (unlike).

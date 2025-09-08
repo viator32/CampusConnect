@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, useEffect, useRef } from 'react';
-import EmojiPicker from 'emoji-picker-react';
+// Lazy-load heavy emoji picker to reduce initial bundle size
+const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
 import { Club, Post } from '../types';
 import {
   MessageCircle,
@@ -18,6 +19,8 @@ import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import { useProfile } from '../../profile/hooks/useProfile';
 import ProcessingBox from '../../../components/ProcessingBox';
+import Toast from '../../../components/Toast';
+import { ApiError } from '../../../services/api';
 
 /** Props for the club Posts tab. */
 interface PostsTabProps {
@@ -44,6 +47,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Role-based permissions: only Admin/Moderator can post in a club
   const { user } = useProfile();
@@ -62,12 +66,22 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   }, []);
 
   const toggleBookmark = async (post: Post) => {
-    if (bookmarks.includes(post.id)) {
-      await bookmarksService.remove(post.id);
-      setBookmarks(b => b.filter(x => x !== post.id));
-    } else {
-      await bookmarksService.add(post.id);
-      setBookmarks(b => [...b, post.id]);
+    const isBookmarked = bookmarks.includes(post.id);
+    // optimistic update
+    if (isBookmarked) setBookmarks(b => b.filter(x => x !== post.id));
+    else setBookmarks(b => [...b, post.id]);
+    try {
+      if (isBookmarked) await bookmarksService.remove(post.id);
+      else await bookmarksService.add(post.id);
+    } catch (e) {
+      // revert
+      setBookmarks(prev => (isBookmarked ? [...prev, post.id] : prev.filter(x => x !== post.id)));
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to modify bookmarks.');
+      } else {
+        setActionError('Failed to update bookmark');
+      }
     }
   };
 
@@ -120,8 +134,13 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       setQuestion('');
       setOptions(['', '']);
       onSelectPost(created);
-    } catch {
-      setError('Failed to create post');
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setError('You do not have permission to create posts in this club.');
+      } else {
+        setError('Failed to create post');
+      }
     } finally {
       setPosting(false);
     }
@@ -165,7 +184,11 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     try {
       if (isLiked) await clubService.unlikePost(post.id);
       else await clubService.likePost(post.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like posts.');
+      }
       onClubUpdate({
         ...club,
         posts: club.posts.map(p =>
@@ -183,6 +206,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   return (
     <>
       {posting && <ProcessingBox message="Creating post..." />}
+      {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <div className="space-y-4">
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
@@ -252,13 +276,15 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             </button>
             {emojiOpen && (
               <div className="absolute z-10 mt-2">
-                <EmojiPicker
-                  width={300}
-                  height={300}
-                  skinTonesDisabled
-                  previewConfig={{ showPreview: false }}
-                  onEmojiClick={(emojiData) => insertEmoji(emojiData.emoji)}
-                />
+                <React.Suspense fallback={<div className="p-2 text-sm text-gray-500">Loading emojis…</div>}>
+                  <EmojiPicker
+                    width={300}
+                    height={300}
+                    skinTonesDisabled
+                    previewConfig={{ showPreview: false }}
+                    onEmojiClick={(emojiData: any) => insertEmoji(emojiData.emoji)}
+                  />
+                </React.Suspense>
               </div>
             )}
           </div>

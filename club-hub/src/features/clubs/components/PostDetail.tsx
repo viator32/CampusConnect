@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Post, Comment } from '../types';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import Button from '../../../components/Button';
+import Toast from '../../../components/Toast';
+import { ApiError } from '../../../services/api';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
@@ -19,6 +21,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   const [showShare, setShowShare] = useState(false);
   const [postData, setPostData] = useState(post);
   const [commentText, setCommentText] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     clubService
@@ -49,7 +52,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       if (isLiked) await clubService.unlikePost(postData.id);
       else await clubService.likePost(postData.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like posts.');
+      }
       setPostData(p => {
         const next = {
           ...p,
@@ -82,7 +89,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       if (prevLiked) await clubService.unlikeComment(commentId);
       else await clubService.likeComment(commentId);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like comments.');
+      }
       // Revert on error
       setPostData(p => ({
         ...p,
@@ -99,8 +110,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     if (!commentText.trim()) return;
     try {
       await clubService.addComment(postData.id, commentText);
-    } catch {
-      // ignore backend parse errors
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to comment.');
+      }
     }
 
     try {
@@ -120,6 +134,7 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
 
   return (
     <div className="space-y-6">
+      {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
         ← Back to Posts
       </button>

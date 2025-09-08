@@ -106,7 +106,9 @@ const [activeTab, setActiveTab] = useState<"details" | "settings">("details");
 - Keep presentational components stateless; handle effects in pages/hooks.
 - Keep TSDoc on exported functions and complex types.
 - Use `FormData` only when needed; JSON bodies must be stringified manually.
-- For file uploads, send raw blobs with `Content-Type: application/octet-stream`.
+- For file uploads:
+  - Avatars: send raw blobs with `Content-Type: application/octet-stream`.
+  - Post images: use multipart `FormData` with a single field `picture` (image/*, max 100MB).
 
 ## 7) Testing and docs
 

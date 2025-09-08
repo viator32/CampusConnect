@@ -1,9 +1,9 @@
-// src/features/feed/pages/FeedPage.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, Bookmark, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
+import { ApiError } from '../../../services/api';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
@@ -122,6 +122,7 @@ export default function FeedPage() {
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const visibleItems = items.filter(item =>
     activeTab === 'events' ? isEvent(item) : !isEvent(item)
@@ -200,7 +201,11 @@ export default function FeedPage() {
     try {
       if (isLiked) await clubService.unlikePost(post.id);
       else await clubService.likePost(post.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like posts.');
+      }
       setItems(prev =>
         prev.map(item =>
           isEvent(item)
@@ -245,7 +250,11 @@ export default function FeedPage() {
     try {
       // Use the raw event id as provided by the feed (string or number)
       await clubService.joinEvent(ev.clubId, ev.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to join events.');
+      }
       setJoinedEvents(prev => {
         const next = new Set(prev);
         next.delete(key);
@@ -307,7 +316,10 @@ export default function FeedPage() {
         <main className="flex-1 space-y-4">
           {visibleItems.length === 0 && !loadingMore && (
             <p className="text-center text-gray-500">No items to show.</p>
-          )}
+      )}
+      {actionError && (
+        <Toast message={actionError} onClose={() => setActionError(null)} />
+      )}
           <div className="space-y-4">
             {visibleItems.map((item, index) => {
             if (isEvent(item)) {

@@ -5,6 +5,7 @@ import type { BookmarkedPost } from '../types';
 import Toast from '../../../components/Toast';
 import Avatar from '../../../components/Avatar';
 import { formatDateTime } from '../../../utils/date';
+import { ApiError } from '../../../services/api';
 
 /**
  * Page listing the user's bookmarked posts with basic actions.
@@ -30,9 +31,14 @@ export default function BookmarksPage() {
     setBookmarks(prev => prev.filter(b => b.id !== id));
     try {
       await bookmarksService.remove(id);
-    } catch (err) {
+    } catch (e) {
       setBookmarks(prev);
-      setError('Failed to remove bookmark');
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setError('You do not have permission to modify bookmarks.');
+      } else {
+        setError('Failed to remove bookmark');
+      }
     }
   };
 
