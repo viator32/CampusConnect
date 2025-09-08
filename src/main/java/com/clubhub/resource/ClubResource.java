@@ -76,9 +76,12 @@ public interface ClubResource {
 	ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
 			@Context ContainerRequestContext ctx);
 
-	@GET
-	@Path("/{clubId}/posts")
-	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+        @GET
+        @Path("/{clubId}/posts")
+        List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId,
+                        @QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("10") int limit,
+                        @Context ContainerRequestContext ctx);
 
         @POST
         @Path("/{clubId}/posts")
@@ -103,9 +106,12 @@ public interface ClubResource {
 	ActionResponseDTO deletePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId,
 			@Context ContainerRequestContext ctx);
 
-	@GET
-	@Path("/{clubId}/events")
-	List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
+        @GET
+        @Path("/{clubId}/events")
+        List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId,
+                        @QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("10") int limit,
+                        @Context ContainerRequestContext ctx);
 
 	@GET
 	@Path("/{clubId}/events/{eventId}")

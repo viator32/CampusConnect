@@ -44,6 +44,15 @@ public class EventRepository {
                 .getResultList();
     }
 
+    public List<Event> findByClub(UUID clubId, int offset, int limit) {
+        String jpql = "SELECT e FROM Event e WHERE e.club.id = :clubId ORDER BY e.createdAt DESC";
+        return em.createQuery(jpql, Event.class)
+                .setParameter("clubId", clubId)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public long countEventsAttendedByUser(UUID userId) {
         return em.createQuery(
                 "SELECT COUNT(e) FROM Event e JOIN e.attendees u WHERE u.id = :userId",

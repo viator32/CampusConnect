@@ -122,22 +122,24 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
 	@Override
-	public List<PostDTO> getClubPosts(UUID clubId, @Context ContainerRequestContext ctx) {
-		var club = clubService.getClubById(clubId);
-		UUID userId = (UUID) ctx.getProperty("userId");
-		boolean isMember = club.getMembersList().stream()
-				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-		if (!isMember) {
-			throw new ValidationException(ErrorPayload.builder()
-					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-					.title("User not a member")
-					.details("User must be a member of the club to view posts.")
-					.messageParameter("clubId", clubId.toString())
-					.messageParameter("userId", userId.toString())
-					.build());
-		}
-                return club.getPosts().stream().map(p -> ClubMapper.toDTO(p, userId)).toList();
-	}
+        public List<PostDTO> getClubPosts(UUID clubId, int offset, int limit, @Context ContainerRequestContext ctx) {
+                var club = clubService.getClubById(clubId);
+                UUID userId = (UUID) ctx.getProperty("userId");
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to view posts.")
+                                        .messageParameter("clubId", clubId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                return postService.getPostsForClub(clubId, offset, limit).stream()
+                                .map(p -> ClubMapper.toDTO(p, userId))
+                                .toList();
+        }
 
 	@Override
         public PostDTO createPost(UUID clubId, PostDTO dto, @Context ContainerRequestContext ctx) {
@@ -213,22 +215,24 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
 	@Override
-	public List<EventDTO> getClubEvents(UUID clubId, @Context ContainerRequestContext ctx) {
-		var club = clubService.getClubById(clubId);
-		UUID userId = (UUID) ctx.getProperty("userId");
-		boolean isMember = club.getMembersList().stream()
-				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-		if (!isMember) {
-			throw new ValidationException(ErrorPayload.builder()
-					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-					.title("User not a member")
-					.details("User must be a member of the club to view events.")
-					.messageParameter("clubId", clubId.toString())
-					.messageParameter("userId", userId.toString())
-					.build());
-		}
-		return club.getEvents().stream().map(EventMapper::toDTO).toList();
-	}
+        public List<EventDTO> getClubEvents(UUID clubId, int offset, int limit, @Context ContainerRequestContext ctx) {
+                var club = clubService.getClubById(clubId);
+                UUID userId = (UUID) ctx.getProperty("userId");
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to view events.")
+                                        .messageParameter("clubId", clubId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                return eventService.getEventsForClub(clubId, offset, limit).stream()
+                                .map(EventMapper::toDTO)
+                                .toList();
+        }
 
 	@Override
 	public EventDTO getEvent(UUID clubId, UUID eventId, @Context ContainerRequestContext ctx) {
