@@ -30,14 +30,14 @@ public final class ClubHubErrorCode {
 	/** Invalid credentials provided. */
 	public static final String INVALID_CREDENTIALS = "CLB-00-0000-0006";
 
-	/** Comment not found. */
-	public static final String COMMENT_NOT_FOUND = "CLB-00-0000-0007";
+        /** Comment not found. */
+        public static final String COMMENT_NOT_FOUND = "CLB-00-0000-0007";
 
-	/** Event not found. */
-	public static final String EVENT_NOT_FOUND = "CLB-00-0000-0008";
+        /** Event not found. */
+        public static final String EVENT_NOT_FOUND = "CLB-00-0000-0008";
 
-	/** User already exists. */
-	public static final String USER_ALREADY_EXISTS = "CLB-00-0000-0009";
+        /** User already exists. */
+        public static final String USER_ALREADY_EXISTS = "CLB-00-0000-0009";
 
 	/** Member not found. */
 	public static final String MEMBER_NOT_FOUND = "CLB-00-0000-0010";
@@ -53,4 +53,7 @@ public final class ClubHubErrorCode {
 
         /** Invalid or expired token. */
         public static final String INVALID_TOKEN = "CLB-00-0000-0014";
+
+        /** Thread not found. */
+        public static final String THREAD_NOT_FOUND = "CLB-00-0000-0015";
 }
