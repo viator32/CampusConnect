@@ -21,9 +21,9 @@ ClubHub is a social student hub for organizations and interest groups. Members c
    ```
 3. Configure environment (optional):
    - `VITE_API_URL` to point to your backend root (client app appends `/api`)
-4. Start the development server:
+4. Start the development server (Vite on port 3000):
    ```bash
-   npm start
+   npm run dev
    ```
 5. Open http://localhost:3000
 
@@ -56,4 +56,4 @@ Build the production image and run it with Nginx serving the static app.
 
 Notes:
 - The client defaults its API root to `http://localhost:8080` (see `club-hub/src/services/api/ClientApi.ts`). Make sure your backend is reachable there (serving `/api`).
-- If your backend lives elsewhere, update the API base resolution in the client and rebuild the image.
+- If your backend lives elsewhere, pass a build arg for Vite: `--build-arg VITE_API_URL=https://your.api` and rebuild the image.
