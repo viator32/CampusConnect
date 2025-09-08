@@ -151,9 +151,9 @@ public class PostService {
         postRepository.update(p);
     }
 
-    public List<Post> getFeedForUser(UUID userId, int page, int size) {
+    public List<Post> getFeedForUser(UUID userId, int offset, int limit) {
         userService.getUserById(userId);
-        return postRepository.findFeedForUser(userId, page, size);
+        return postRepository.findFeedForUser(userId, offset, limit);
     }
 
     public List<Post> getBookmarkedPosts(UUID userId) {
