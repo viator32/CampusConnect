@@ -41,17 +41,26 @@ export default function FeedPage() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const inFlightRef = useRef(false); // prevents duplicate concurrent loads
+  const hasMoreRef = useRef(true);
+  const offsetRef = useRef(0);
+  const loaderElRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
+  useEffect(() => { offsetRef.current = offset; }, [offset]);
   const [activeTab, setActiveTab] = useState<'events' | 'posts'>('posts');
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
+    if (inFlightRef.current || !hasMoreRef.current) return;
+    inFlightRef.current = true;
     setLoadingMore(true);
     setError(null);
     try {
-      const next = await feedService.getPage(page, 10);
+      const limit = 10;
+      const currentOffset = offsetRef.current;
+      const next = await feedService.getPage(currentOffset, limit);
       setItems(prev => {
         const existing = new Set(
           prev.map(i => (isEvent(i) ? `event-${i.id}` : (i as FeedPost).id))
@@ -66,19 +75,19 @@ export default function FeedPage() {
         });
         return [...prev, ...filtered];
       });
-      setPage(p => p + 1);
-      if (next.length < 10) setHasMore(false);
+      // Step the offset by limit to avoid overlap
+      setOffset(o => o + limit);
+      if (next.length < limit) setHasMore(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load feed';
       setError(message);
-      // Stop trying to load more pages if an error occurs to avoid infinite retry
-      // loops, which can happen for users without any joined clubs.
       setHasMore(false);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      inFlightRef.current = false;
     }
-  }, [page, hasMore, loadingMore]);
+  }, []);
 
   useEffect(() => {
     loadMore();
@@ -86,19 +95,28 @@ export default function FeedPage() {
   }, []);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const loaderRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (loadingMore) return;
-      if (observer.current) observer.current.disconnect();
+  const loaderRef = useCallback((node: HTMLDivElement | null) => {
+    loaderElRef.current = node;
+    if (!node) return;
+    if (!observer.current) {
       observer.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && hasMore) {
+        const entry = entries[0];
+        if (entry.isIntersecting && !inFlightRef.current && hasMoreRef.current) {
+          // Temporarily unobserve to prevent rapid re-fires while loading
+          if (loaderElRef.current) observer.current?.unobserve(loaderElRef.current);
           loadMore();
         }
       });
-      if (node) observer.current.observe(node);
-    },
-    [loadingMore, hasMore, loadMore]
-  );
+    }
+    observer.current.observe(node);
+  }, [loadMore]);
+
+  // Re-observe loader after each load completes if more data is available
+  useEffect(() => {
+    if (!loadingMore && hasMoreRef.current && loaderElRef.current) {
+      observer.current?.observe(loaderElRef.current);
+    }
+  }, [loadingMore, hasMore]);
 
   const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
   const [sharePostId, setSharePostId] = useState<string | null>(null);
@@ -110,7 +128,7 @@ export default function FeedPage() {
   );
 
   useEffect(() => {
-    if (!loading && visibleItems.length === 0 && hasMore && !loadingMore) {
+    if (!loading && visibleItems.length === 0 && hasMoreRef.current && !loadingMore && !inFlightRef.current) {
       loadMore();
     }
     }, [activeTab, visibleItems.length, hasMore, loadingMore, loadMore, loading]);
@@ -433,6 +451,9 @@ export default function FeedPage() {
           <div className="flex justify-center py-4">
             <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
           </div>
+        )}
+        {!loadingMore && !hasMore && (
+          <div className="text-center text-gray-500 py-4">No more new feeds</div>
         )}
       </main>
         {bookmarkError && (

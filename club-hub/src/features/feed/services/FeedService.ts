@@ -31,12 +31,12 @@ export class FeedService extends BaseService {
    * Fetch a page of the global feed.
    * Accepts multiple possible backend payload shapes and normalizes to an array.
    */
-  async getPage(page = 0, size = 10): Promise<FeedItem[]> {
+  async getPage(offset = 0, limit = 10): Promise<FeedItem[]> {
     const res = await this.api.request<
       | FeedItem[]
       | { content?: FeedItem[] }
       | { posts?: any[]; events?: any[] }
-    >(`/feed?page=${page}&size=${size}`);
+    >(`/feed?offset=${offset}&limit=${limit}`);
 
     if (Array.isArray(res)) return res;
 
