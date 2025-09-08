@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, Bookmark, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
@@ -37,6 +37,7 @@ const isEvent = (item: FeedItem): item is EventFeedItem =>
  */
 export default function FeedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useProfile();
 
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -396,7 +397,11 @@ export default function FeedPage() {
               <div
                 key={`${post.clubId ?? 'unknown'}-${post.id}-${index}`}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
-                onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
+                onClick={() =>
+                  navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                    state: { from: location.pathname },
+                  })
+                }
               >
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar avatar={post.authorAvatar} size={32} />
@@ -444,7 +449,9 @@ export default function FeedPage() {
                     className="flex items-center gap-1 hover:text-orange-500"
                     onClick={e => {
                       e.stopPropagation();
-                      navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                      navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                        state: { from: location.pathname },
+                      });
                     }}
                   >
                     <MessageCircle className="w-4 h-4" />

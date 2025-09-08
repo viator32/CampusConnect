@@ -18,10 +18,11 @@ interface PostDetailProps {
   onBack: () => void;
   onPostUpdate?: (p: Post) => void;
   onPostDelete?: (id: string) => void;
+  backLabel?: string;
 }
 
 /** Detailed post view with comments, likes, and sharing. */
-export default function PostDetail({ post, clubId, currentUserRole, onBack, onPostUpdate, onPostDelete }: PostDetailProps) {
+export default function PostDetail({ post, clubId, currentUserRole, onBack, onPostUpdate, onPostDelete, backLabel }: PostDetailProps) {
   const [showShare, setShowShare] = useState(false);
   const [postData, setPostData] = useState(post);
   const [commentText, setCommentText] = useState('');
@@ -213,7 +214,7 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
     <div className="space-y-6">
       {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
-        ← Back to Posts
+        ← {backLabel ?? 'Back'}
       </button>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

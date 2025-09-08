@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Users,
   BookOpen,
@@ -50,6 +50,7 @@ const formatEnum = (v: string) =>
 export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, refresh } = useProfile();
 
@@ -117,7 +118,18 @@ export default function ClubDetailPage() {
           post={post}
           clubId={club.id}
           currentUserRole={userRole}
-          onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
+          onBack={() => {
+            const from = (location.state as any)?.from as string | undefined;
+            if (from && typeof from === 'string') navigate(from);
+            else navigate(`/clubs/${clubId}?tab=posts`);
+          }}
+          backLabel={((): string => {
+            const from = (location.state as any)?.from as string | undefined;
+            if (!from) return 'Back to Posts';
+            if (from.includes('/feed')) return 'Back to Feed';
+            if (from.includes('/bookmarks')) return 'Back to Bookmarks';
+            return 'Back';
+          })()}
           onPostUpdate={updated =>
             setClub(c =>
               c
