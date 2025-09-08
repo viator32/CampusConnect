@@ -313,110 +313,108 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       {posting && <ProcessingBox message="Creating post..." />}
       {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <div className="space-y-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
-        <textarea
-          placeholder="What's on your mind?"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
-          rows={3}
-          value={text}
-          onChange={e => setText(e.target.value)}
-          ref={textareaRef}
-        />
-
-        {isPoll && (
-          <div className="mt-2 space-y-2">
-            <input
-              type="text"
-              placeholder="Poll question"
-              className="w-full border border-gray-300 rounded-lg px-3 py-1"
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-            />
-            {options.map((opt,i) => (
-              <input
-                key={i}
-                type="text"
-                placeholder={`Option ${i+1}`}
-                className="w-full border border-gray-300 rounded-lg px-3 py-1"
-                value={opt}
-                onChange={e => changeOpt(i, e.target.value)}
+        {canPost && (
+          <>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
+              <textarea
+                placeholder="What's on your mind?"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
+                rows={3}
+                value={text}
+                onChange={e => setText(e.target.value)}
+                ref={textareaRef}
               />
-            ))}
-            <button
-              type="button"
-              onClick={addPollOption}
-              className="text-blue-500 text-sm"
-            >
-              + Add option
-            </button>
-          </div>
-        )}
 
-        {canPost ? (
-        <div className="flex items-center gap-4 mt-2 relative">
-          <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
-            <PhotoIcon className="w-5 h-5 text-gray-500" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handlePhoto}
-            />
-          </label>
-          <button
-            type="button"
-            onClick={() => setIsPoll(p => !p)}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <BarChart2 className="w-5 h-5 text-gray-500" />
-          </button>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setEmojiOpen(o => !o)}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <Smile className="w-5 h-5 text-gray-500" />
-            </button>
-            {emojiOpen && (
-              <div className="absolute z-10 mt-2">
-                <React.Suspense fallback={<div className="p-2 text-sm text-gray-500">Loading emojis…</div>}>
-                  <EmojiPicker
-                    width={300}
-                    height={300}
-                    skinTonesDisabled
-                    previewConfig={{ showPreview: false }}
-                    onEmojiClick={(emojiData: any) => insertEmoji(emojiData.emoji)}
+              {isPoll && (
+                <div className="mt-2 space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Poll question"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-1"
+                    value={question}
+                    onChange={e => setQuestion(e.target.value)}
                   />
-                </React.Suspense>
+                  {options.map((opt,i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      placeholder={`Option ${i+1}`}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-1"
+                      value={opt}
+                      onChange={e => changeOpt(i, e.target.value)}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addPollOption}
+                    className="text-blue-500 text-sm"
+                  >
+                    + Add option
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-4 mt-2 relative">
+                <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
+                  <PhotoIcon className="w-5 h-5 text-gray-500" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhoto}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsPoll(p => !p)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <BarChart2 className="w-5 h-5 text-gray-500" />
+                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setEmojiOpen(o => !o)}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <Smile className="w-5 h-5 text-gray-500" />
+                  </button>
+                  {emojiOpen && (
+                    <div className="absolute z-10 mt-2">
+                      <React.Suspense fallback={<div className="p-2 text-sm text-gray-500">Loading emojis…</div>}>
+                        <EmojiPicker
+                          width={300}
+                          height={300}
+                          skinTonesDisabled
+                          previewConfig={{ showPreview: false }}
+                          onEmojiClick={(emojiData: any) => insertEmoji(emojiData.emoji)}
+                        />
+                      </React.Suspense>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  onClick={handlePost}
+                  className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                >
+                  Post
+                </Button>
+              </div>
+            </div>
+
+            {photoPreview && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-2">Image preview</p>
+                <img
+                  src={photoPreview}
+                  alt="preview"
+                  className="rounded-lg max-h-72 object-cover w-full"
+                />
               </div>
             )}
-          </div>
-          <Button
-            onClick={handlePost}
-            className="ml-auto bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
-          >
-            Post
-          </Button>
-        </div>
-        ) : (
-          <div className="text-sm text-gray-500 mt-2">
-            Only moderators and admins can create posts in this club.
-          </div>
+          </>
         )}
-      </div>
-
-      {photoPreview && (
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Image preview</p>
-          <img
-            src={photoPreview}
-            alt="preview"
-            className="rounded-lg max-h-72 object-cover w-full"
-          />
-        </div>
-      )}
 
       {club.posts.map(post => {
         const isBookmarked = bookmarks.includes(post.id);
