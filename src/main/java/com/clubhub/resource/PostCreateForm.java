@@ -3,9 +3,9 @@ package com.clubhub.resource;
 import org.jboss.resteasy.reactive.RestForm;
 
 /**
- * Form data for creating a post with optional photo.
- * The <code>photo</code> field contains the raw bytes and
- * <code>photoContentType</code> provides its MIME type.
+ * Form data for creating a post with optional picture.
+ * The <code>picture</code> field contains the raw bytes and
+ * <code>pictureContentType</code> provides its MIME type.
  */
 public class PostCreateForm {
 
@@ -13,9 +13,9 @@ public class PostCreateForm {
     public String content;
 
     @RestForm
-    public byte[] photo;
+    public byte[] picture;
 
     @RestForm
-    public String photoContentType;
+    public String pictureContentType;
 }
 
