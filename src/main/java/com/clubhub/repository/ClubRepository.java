@@ -80,6 +80,47 @@ public class ClubRepository {
                 return query.getResultList();
         }
 
+        public long countSearch(String name, String category, Preference interest,
+                        Integer minMembers, Integer maxMembers) {
+                StringBuilder sb = new StringBuilder("SELECT COUNT(c) FROM Club c WHERE 1=1");
+
+                if (name != null) {
+                        sb.append(" AND LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))");
+                }
+                if (category != null) {
+                        sb.append(" AND c.category = :category");
+                }
+                if (interest != null) {
+                        sb.append(" AND c.interest = :interest");
+                }
+                if (minMembers != null) {
+                        sb.append(" AND c.members >= :minMembers");
+                }
+                if (maxMembers != null) {
+                        sb.append(" AND c.members <= :maxMembers");
+                }
+
+                var query = em.createQuery(sb.toString(), Long.class);
+
+                if (name != null) {
+                        query.setParameter("name", name);
+                }
+                if (category != null) {
+                        query.setParameter("category", category);
+                }
+                if (interest != null) {
+                        query.setParameter("interest", interest);
+                }
+                if (minMembers != null) {
+                        query.setParameter("minMembers", minMembers);
+                }
+                if (maxMembers != null) {
+                        query.setParameter("maxMembers", maxMembers);
+                }
+
+                return query.getSingleResult();
+        }
+
         public Club findById(UUID id) {
                 try {
                         return em.createQuery("""
