@@ -137,7 +137,7 @@ export default function ExplorePage() {
                   {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {showFilters && (
-                  <div className="absolute top-full left-1/2 mt-2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
+                  <div className="absolute top-full left-1/2 mt-2 -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4 w-[760px] max-w-[calc(100vw-2rem)]">
                     <div className="flex flex-col lg:flex-row gap-8">
                       {/* Category */}
                       <div className="flex-1 min-w-[140px]">
@@ -204,11 +204,8 @@ export default function ExplorePage() {
                             className="w-24 px-3 py-2 text-sm border rounded-lg"
                           />
                         </div>
-                      </div>
-
-                      {/* Sort */}
-                      <div className="flex-1 min-w-[140px]">
-                        <div className="mb-1">
+                          {/* Sort */}
+                        <div className="mb-1 mt-1">
                           <h3 className="font-medium text-sm">Sort By</h3>
                         </div>
                         <select
@@ -222,7 +219,9 @@ export default function ExplorePage() {
                           <option value="name_desc">Name (Z → A)</option>
                         </select>
                       </div>
-                    </div>
+                      </div>
+
+                    
 
                     {/* Clear All on its own line */}
                     <div className="mt-4">
