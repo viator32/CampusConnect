@@ -226,10 +226,7 @@ export default function ExplorePage() {
 
                     {/* Clear All on its own line */}
                     <div className="mt-4">
-                      <Button
-                        onClick={resetFilters}
-                        className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
-                      >
+                      <Button onClick={resetFilters} variant="primary">
                         Clear All
                       </Button>
                     </div>

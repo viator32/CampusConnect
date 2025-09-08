@@ -188,7 +188,7 @@ export class ClubService extends BaseService {
   }
 
   /** Join a club event. */
-  async joinEvent(clubId: string, eventId: number): Promise<void> {
+  async joinEvent(clubId: string, eventId: string | number): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/events/${eventId}/join`, { method: 'POST' });
   }
 

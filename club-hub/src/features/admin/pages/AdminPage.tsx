@@ -55,10 +55,10 @@ export default function AdminPage() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => approveClub(req.id)} className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                <Button onClick={() => approveClub(req.id)} variant="success" size="sm">
                   Approve
                 </Button>
-                <Button onClick={() => rejectClub(req.id)} className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                <Button onClick={() => rejectClub(req.id)} variant="danger" size="sm">
                   Reject
                 </Button>
               </div>
@@ -82,10 +82,10 @@ export default function AdminPage() {
                 <p className="text-sm text-gray-500">{req.reason} • {req.date}</p>
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => approveExt(req.id)} className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                <Button onClick={() => approveExt(req.id)} variant="success" size="sm">
                   Approve
                 </Button>
-                <Button onClick={() => rejectExt(req.id)} className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                <Button onClick={() => rejectExt(req.id)} variant="danger" size="sm">
                   Reject
                 </Button>
               </div>
@@ -101,26 +101,17 @@ export default function AdminPage() {
         <h2 className="text-xl font-semibold text-gray-800">Other Tools</h2>
         <ul className="space-y-2">
           <li>
-            <Button
-              onClick={() => navigate('/admin/users')}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-            >
+            <Button onClick={() => navigate('/admin/users')} variant="blue">
               Manage Users
             </Button>
           </li>
           <li>
-            <Button
-              onClick={() => navigate('/admin/analytics')}
-              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
-            >
+            <Button onClick={() => navigate('/admin/analytics')} variant="purple">
               View Platform Analytics
             </Button>
           </li>
           <li>
-            <Button
-              onClick={() => navigate('/admin/moderation')}
-              className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-            >
+            <Button onClick={() => navigate('/admin/moderation')} variant="yellow">
               Content Moderation
             </Button>
           </li>

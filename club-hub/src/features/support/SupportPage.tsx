@@ -73,7 +73,7 @@ export default function SupportPage() {
               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-500 resize-none"
             />
           </div>
-          <Button type="submit" disabled className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed">
+          <Button type="submit" disabled variant="neutral">
             Available soon
           </Button>
         </form>

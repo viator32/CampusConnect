@@ -279,7 +279,7 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
             </div>
             <div className="flex justify-end gap-2">
               <Button onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button onClick={handleSave} className="bg-orange-500 text-white px-4 py-2 hover:bg-orange-600">
+              <Button onClick={handleSave} variant="primary">
                 {editingId != null ? 'Save' : 'Add'}
               </Button>
             </div>
@@ -353,12 +353,14 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                   >
                     {isJoined ? 'Joined' : 'Join Event'}
                   </Button>
-                  <Button
-                    onClick={() => downloadCSV(ev)}
-                    className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
-                  >
-                    Download CSV
-                  </Button>
+                  {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
+                    <Button
+                      onClick={() => downloadCSV(ev)}
+                      className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
+                    >
+                      Download CSV
+                    </Button>
+                  )}
                 </div>
               </div>
             );
