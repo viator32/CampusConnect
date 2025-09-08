@@ -96,7 +96,7 @@ CREATE TABLE post_bookmarks (
 
 CREATE TABLE comment (
     id        UUID PRIMARY KEY,
-    author    VARCHAR,
+    author_id    UUID REFERENCES users (id) ON DELETE SET NULL,
     content   TEXT,
     time      VARCHAR,
     likes     INTEGER,
