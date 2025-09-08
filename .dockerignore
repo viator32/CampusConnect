@@ -1,0 +1,15 @@
+# Docker context exclusions
+**/.git
+**/.DS_Store
+**/node_modules
+**/dist
+**/build
+**/.cache
+**/coverage
+**/.env*
+
+# Editor/OS junk
+.idea
+.vscode
+Thumbs.db
+
