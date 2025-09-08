@@ -134,7 +134,7 @@ public class ClubMapper {
         public static CommentDTO toDTO(Comment c, UUID userId) {
                 CommentDTO dto = new CommentDTO();
                 dto.id = c.getId();
-                dto.author = c.getAuthor();
+                dto.author = c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null;
                 dto.content = c.getContent();
                 dto.time = c.getTime();
                 dto.likes = c.getLikes();
