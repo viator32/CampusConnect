@@ -425,13 +425,13 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -H "Authorization: Bearer <token>"
   ```
 
-- **Update post photo** – `PUT /api/posts/{postId}/photo` (200 OK)
+- **Update post picture** – `PUT /api/posts/{postId}/picture` (200 OK)
 
   ```bash
-  curl -X PUT http://localhost:8080/api/posts/<postId>/photo \
+  curl -X PUT http://localhost:8080/api/posts/<postId>/picture \
        -H "Authorization: Bearer <token>" \
        -H "Content-Type: image/jpeg" \
-       --data-binary "@photo.jpg"
+       --data-binary "@picture.jpg"
   ```
 
   Uploaded images are stored in the `posts` bucket in MinIO. Only the bucket name and object key are persisted in the database.

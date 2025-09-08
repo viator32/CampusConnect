@@ -178,18 +178,18 @@ public class ClubResourceImpl implements ClubResource {
                 PostDTO dto = new PostDTO();
                 dto.content = form.content;
                 var created = createPost(clubId, dto, ctx);
-               if (form.photo != null && form.photo.length > 0) {
+               if (form.picture != null && form.picture.length > 0) {
                         UUID userId = (UUID) ctx.getProperty("userId");
-                        String contentType = form.photoContentType;
+                        String contentType = form.pictureContentType;
                         if (contentType == null) {
-                                try (var is = new ByteArrayInputStream(form.photo)) {
+                                try (var is = new ByteArrayInputStream(form.picture)) {
                                         contentType = URLConnection.guessContentTypeFromStream(is);
                                 } catch (IOException e) {
                                         contentType = null;
                                 }
                         }
                         if (contentType != null) {
-                                postService.updatePhoto(created.id, userId, form.photo, contentType);
+                                postService.updatePicture(created.id, userId, form.picture, contentType);
                                 var post = postService.getPost(created.id);
                                 return ClubMapper.toDTO(post, userId);
                         }
