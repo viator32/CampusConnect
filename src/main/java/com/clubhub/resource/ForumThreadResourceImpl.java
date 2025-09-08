@@ -6,11 +6,17 @@ import java.util.UUID;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ForumThreadDTO;
@@ -30,14 +36,22 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
     ForumThreadService threadService;
 
     @Override
-    public ForumThreadDTO addThread(UUID clubId, ForumThreadDTO dto, @Context ContainerRequestContext ctx) {
+    @POST
+    @Path("/clubs/{clubId}/threads")
+    @ResponseStatus(201)
+    public ForumThreadDTO addThread(@PathParam("clubId") UUID clubId, ForumThreadDTO dto,
+            @Context ContainerRequestContext ctx) {
+
         UUID userId = (UUID) ctx.getProperty("userId");
         var thread = threadService.addThread(clubId, userId, dto.title, dto.content);
         return ClubMapper.toDTO(thread);
     }
 
     @Override
-    public List<CommentDTO> getComments(UUID threadId, @Context ContainerRequestContext ctx) {
+    @GET
+    @Path("/threads/{threadId}/comments")
+    public List<CommentDTO> getComments(@PathParam("threadId") UUID threadId,
+            @Context ContainerRequestContext ctx) {
         UUID userId = (UUID) ctx.getProperty("userId");
         var thread = threadService.getThread(threadId);
         boolean isMember = thread.getClub().getMembersList().stream()
@@ -55,7 +69,11 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
     }
 
     @Override
-    public CommentDTO addComment(UUID threadId, CommentDTO dto, @Context ContainerRequestContext ctx) {
+    @POST
+    @Path("/threads/{threadId}/comments")
+    @ResponseStatus(201)
+    public CommentDTO addComment(@PathParam("threadId") UUID threadId, CommentDTO dto,
+            @Context ContainerRequestContext ctx) {
         UUID userId = (UUID) ctx.getProperty("userId");
         var comment = threadService.addReply(threadId, userId, dto.content);
         return ClubMapper.toDTO(comment, userId);
