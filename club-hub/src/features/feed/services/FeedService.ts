@@ -14,6 +14,7 @@ export interface FeedPost {
   liked?: boolean;
   comments: number;
   time: string;
+  picture?: string;
   commentsList?: Comment[];
 }
 
@@ -59,6 +60,7 @@ export class FeedService extends BaseService {
       liked: p.liked ?? p.likedByUser ?? p.likedByMe ?? false,
       comments: p.comments ?? 0,
       time: p.time,
+      picture: p.picture ?? p.photo,
       commentsList: (p.commentsList ?? []).map((c: any) => ({
         id: c.id,
         author: c.author?.username ?? c.author ?? 'Unknown',

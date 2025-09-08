@@ -69,7 +69,7 @@ export function mapPost(dto: any): Post {
     comments: dto.comments ?? 0,
     time: dto.time ?? dto.createdAt ?? '',
     commentsList: dto.commentsList ?? [],
-    photo: dto.photo,
+    picture: dto.picture ?? dto.photo,
     poll: dto.poll,
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };

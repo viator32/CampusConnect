@@ -16,6 +16,7 @@ import Avatar from '../../../components/Avatar';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
+import { useProfile } from '../../profile/hooks/useProfile';
 import ProcessingBox from '../../../components/ProcessingBox';
 
 /** Props for the club Posts tab. */
@@ -33,6 +34,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [text, setText]   = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [photo, setPhoto] = useState<File|null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isPoll, setIsPoll] = useState(false);
   const [question, setQuestion] = useState('');
   const [options, setOptions]   = useState<string[]>(['','']);
@@ -42,6 +44,11 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+
+  // Role-based permissions: only Admin/Moderator can post in a club
+  const { user } = useProfile();
+  const membership = user?.memberships?.find(m => String(m.clubId) === String(club.id));
+  const canPost = membership?.role === 'ADMIN' || membership?.role === 'MODERATOR';
 
   useEffect(() => {
     setLikedPosts(club.posts.filter((p: any) => p.liked).map(p => p.id));
@@ -64,8 +71,24 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     }
   };
 
+  const MAX_IMAGE_SIZE = 100 * 1024 * 1024; // 100 MB
   const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setPhoto(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are allowed.');
+      e.currentTarget.value = '';
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError('Image must be 100MB or smaller.');
+      e.currentTarget.value = '';
+      return;
+    }
+    setError(null);
+    setPhoto(file);
+    const url = URL.createObjectURL(file);
+    setPhotoPreview(url);
   };
 
   const addPollOption = () => setOptions(o => [...o, '']);
@@ -78,13 +101,21 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       setError('Add some text to your post.');
       return;
     }
+    if (!canPost) {
+      setError('Only moderators and admins can post in this club.');
+      return;
+    }
 
     try {
       setPosting(true);
-      const created = await clubService.createPost(club.id, text);
+      const created = await clubService.createPost(club.id, text, photo ?? undefined);
       onClubUpdate({ ...club, posts: [created, ...club.posts] });
       setText('');
       setPhoto(null);
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+        setPhotoPreview(null);
+      }
       setIsPoll(false);
       setQuestion('');
       setOptions(['', '']);
@@ -193,6 +224,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           </div>
         )}
 
+        {canPost ? (
         <div className="flex items-center gap-4 mt-2 relative">
           <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
             <PhotoIcon className="w-5 h-5 text-gray-500" />
@@ -237,7 +269,23 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             Post
           </Button>
         </div>
+        ) : (
+          <div className="text-sm text-gray-500 mt-2">
+            Only moderators and admins can create posts in this club.
+          </div>
+        )}
       </div>
+
+      {photoPreview && (
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-600 mb-2">Image preview</p>
+          <img
+            src={photoPreview}
+            alt="preview"
+            className="rounded-lg max-h-72 object-cover w-full"
+          />
+        </div>
+      )}
 
       {club.posts.map(post => {
         const isBookmarked = bookmarks.includes(post.id);
@@ -252,9 +300,9 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
             </div>
             <p className="text-gray-700 mb-2">{post.content}</p>
 
-            {post.photo && (
+            {post.picture && (
               <img
-                src={post.photo}
+                src={post.picture}
                 alt="attachment"
                 className="mb-2 rounded-lg max-h-60 object-cover w-full"
               />

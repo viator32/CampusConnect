@@ -59,7 +59,7 @@ export interface Post {
   comments: number;
   time: string;
   commentsList?: Comment[];
-  photo?: string;
+  picture?: string;
   poll?: Poll;
   liked?: boolean;
 }

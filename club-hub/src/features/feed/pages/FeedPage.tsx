@@ -395,6 +395,14 @@ export default function FeedPage() {
                   </div>
                 </div>
                 <p className="text-gray-700 mb-3">{post.content}</p>
+                {post.picture && (
+                  <img
+                    src={post.picture}
+                    alt="attachment"
+                    className="mb-3 rounded-lg max-h-96 object-cover w-full"
+                    loading="lazy"
+                  />
+                )}
                 <div className="flex items-center gap-6 text-gray-500 mb-2">
                   <button
                     className="flex items-center gap-1 hover:text-orange-500"

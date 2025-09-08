@@ -133,6 +133,13 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
           </div>
         </div>
         <p className="text-gray-700 mb-4">{postData.content}</p>
+        {postData.picture && (
+          <img
+            src={postData.picture}
+            alt="attachment"
+            className="mb-4 rounded-lg max-h-[30rem] object-cover w-full"
+          />
+        )}
         <div className="flex items-center gap-6 text-gray-500">
           <button
             className="flex items-center gap-1 hover:text-orange-500"

@@ -108,12 +108,28 @@ export class ClubService extends BaseService {
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
   }
 
-  /** Create a new post inside a club. */
-  async createPost(clubId: string, content: string): Promise<Post> {
-    const dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    });
+  /**
+   * Create a new post inside a club.
+   * Sends JSON when `picture` is not provided; otherwise uses multipart form.
+   */
+  async createPost(clubId: string, content: string, picture?: File | Blob): Promise<Post> {
+    let dto: any;
+    if (picture) {
+      const form = new FormData();
+      form.append('content', content);
+      form.append('picture', picture);
+      dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
+        method: 'POST',
+        body: form,
+        // Do NOT set Content-Type for FormData; browser adds boundary automatically
+        headers: {},
+      });
+    } else {
+      dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+      });
+    }
     return mapPost(dto);
   }
 
