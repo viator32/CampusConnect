@@ -63,11 +63,14 @@ export class FeedService extends BaseService {
       picture: p.picture ?? p.photo,
       commentsList: (p.commentsList ?? []).map((c: any) => ({
         id: c.id,
-        author: c.author?.username ?? c.author ?? 'Unknown',
+        author: {
+          id: c.author?.id ?? c.authorId ?? c.userId ?? '',
+          username: c.author?.username ?? c.author ?? 'Unknown',
+          avatar: c.author?.avatar ?? c.avatar ?? '',
+        },
         content: c.content ?? '',
         time: c.time ?? c.createdAt ?? '',
         likes: c.likes ?? 0,
-        avatar: c.author?.avatar ?? c.avatar ?? '',
         liked: c.liked ?? c.likedByUser ?? c.likedByMe ?? false,
       })),
     }));

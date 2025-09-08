@@ -68,7 +68,9 @@ export function mapPost(dto: any): Post {
     likes: dto.likes ?? 0,
     comments: dto.comments ?? 0,
     time: dto.time ?? dto.createdAt ?? '',
-    commentsList: dto.commentsList ?? [],
+    commentsList: Array.isArray(dto.commentsList)
+      ? (dto.commentsList as any[]).map(mapComment)
+      : [],
     picture: dto.picture ?? dto.photo,
     poll: dto.poll,
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
@@ -77,13 +79,18 @@ export function mapPost(dto: any): Post {
 
 /** Normalize a backend comment DTO into a `Comment`. */
 export function mapComment(dto: any): Comment {
+  const authorObj = dto.author ?? {};
+  const author: any = {
+    id: authorObj.id ?? dto.authorId ?? dto.userId ?? '',
+    username: authorObj.username ?? dto.author ?? dto.username ?? 'Unknown',
+    avatar: authorObj.avatar ?? dto.avatar ?? '',
+  };
   return {
     id: dto.id,
-    author: dto.author?.username ?? dto.author ?? dto.username ?? 'Unknown',
+    author,
     content: dto.content ?? '',
     time: dto.time ?? dto.createdAt ?? '',
     likes: dto.likes ?? 0,
-    avatar: dto.author?.avatar ?? dto.avatar ?? '',
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };
 }

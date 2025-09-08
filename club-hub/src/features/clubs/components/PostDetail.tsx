@@ -174,9 +174,9 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         {(postData.commentsList ?? []).map((c: Comment) => (
           <div key={c.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Avatar avatar={c.avatar} size={32} />
+              <Avatar avatar={c.author?.avatar} size={32} />
               <div>
-                <p className="font-medium text-gray-900">{c.author}</p>
+                <p className="font-medium text-gray-900">{c.author?.username}</p>
                 <p className="text-sm text-gray-500">{formatDateTime(c.time)}</p>
               </div>
             </div>
