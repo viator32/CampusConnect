@@ -30,8 +30,29 @@ export class ClubService extends BaseService {
 
     const query = search.toString();
     const dto = await this.api.request<any>(`/clubs${query ? `?${query}` : ''}`); // public in docs
-    const content = Array.isArray(dto) ? dto : dto.content ?? [];
-    const totalPages = dto.totalPages ?? 1;
+    // Support multiple backend response shapes:
+    // 1) Array<ClubDto>
+    // 2) { content: ClubDto[], totalPages: number }
+    // 3) { clubs: ClubDto[], totalCount: number }
+    let content: any[] = [];
+    let totalPages = 1;
+    if (Array.isArray(dto)) {
+      content = dto;
+      totalPages = 1;
+    } else if (dto && Array.isArray(dto.content)) {
+      content = dto.content;
+      totalPages = typeof dto.totalPages === 'number' ? dto.totalPages : 1;
+    } else if (dto && Array.isArray(dto.clubs)) {
+      content = dto.clubs;
+      const totalCount = typeof dto.totalCount === 'number' ? dto.totalCount : undefined;
+      if (typeof totalCount === 'number' && typeof params.size === 'number' && params.size > 0) {
+        totalPages = Math.ceil(totalCount / params.size);
+      } else if (typeof totalCount === 'number' && totalCount === 0) {
+        totalPages = 0;
+      } else {
+        totalPages = 1;
+      }
+    }
     return { clubs: content.map(mapClub), totalPages };
   }
 
