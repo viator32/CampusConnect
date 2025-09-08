@@ -104,7 +104,7 @@ public class ClubMapper {
                 dto.bookmarks = p.getBookmarks();
                 dto.shares = p.getShares();
                 dto.time = p.getTime();
-                dto.photo = ObjectStorageService.url(p.getPhotoBucket(), p.getPhotoObject());
+                dto.picture = ObjectStorageService.url(p.getPictureBucket(), p.getPictureObject());
 
                 dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
                 dto.commentsList = p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
@@ -134,7 +134,7 @@ public class ClubMapper {
         public static CommentDTO toDTO(Comment c, UUID userId) {
                 CommentDTO dto = new CommentDTO();
                 dto.id = c.getId();
-                dto.author = c.getAuthor();
+                dto.author = c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null;
                 dto.content = c.getContent();
                 dto.time = c.getTime();
                 dto.likes = c.getLikes();

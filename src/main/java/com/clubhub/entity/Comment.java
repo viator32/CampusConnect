@@ -25,14 +25,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "post", "thread", "likedBy" })
+@ToString(exclude = { "post", "thread", "likedBy", "author" })
 public class Comment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-	private String author;
+        @ManyToOne
+        @JoinColumn(name = "author_id")
+        private User author;
+
         private String content;
 
         @Column(name = "time")

@@ -70,9 +70,11 @@ CREATE TABLE post (
     bookmarks     INTEGER,
     shares        INTEGER,
     time          TIMESTAMP,
-    photo         VARCHAR,
-    poll_question VARCHAR,
-    club_id       UUID REFERENCES clubs (id) ON DELETE SET NULL
+    picture_bucket TEXT,
+    picture_object TEXT,
+    picture_etag   TEXT,
+    poll_question  VARCHAR,
+    club_id        UUID REFERENCES clubs (id) ON DELETE SET NULL
 );
 
 CREATE TABLE post_poll_options (
@@ -96,7 +98,7 @@ CREATE TABLE post_bookmarks (
 
 CREATE TABLE comment (
     id        UUID PRIMARY KEY,
-    author    VARCHAR,
+    author_id    UUID REFERENCES users (id) ON DELETE SET NULL,
     content   TEXT,
     time      VARCHAR,
     likes     INTEGER,

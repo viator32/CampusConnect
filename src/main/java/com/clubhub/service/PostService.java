@@ -162,7 +162,7 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePhoto(UUID postId, UUID userId, byte[] photo, String contentType) {
+    public void updatePicture(UUID postId, UUID userId, byte[] picture, String contentType) {
         Post post = getPost(postId);
         Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
         if (membership == null) {
@@ -184,10 +184,10 @@ public class PostService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        var stored = objectStorageService.uploadTo(postBucket, "posts/" + postId, photo, contentType);
-        post.setPhotoBucket(stored.bucket());
-        post.setPhotoObject(stored.objectKey());
-        post.setPhotoEtag(stored.etag());
+        var stored = objectStorageService.uploadTo(postBucket, "posts/" + postId, picture, contentType);
+        post.setPictureBucket(stored.bucket());
+        post.setPictureObject(stored.objectKey());
+        post.setPictureEtag(stored.etag());
         postRepository.update(post);
     }
 

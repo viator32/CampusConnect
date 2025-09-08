@@ -6,6 +6,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -40,6 +41,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
     @ResponseStatus(201)
     public ForumThreadDTO addThread(@PathParam("clubId") UUID clubId, ForumThreadDTO dto,
             @Context ContainerRequestContext ctx) {
+
         UUID userId = (UUID) ctx.getProperty("userId");
         var thread = threadService.addThread(clubId, userId, dto.title, dto.content);
         return ClubMapper.toDTO(thread);

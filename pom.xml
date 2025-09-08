@@ -68,39 +68,32 @@
 			<artifactId>quarkus-hibernate-validator</artifactId>
 		</dependency>
 
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-rest-client-jackson</artifactId>
-                </dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-client-jackson</artifactId>
+		</dependency>
 
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-rest-jackson</artifactId>
-                </dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-jackson</artifactId>
+		</dependency>
+		<!-- MinIO client -->
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>8.5.3</version>
+		</dependency>
 
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-rest-multipart</artifactId>
-                        <version>${quarkus.platform.version}</version>
-                </dependency>
+		<!-- Database migration -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-flyway</artifactId>
+		</dependency>
 
-                <!-- MinIO client -->
-                <dependency>
-                        <groupId>io.minio</groupId>
-                        <artifactId>minio</artifactId>
-                        <version>8.5.3</version>
-                </dependency>
-
-                <!-- Database migration -->
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-flyway</artifactId>
-                </dependency>
-
-                <!-- Test Dependencies -->
-                <dependency>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-junit5</artifactId>
+		<!-- Test Dependencies -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -172,19 +165,19 @@
 						<maven.home>${maven.home}</maven.home>
 					</systemPropertyVariables>
 				</configuration>
-                        </plugin>
-                        <plugin>
-                                <groupId>org.flywaydb</groupId>
-                                <artifactId>flyway-maven-plugin</artifactId>
-                                <version>9.22.2</version>
-                                <configuration>
-                                        <url>${env.DB_URL}</url>
-                                        <user>${env.DB_USER}</user>
-                                        <password>${env.DB_PASSWORD}</password>
-                                </configuration>
-                        </plugin>
-                </plugins>
-        </build>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>9.22.2</version>
+				<configuration>
+					<url>${env.DB_URL}</url>
+					<user>${env.DB_USER}</user>
+					<password>${env.DB_PASSWORD}</password>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>

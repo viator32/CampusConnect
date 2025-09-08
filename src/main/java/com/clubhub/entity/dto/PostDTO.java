@@ -15,7 +15,7 @@ public class PostDTO {
 	public int bookmarks;
         public int shares;
         public LocalDateTime time;
-        public String photo;
+        public String picture;
 
         public PollDTO poll;
         public List<CommentDTO> commentsList = new ArrayList<>();
