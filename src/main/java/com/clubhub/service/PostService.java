@@ -156,9 +156,13 @@ public class PostService {
         return postRepository.findFeedForUser(userId, offset, limit);
     }
 
-    public List<Post> getBookmarkedPosts(UUID userId) {
+    public List<Post> getBookmarkedPosts(UUID userId, int offset, int limit) {
         userService.getUserById(userId);
-        return postRepository.findBookmarkedPostsByUser(userId);
+        return postRepository.findBookmarkedPostsByUser(userId, offset, limit);
+    }
+
+    public List<Post> getPostsForClub(UUID clubId, int offset, int limit) {
+        return postRepository.findByClub(clubId, offset, limit);
     }
 
     @Transactional

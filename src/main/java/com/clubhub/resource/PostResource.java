@@ -11,6 +11,8 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -27,9 +29,11 @@ public interface PostResource {
 	@Path("/posts/{postId}")
 	PostDTO getPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@GET
-	@Path("/posts/bookmarks")
-	List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx);
+        @GET
+        @Path("/posts/bookmarks")
+        List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx,
+                        @QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("10") int limit);
 
 	@POST
 	@Path("/posts/{postId}/like")

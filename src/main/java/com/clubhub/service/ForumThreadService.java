@@ -1,6 +1,7 @@
 package com.clubhub.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,8 +35,12 @@ public class ForumThreadService {
     @Inject
     UserService userService;
 
-    @Inject
-    EntityManager em;
+        @Inject
+        EntityManager em;
+
+        public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
+                return threadRepository.findByClub(clubId, offset, limit);
+        }
 
     public ForumThread getThread(UUID id) {
         ForumThread thread = threadRepository.findById(id);

@@ -47,10 +47,12 @@ public class PostResourceImpl implements PostResource {
 	}
 
 	@Override
-	public List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-                return postService.getBookmarkedPosts(userId).stream().map(p -> ClubMapper.toDTO(p, userId)).toList();
-	}
+        public List<PostDTO> getBookmarkedPosts(@Context ContainerRequestContext ctx, int offset, int limit) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                return postService.getBookmarkedPosts(userId, offset, limit).stream()
+                                .map(p -> ClubMapper.toDTO(p, userId))
+                                .toList();
+        }
 
 	@Override
 	public PostDTO likePost(UUID postId, @Context ContainerRequestContext ctx) {

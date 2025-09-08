@@ -9,6 +9,8 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -27,6 +29,13 @@ public interface ForumThreadResource {
     @Path("/clubs/{clubId}/threads")
     @ResponseStatus(201)
     ForumThreadDTO addThread(@PathParam("clubId") UUID clubId, ForumThreadDTO dto, @Context ContainerRequestContext ctx);
+
+    @GET
+    @Path("/clubs/{clubId}/threads")
+    List<ForumThreadDTO> getThreads(@PathParam("clubId") UUID clubId,
+                    @QueryParam("offset") @DefaultValue("0") int offset,
+                    @QueryParam("limit") @DefaultValue("10") int limit,
+                    @Context ContainerRequestContext ctx);
 
     @GET
     @Path("/threads/{threadId}/comments")

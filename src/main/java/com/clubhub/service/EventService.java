@@ -79,6 +79,10 @@ public class EventService {
         return eventRepository.findFeedForUser(userId, offset, limit);
     }
 
+    public List<Event> getEventsForClub(UUID clubId, int offset, int limit) {
+        return eventRepository.findByClub(clubId, offset, limit);
+    }
+
     @Transactional
     public void updateEvent(UUID clubId, UUID eventId, EventDTO dto, UUID userId) {
         Event event = getEventById(eventId);

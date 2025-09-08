@@ -70,10 +70,21 @@ public class PostRepository {
                 return count > 0;
         }
 
-        public List<Post> findBookmarkedPostsByUser(UUID userId) {
+        public List<Post> findBookmarkedPostsByUser(UUID userId, int offset, int limit) {
                 String jpql = "SELECT p FROM Post p JOIN p.bookmarkedBy u WHERE u.id = :userId ORDER BY p.time DESC";
                 return em.createQuery(jpql, Post.class)
                                 .setParameter("userId", userId)
+                                .setFirstResult(offset)
+                                .setMaxResults(limit)
+                                .getResultList();
+        }
+
+        public List<Post> findByClub(UUID clubId, int offset, int limit) {
+                String jpql = "SELECT p FROM Post p WHERE p.club.id = :clubId ORDER BY p.time DESC";
+                return em.createQuery(jpql, Post.class)
+                                .setParameter("clubId", clubId)
+                                .setFirstResult(offset)
+                                .setMaxResults(limit)
                                 .getResultList();
         }
 
