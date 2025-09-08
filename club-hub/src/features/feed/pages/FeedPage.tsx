@@ -387,11 +387,16 @@ export default function FeedPage() {
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar avatar={post.authorAvatar} size={32} />
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{post.author}</p>
-                    <p className="text-sm text-gray-500">
-                      <span className="mr-1">{post.clubImage}</span>
-                      {post.clubName} • {formatDateTime(post.time)}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-gray-900">{post.author}</span>
+                      {post.clubName && (
+                        <span className="text-sm text-gray-500 flex items-center gap-1">
+                          {post.clubImage && <span className="mr-0.5">{post.clubImage}</span>}
+                          • {post.clubName}
+                        </span>
+                      )}
+                      <span className="text-sm text-gray-500">• {formatDateTime(post.time)}</span>
+                    </div>
                   </div>
                 </div>
                 <p className="text-gray-700 mb-3">{post.content}</p>

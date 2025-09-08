@@ -10,5 +10,6 @@ export interface BookmarkedPost {
   clubId?: string;
   clubName?: string;
   clubImage?: string;
+  picture?: string;
   liked?: boolean;
 }

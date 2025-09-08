@@ -13,6 +13,7 @@ export function mapBookmarkedPost(dto: any): BookmarkedPost {
     clubId: dto.clubId ?? dto.club?.id,
     clubName: dto.clubName ?? dto.club?.name,
     clubImage: dto.clubImage ?? dto.club?.image,
+    picture: dto.picture ?? dto.photo,
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
   };
 }

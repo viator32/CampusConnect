@@ -4,6 +4,7 @@ import { bookmarksService } from '../services/BookmarksService';
 import type { BookmarkedPost } from '../types';
 import Toast from '../../../components/Toast';
 import Avatar from '../../../components/Avatar';
+import { formatDateTime } from '../../../utils/date';
 
 /**
  * Page listing the user's bookmarked posts with basic actions.
@@ -50,22 +51,29 @@ export default function BookmarksPage() {
               <div className="flex items-center gap-3 mb-2">
                 <Avatar avatar={post.authorAvatar} size={32} />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{post.author}</p>
-                  <p className="text-sm text-gray-500">
-                    {post.clubName ? (
-                      <>
-                        <span className="mr-1">{post.clubImage}</span>
-                        {post.clubName} • {post.time}
-                      </>
-                    ) : (
-                      post.time
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-gray-900">{post.author}</span>
+                    {post.clubName && (
+                      <span className="text-sm text-gray-500 flex items-center gap-1">
+                        {post.clubImage && <span className="mr-0.5">{post.clubImage}</span>}
+                        • {post.clubName}
+                      </span>
                     )}
-                  </p>
+                    <span className="text-sm text-gray-500">• {formatDateTime(post.time)}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Content */}
               <p className="text-gray-700 mb-3">{post.content}</p>
+              {post.picture && (
+                <img
+                  src={post.picture}
+                  alt="attachment"
+                  className="mb-3 rounded-lg max-h-96 object-cover w-full"
+                  loading="lazy"
+                />
+              )}
 
               {/* Actions */}
               <div className="flex items-center gap-6 text-gray-500">
