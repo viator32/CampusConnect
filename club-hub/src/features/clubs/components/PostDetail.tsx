@@ -63,26 +63,35 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   };
 
   const handleLikeComment = async (commentId: string) => {
+    // Optimistically toggle like/unlike on the specific comment
+    let prevLiked = false;
     setPostData(p => {
       const next = {
         ...p,
-        commentsList: (p.commentsList ?? []).map(c =>
-          c.id === commentId
-            ? {
-                ...c,
-                liked: true,
-                likes: (c.likes ?? 0) + (c.liked ? 0 : 1),
-              }
-            : c
-        ),
+        commentsList: (p.commentsList ?? []).map(c => {
+          if (c.id !== commentId) return c;
+          prevLiked = !!c.liked;
+          const nowLiked = !prevLiked;
+          const nextLikes = (c.likes ?? 0) + (nowLiked ? 1 : -1);
+          return { ...c, liked: nowLiked, likes: Math.max(0, nextLikes) };
+        }),
       };
       onPostUpdate?.(next);
       return next;
     });
     try {
-      await clubService.likeComment(commentId);
+      if (prevLiked) await clubService.unlikeComment(commentId);
+      else await clubService.likeComment(commentId);
     } catch {
-      // ignore backend parse errors
+      // Revert on error
+      setPostData(p => ({
+        ...p,
+        commentsList: (p.commentsList ?? []).map(c => {
+          if (c.id !== commentId) return c;
+          const revertedLikes = (c.likes ?? 0) + (c.liked ? -1 : 1);
+          return { ...c, liked: !c.liked, likes: Math.max(0, revertedLikes) };
+        }),
+      }));
     }
   };
 

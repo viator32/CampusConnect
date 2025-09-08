@@ -220,6 +220,11 @@ export class ClubService extends BaseService {
   async likeComment(commentId: string): Promise<void> {
     await this.api.request<void>(`/comments/${commentId}/like`, { method: 'POST' });
   }
+
+  /** Remove like from a comment by ID. */
+  async unlikeComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/like`, { method: 'DELETE' });
+  }
 }
 
 export const clubService = new ClubService();
