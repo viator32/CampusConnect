@@ -9,7 +9,10 @@ import {
   Image as PhotoIcon,
   BarChart2,
   Bookmark as BookmarkIcon,
-  Smile
+  Smile,
+  MoreHorizontal,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
@@ -50,6 +53,14 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [menuPostId, setMenuPostId] = useState<string | null>(null);
+
+  // edit state
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [editPhoto, setEditPhoto] = useState<File | null>(null);
+  const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   // Role-based permissions: only Admin/Moderator can post in a club
   const { user } = useProfile();
@@ -105,6 +116,25 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     setPhoto(file);
     const url = URL.createObjectURL(file);
     setPhotoPreview(url);
+  };
+
+  const handleEditPhoto = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setActionError('Only image files are allowed.');
+      e.currentTarget.value = '';
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setActionError('Image must be 100MB or smaller.');
+      e.currentTarget.value = '';
+      return;
+    }
+    setEditPhoto(file);
+    const url = URL.createObjectURL(file);
+    if (editPhotoPreview) URL.revokeObjectURL(editPhotoPreview);
+    setEditPhotoPreview(url);
   };
 
   const addPollOption = () => setOptions(o => [...o, '']);
@@ -202,6 +232,79 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       setLikedPosts(prev =>
         isLiked ? [...prev, post.id] : prev.filter(id => id !== post.id)
       );
+    }
+  };
+
+  const startEdit = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditContent(post.content);
+    setEditPhoto(null);
+    if (editPhotoPreview) {
+      URL.revokeObjectURL(editPhotoPreview);
+      setEditPhotoPreview(null);
+    }
+    setMenuPostId(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingPostId(null);
+    setEditContent('');
+    if (editPhotoPreview) {
+      URL.revokeObjectURL(editPhotoPreview);
+      setEditPhotoPreview(null);
+    }
+    setEditPhoto(null);
+  };
+
+  const saveEdit = async (post: Post) => {
+    if (!canPost) return;
+    setSaving(true);
+    try {
+      let updated: Post | null = null;
+      // Update content first if changed
+      if (editContent.trim() !== post.content.trim()) {
+        updated = await clubService.updatePost(club.id, post.id, editContent.trim());
+      }
+      // Update picture if a new photo is selected
+      if (editPhoto) {
+        const dto = await clubService.updatePostPicture(post.id, editPhoto);
+        updated = dto;
+      }
+      // If nothing changed, just exit
+      if (!updated) {
+        cancelEdit();
+        return;
+      }
+      onClubUpdate({
+        ...club,
+        posts: club.posts.map(p => (p.id === post.id ? updated! : p)),
+      });
+      cancelEdit();
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to edit posts in this club.');
+      } else {
+        setActionError('Failed to update post');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deletePost = async (post: Post) => {
+    if (!canPost) return;
+    setMenuPostId(null);
+    try {
+      await clubService.deletePost(club.id, post.id);
+      onClubUpdate({ ...club, posts: club.posts.filter(p => p.id !== post.id) });
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to delete posts in this club.');
+      } else {
+        setActionError('Failed to delete post');
+      }
     }
   };
 
@@ -326,23 +429,89 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                 <span className="text-xs text-gray-500">• {club.name}</span>
                 <span className="text-xs text-gray-500">• {formatDateTime(post.time)}</span>
               </div>
+              {canPost && (
+                <div className="ml-auto relative">
+                  <button
+                    className="p-1 rounded hover:bg-gray-100"
+                    onClick={() => setMenuPostId(prev => (prev === post.id ? null : post.id))}
+                    aria-label="Post actions"
+                  >
+                    <MoreHorizontal className="w-5 h-5 text-gray-600" />
+                  </button>
+                  {menuPostId === post.id && (
+                    <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded shadow z-10">
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                        onClick={() => startEdit(post)}
+                      >
+                        <Edit3 className="w-4 h-4 text-gray-600" /> Edit
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        onClick={() => deletePost(post)}
+                      >
+                        <Trash2 className="w-4 h-4" /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="text-gray-700 mb-2">{post.content}</p>
-
-            {post.picture && (
-              <button
-                className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
-                onClick={() => setLightboxSrc(post.picture!)}
-                aria-label="Open image"
-              >
-                <img
-                  src={post.picture}
-                  alt="attachment"
-                  className="max-h-full max-w-full object-contain"
-                  loading="lazy"
-                  decoding="async"
+            {editingPostId === post.id ? (
+              <div className="mb-2">
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none mb-2"
+                  rows={3}
+                  value={editContent}
+                  onChange={e => setEditContent(e.target.value)}
+                  disabled={saving}
                 />
-              </button>
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="inline-flex items-center gap-2 px-3 py-1 border rounded cursor-pointer hover:bg-gray-50">
+                    <PhotoIcon className="w-4 h-4 text-gray-600" />
+                    <span className="text-sm">Change photo</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleEditPhoto} />
+                  </label>
+                </div>
+                {(editPhotoPreview || post.picture) && (
+                  <div className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden">
+                    <img
+                      src={editPhotoPreview ?? post.picture}
+                      alt="attachment"
+                      className="max-h-full max-w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => saveEdit(post)} disabled={saving} className="bg-orange-500 text-white px-3 py-1.5">
+                    Save
+                  </Button>
+                  <button className="px-3 py-1.5 rounded border text-sm" onClick={cancelEdit} disabled={saving}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-gray-700 mb-2">{post.content}</p>
+                {post.picture && (
+                  <button
+                    className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
+                    onClick={() => setLightboxSrc(post.picture!)}
+                    aria-label="Open image"
+                  >
+                    <img
+                      src={post.picture}
+                      alt="attachment"
+                      className="max-h-full max-w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                )}
+              </>
             )}
 
             {post.poll && (

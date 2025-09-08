@@ -147,6 +147,20 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/clubs/${clubId}/posts/${postId}`, { method: 'DELETE' });
   }
 
+  /**
+   * Replace/update a post picture by post ID.
+   * Backend endpoint: PUT /api/posts/{postId}/picture
+   */
+  async updatePostPicture(postId: string, file: Blob): Promise<Post> {
+    const dto = await this.api.request<any>(`/posts/${postId}/picture`, {
+      method: 'PUT',
+      // The backend example uses image/jpeg; use generic octet-stream to support any image
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: file,
+    });
+    return mapPost(dto);
+  }
+
   /** Like a post by ID. */
   async likePost(postId: string): Promise<void> {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'POST' });

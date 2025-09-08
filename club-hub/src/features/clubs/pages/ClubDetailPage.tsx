@@ -105,12 +105,18 @@ export default function ClubDetailPage() {
         />
       );
   }
+  // Determine current user role in this club for permissions
+  const userRole: Role | undefined =
+    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
+
   if (postId && club) {
     const post = club.posts.find(p => p.id === postId);
     if (post)
       return (
         <PostDetail
           post={post}
+          clubId={club.id}
+          currentUserRole={userRole}
           onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
           onPostUpdate={updated =>
             setClub(c =>
@@ -119,12 +125,14 @@ export default function ClubDetailPage() {
                 : c
             )
           }
+          onPostDelete={(id) =>
+            setClub(c =>
+              c ? { ...c, posts: c.posts.filter(p => p.id !== id) } : c
+            )
+          }
         />
       );
   }
-
-  const userRole: Role | undefined =
-    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
 
   const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = club.isJoined
     ? [
