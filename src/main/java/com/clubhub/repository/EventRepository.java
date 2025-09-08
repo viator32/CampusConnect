@@ -34,13 +34,13 @@ public class EventRepository {
         }
     }
 
-    public List<Event> findFeedForUser(UUID userId, int page, int size) {
+    public List<Event> findFeedForUser(UUID userId, int offset, int limit) {
         String jpql = "SELECT e FROM Event e JOIN e.club c JOIN c.membersList m "
                 + "WHERE m.user.id = :userId AND e.createdAt >= m.joinedAt ORDER BY e.createdAt DESC";
         return em.createQuery(jpql, Event.class)
                 .setParameter("userId", userId)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 

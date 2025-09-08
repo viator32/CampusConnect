@@ -22,16 +22,16 @@ public class FeedResourceImpl implements FeedResource {
 	@Inject
 	EventService eventService;
 
-	@Override
-	public FeedDTO getFeed(@Context ContainerRequestContext ctx, int page, int size) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		FeedDTO feed = new FeedDTO();
-                feed.posts = postService.getFeedForUser(userId, page, size).stream()
+        @Override
+        public FeedDTO getFeed(@Context ContainerRequestContext ctx, int offset, int limit) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                FeedDTO feed = new FeedDTO();
+                feed.posts = postService.getFeedForUser(userId, offset, limit).stream()
                                 .map(p -> ClubMapper.toDTO(p, userId))
                                 .toList();
-		feed.events = eventService.getFeedForUser(userId, page, size).stream()
-				.map(EventMapper::toDTO)
-				.toList();
-		return feed;
-	}
+                feed.events = eventService.getFeedForUser(userId, offset, limit).stream()
+                                .map(EventMapper::toDTO)
+                                .toList();
+                return feed;
+        }
 }

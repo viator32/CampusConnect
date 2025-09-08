@@ -374,10 +374,10 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
   ```bash
   curl -H "Authorization: Bearer <token>" \
-       "http://localhost:8080/api/feed?page=0&size=10"
+       "http://localhost:8080/api/feed?offset=0&limit=10"
   ```
   Returns posts and events from clubs the user follows. Pagination is controlled
-  via `page` (default `0`) and `size` (default `10`) query parameters.
+  via `offset` (default `0`) and `limit` (default `10`) query parameters.
 
 ### Posts
 

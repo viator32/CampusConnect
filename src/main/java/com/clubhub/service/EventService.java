@@ -74,9 +74,9 @@ public class EventService {
         }
     }
 
-    public List<Event> getFeedForUser(UUID userId, int page, int size) {
+    public List<Event> getFeedForUser(UUID userId, int offset, int limit) {
         userService.getUserById(userId);
-        return eventRepository.findFeedForUser(userId, page, size);
+        return eventRepository.findFeedForUser(userId, offset, limit);
     }
 
     @Transactional

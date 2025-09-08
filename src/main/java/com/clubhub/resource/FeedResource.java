@@ -19,7 +19,7 @@ public interface FeedResource {
 
 	@GET
 	@Path("/feed")
-	FeedDTO getFeed(@Context ContainerRequestContext ctx,
-			@QueryParam("page") @DefaultValue("0") int page,
-			@QueryParam("size") @DefaultValue("10") int size);
+        FeedDTO getFeed(@Context ContainerRequestContext ctx,
+                        @QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("10") int limit);
 }

@@ -34,13 +34,13 @@ public class PostRepository {
                 }
         }
 
-        public List<Post> findFeedForUser(UUID userId, int page, int size) {
+        public List<Post> findFeedForUser(UUID userId, int offset, int limit) {
                 String jpql = "SELECT p FROM Post p JOIN p.club c JOIN c.membersList m WHERE m.user.id = :userId "
                                 + "AND p.time >= m.joinedAt ORDER BY p.time DESC";
                 return em.createQuery(jpql, Post.class)
                                 .setParameter("userId", userId)
-                                .setFirstResult(page * size)
-                                .setMaxResults(size)
+                                .setFirstResult(offset)
+                                .setMaxResults(limit)
                                 .getResultList();
         }
 
