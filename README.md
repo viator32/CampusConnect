@@ -272,6 +272,47 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        http://localhost:8080/api/clubs/<clubId>/posts/<postId>
   ```
 
+### Threads
+
+- **List threads of a club** – `GET /api/clubs/{clubId}/threads` (200 OK)
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/clubs/<clubId>/threads
+  ```
+
+- **Create thread in a club** – `POST /api/clubs/{clubId}/threads` (201 Created, members only)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/threads \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"title":"Welcome","content":"Introduce yourself"}'
+  ```
+
+- **Get thread** – `GET /api/threads/{threadId}` (200 OK)
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/threads/<threadId>
+  ```
+
+- **List comments of a thread** – `GET /api/threads/{threadId}/comments` (200 OK)
+
+  ```bash
+  curl -H "Authorization: Bearer <token>" \
+       http://localhost:8080/api/threads/<threadId>/comments
+  ```
+
+- **Add comment to a thread** – `POST /api/threads/{threadId}/comments` (201 Created)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/threads/<threadId>/comments \
+       -H "Content-Type: application/json" \
+       -H "Authorization: Bearer <token>" \
+       -d '{"content":"First reply"}'
+  ```
+
 ### Events
 
 Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED`.

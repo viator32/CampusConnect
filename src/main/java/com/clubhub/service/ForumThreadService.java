@@ -42,7 +42,7 @@ public class ForumThreadService {
         public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
                 var threads = threadRepository.findByClub(clubId, offset, limit);
                 // Initialize lazy associations to avoid issues outside the transaction
-                threads.forEach(t -> t.getPosts().size());
+                threads.forEach(t -> t.getCommentsList().size());
                 return threads;
         }
 
@@ -59,7 +59,7 @@ public class ForumThreadService {
                                         .build());
                 }
                 // Initialize required collections before returning
-                thread.getPosts().size();
+                thread.getCommentsList().size();
                 thread.getClub().getMembersList().size();
                 return thread;
         }
@@ -116,11 +116,11 @@ public class ForumThreadService {
 		comment.setTime(LocalDateTime.now().toString());
 		comment.setThread(thread);
 
-		commentRepository.save(comment);
-		thread.getPosts().add(comment);
-		thread.setReplies(thread.getReplies() + 1);
-		thread.setLastActivity(comment.getTime());
-		threadRepository.update(thread);
-		return comment;
-	}
+                commentRepository.save(comment);
+                thread.getCommentsList().add(comment);
+                thread.setReplies(thread.getReplies() + 1);
+                thread.setLastActivity(comment.getTime());
+                threadRepository.update(thread);
+                return comment;
+        }
 }

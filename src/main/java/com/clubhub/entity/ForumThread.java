@@ -25,7 +25,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "club", "posts" })
+@ToString(exclude = { "club", "commentsList" })
 public class ForumThread {
 
 	@Id
@@ -44,8 +44,8 @@ public class ForumThread {
 
         private String content;
 
-	@OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
-	private List<Comment> posts = new ArrayList<>();
+        @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
+        private List<Comment> commentsList = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "club_id")

@@ -25,6 +25,7 @@ import com.clubhub.entity.dto.ClubListDTO;
 import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.entity.dto.ForumThreadDTO;
 
 import org.jboss.resteasy.reactive.ResponseStatus;
 
@@ -71,10 +72,23 @@ public interface ClubResource {
 	@Path("/{clubId}/leave")
 	ActionResponseDTO leaveClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-	@PUT
-	@Path("/{clubId}/members/{memberId}/role")
-	ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
-			@Context ContainerRequestContext ctx);
+        @PUT
+        @Path("/{clubId}/members/{memberId}/role")
+        ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
+                        @Context ContainerRequestContext ctx);
+
+        @GET
+        @Path("/{clubId}/threads")
+        List<ForumThreadDTO> getClubThreads(@PathParam("clubId") UUID clubId,
+                        @QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("10") int limit,
+                        @Context ContainerRequestContext ctx);
+
+        @POST
+        @Path("/{clubId}/threads")
+        @ResponseStatus(201)
+        ForumThreadDTO createThread(@PathParam("clubId") UUID clubId, ForumThreadDTO threadDTO,
+                        @Context ContainerRequestContext ctx);
 
         @GET
         @Path("/{clubId}/posts")
