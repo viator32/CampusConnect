@@ -38,23 +38,31 @@ public class ForumThreadService {
 	@Inject
 	EntityManager em;
 
-	public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
-		return threadRepository.findByClub(clubId, offset, limit);
-	}
+        @Transactional
+        public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
+                var threads = threadRepository.findByClub(clubId, offset, limit);
+                // Initialize lazy associations to avoid issues outside the transaction
+                threads.forEach(t -> t.getPosts().size());
+                return threads;
+        }
 
-	public ForumThread getThread(UUID id) {
-		ForumThread thread = threadRepository.findById(id);
-		if (thread == null) {
-			throw new NotFoundException(ErrorPayload.builder()
-					.errorCode(ClubHubErrorCode.THREAD_NOT_FOUND)
-					.title("Thread not found")
-					.details("No thread with id %s exists.".formatted(id))
-					.messageParameter("threadId", id.toString())
-					.sourcePointer("threadId")
-					.build());
-		}
-		return thread;
-	}
+        @Transactional
+        public ForumThread getThread(UUID id) {
+                ForumThread thread = threadRepository.findById(id);
+                if (thread == null) {
+                        throw new NotFoundException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.THREAD_NOT_FOUND)
+                                        .title("Thread not found")
+                                        .details("No thread with id %s exists.".formatted(id))
+                                        .messageParameter("threadId", id.toString())
+                                        .sourcePointer("threadId")
+                                        .build());
+                }
+                // Initialize required collections before returning
+                thread.getPosts().size();
+                thread.getClub().getMembersList().size();
+                return thread;
+        }
 
 	@Transactional
 	public ForumThread addThread(UUID clubId, UUID userId, String title, String content) {
