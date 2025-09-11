@@ -22,6 +22,7 @@ import com.clubhub.entity.dto.ClubListDTO;
 import com.clubhub.entity.dto.EventDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.entity.dto.ForumThreadDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.EventMapper;
 import com.clubhub.entity.mapper.PostMapper;
@@ -33,6 +34,7 @@ import com.clubhub.service.ClubService;
 import com.clubhub.service.EventService;
 import com.clubhub.service.PostService;
 import com.clubhub.service.UserService;
+import com.clubhub.service.ForumThreadService;
 
 @RequestScoped
 public class ClubResourceImpl implements ClubResource {
@@ -46,8 +48,11 @@ public class ClubResourceImpl implements ClubResource {
 	@Inject
 	UserService userService;
 
-	@Inject
-	EventService eventService;
+        @Inject
+        EventService eventService;
+
+       @Inject
+       ForumThreadService threadService;
 
         @Override
         public ClubListDTO getAll(int page, int size, Preference interest, String category, String name,
@@ -113,13 +118,42 @@ public class ClubResourceImpl implements ClubResource {
 		return new ActionResponseDTO(true, "Left club");
 	}
 
-	@Override
-	public ActionResponseDTO updateRole(UUID clubId, UUID memberId, MemberDTO dto,
-			@Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		clubService.updateMemberRole(clubId, memberId, MemberRole.valueOf(dto.role.toUpperCase()), userId);
-		return new ActionResponseDTO(true, "Role updated");
-	}
+        @Override
+        public ActionResponseDTO updateRole(UUID clubId, UUID memberId, MemberDTO dto,
+                        @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                clubService.updateMemberRole(clubId, memberId, MemberRole.valueOf(dto.role.toUpperCase()), userId);
+                return new ActionResponseDTO(true, "Role updated");
+        }
+
+       @Override
+       public List<ForumThreadDTO> getClubThreads(UUID clubId, int offset, int limit,
+                       @Context ContainerRequestContext ctx) {
+               var club = clubService.getClubById(clubId);
+               UUID userId = (UUID) ctx.getProperty("userId");
+               boolean isMember = club.getMembersList().stream()
+                               .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+               if (!isMember) {
+                       throw new ValidationException(ErrorPayload.builder()
+                                       .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                       .title("User not a member")
+                                       .details("User must be a member of the club to view threads.")
+                                       .messageParameter("clubId", clubId.toString())
+                                       .messageParameter("userId", userId.toString())
+                                       .build());
+               }
+               return threadService.getThreadsForClub(clubId, offset, limit).stream()
+                               .map(ClubMapper::toDTO)
+                               .toList();
+       }
+
+       @Override
+       public ForumThreadDTO createThread(UUID clubId, ForumThreadDTO dto,
+                       @Context ContainerRequestContext ctx) {
+               UUID userId = (UUID) ctx.getProperty("userId");
+               var thread = threadService.addThread(clubId, userId, dto.title, dto.content);
+               return ClubMapper.toDTO(thread);
+       }
 
 	@Override
         public List<PostDTO> getClubPosts(UUID clubId, int offset, int limit, @Context ContainerRequestContext ctx) {

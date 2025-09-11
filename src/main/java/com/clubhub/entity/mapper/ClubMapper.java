@@ -160,15 +160,16 @@ public class ClubMapper {
                return dto;
        }
 
-	public static ForumThreadDTO toDTO(ForumThread t) {
-		ForumThreadDTO dto = new ForumThreadDTO();
+        public static ForumThreadDTO toDTO(ForumThread t) {
+                ForumThreadDTO dto = new ForumThreadDTO();
                 dto.id = t.getId();
                 dto.title = t.getTitle();
                 dto.author = t.getAuthor() != null ? UserMapper.toAuthorDTO(t.getAuthor()) : null;
                 dto.replies = t.getReplies();
                 dto.lastActivity = t.getLastActivity();
                 dto.content = t.getContent();
-                dto.posts = t.getPosts().stream().map(ClubMapper::toDTO).toList();
+                dto.commentsList = t.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+                dto.club = t.getClub() != null ? toSummaryDTO(t.getClub()) : null;
                 return dto;
-	}
+        }
 }
