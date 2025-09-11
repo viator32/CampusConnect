@@ -242,9 +242,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 - **List posts of a club** – `GET /api/clubs/{clubId}/posts` (200 OK)
 
+  Supports pagination via `offset` (default `0`) and `limit` (default `10`) query parameters.
+
   ```bash
   curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/clubs/<clubId>/posts
+       "http://localhost:8080/api/clubs/<clubId>/posts?offset=0&limit=10"
   ```
 
 - **Create post in a club** – `POST /api/clubs/{clubId}/posts` (201 Created, moderators and admins only)
@@ -276,9 +278,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 - **List threads of a club** – `GET /api/clubs/{clubId}/threads` (200 OK)
 
+  Supports pagination via `offset` (default `0`) and `limit` (default `10`) query parameters.
+
   ```bash
   curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/clubs/<clubId>/threads
+       "http://localhost:8080/api/clubs/<clubId>/threads?offset=0&limit=10"
   ```
 
 - **Create thread in a club** – `POST /api/clubs/{clubId}/threads` (201 Created, members only)
@@ -319,9 +323,11 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 - **List events of a club** – `GET /api/clubs/{clubId}/events` (200 OK)
 
+  Supports pagination via `offset` (default `0`) and `limit` (default `10`) query parameters.
+
   ```bash
   curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/clubs/<clubId>/events
+       "http://localhost:8080/api/clubs/<clubId>/events?offset=0&limit=10"
   ```
 
 - **Create event in a club** – `POST /api/clubs/{clubId}/events` (201 Created)
