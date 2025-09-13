@@ -36,4 +36,13 @@ npm run preview  # preview the production build locally
 Environment:
 - Configure backend URL with `VITE_API_URL` (the client app will append `/api`).
 
-Refer to the repository root README for additional details.
+Performance & build:
+- Dev prebundles: `react`, `react-dom`, `react-router-dom`, `lucide-react`, `emoji-picker-react` for faster cold start (see `vite.config.js`).
+- Build: modern target (`es2020`), `esbuild` minify, vendor chunk splitting.
+
+Feature updates:
+- Club Posts tab uses infinite scroll (offset/limit via `ClubService.listPostsPage`).
+- Forum tab fetches threads on tab open and paginates via `ClubService.listThreadsPage`.
+- Thread detail uses embedded `commentsList` on the thread; reply posts via `POST /api/threads/{threadId}/comments`.
+
+Refer to the repository root README and `docs/` for additional details.

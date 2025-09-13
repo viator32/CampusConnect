@@ -117,6 +117,9 @@ Consider a future `GlobalErrorBoundary` for unrecoverable render errors; for now
 - Vite-style env usage via `import.meta.env.VITE_API_URL` (ensures `.../api` suffix).
 - Tailwind CSS for styling and utility classes.
 - Icons from `lucide-react`.
+- Vite config is optimized for speed (see `vite.config.js`):
+  - Dev: prebundle `react`, `react-dom`, `react-router-dom`, `lucide-react`, `emoji-picker-react`; modern `es2020` target.
+  - Prod: `esbuild` minify, `es2020` target, vendor chunking (`react`, `icons`, `emoji`), no compressed-size report.
 
 ---
 

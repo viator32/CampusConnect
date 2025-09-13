@@ -8,6 +8,8 @@ ClubHub is a social student hub for organizations and interest groups. Members c
 - Tailwind CSS
 - Vite-style env via `import.meta.env` (configure `VITE_API_URL`)
 - Feature-first folder structure with a small service layer
+  
+Performance notes (Vite): see the updated `vite.config.js` for faster dev and prod builds. We prebundle common deps, set modern targets, and split vendor chunks.
 
 ## Getting Started
 
@@ -26,6 +28,11 @@ ClubHub is a social student hub for organizations and interest groups. Members c
    npm run dev
    ```
 5. Open http://localhost:3000
+
+Performance tips
+- Dev startup/reloads: We prebundle `react`, `react-dom`, `react-router-dom`, `lucide-react`, and `emoji-picker-react` to reduce cold start and rebuild lag.
+- Production build: Modern target (`es2020`), `esbuild` minification, manual vendor chunks (`react`, `icons`, `emoji`) and disabled compressed-size reports for faster CI.
+- Cache: Vite cache lives in `node_modules/.vite`. If builds seem off after upgrading deps, clear it and restart: `rm -rf node_modules/.vite`.
 
 ## Documentation
 
@@ -61,5 +68,12 @@ Notes:
 ## Notable Data Model Notes
 
 - Feed uses offset/limit pagination: `GET /api/feed?offset=<o>&limit=<n>`.
+- Club posts use offset/limit pagination: `GET /api/clubs/{clubId}/posts?offset=<o>&limit=<n>`.
+- Club threads use offset/limit pagination: `GET /api/clubs/{clubId}/threads?offset=<o>&limit=<n>`.
 - Posts can include a single `picture` (object storage URL). JSON posts omit it; multipart posts include it under the `picture` field.
 - Comment author DTO shape: `{ id, username, avatar }`.
+
+Feature updates
+- Club Posts tab now supports infinite scroll (IntersectionObserver) and loads pages via `ClubService.listPostsPage` (10 items per load).
+- Forum tab fetches threads on tab open and supports pagination via `ClubService.listThreadsPage` with a Load More action.
+- Thread detail renders embedded comments from the thread (`commentsList`), and posting a reply appends locally after `POST /api/threads/{threadId}/comments`.

@@ -91,7 +91,7 @@ await this.api.request("/clubs", {
 - Profile: `features/profile/services/ProfileService.ts`
   - `getCurrent`, `getById`, `updateCurrent`, `updateAvatar`.
 - Clubs: `features/clubs/services/ClubService.ts`
-  - Clubs CRUD, join/leave, posts, comments, events, member roles.
+  - Clubs CRUD, join/leave, posts, comments, events, member roles, threads.
 - Feed: `features/feed/services/FeedService.ts`
   - `getPage` normalizes varied payload shapes; `addPost`, `addComment`.
 - Bookmarks, Notifications, Support, Admin services cover their respective domains.
@@ -171,6 +171,7 @@ Key normalization rules implemented in `features/clubs/mappers.ts`:
 - Avatar: prepend `data:image/png;base64,` when not already a data URL
 - Events: attendees normalize via `participants | attendees` and `participantsCount | attendeesCount`
 - Posts: author from `author.username | author | username`; `liked` from `liked | likedByUser | likedByMe`; `time` from `time | createdAt`
+- Threads: `id` normalized to string; `commentsList` mapped to `thread.posts` and used directly in UI (no separate fetch needed for initial render)
 - Nested arrays are always present; missing values default to empty arrays or sensible defaults
 
 This makes UI code independent of backend drift, while still letting us accommodate new shapes by updating mappers.
@@ -208,6 +209,20 @@ Note: 401 triggers token clearing and optional `onUnauthorized` callback before 
 - Token persistence: `ClientApi.setAuthToken(token)` stores in `localStorage` under `access_token`.
 - On app start: `ClientApi.bootstrapTokenFromStorage()` runs automatically (see `ClientApi.ts`).
 - Global 401 handling via `clientApi.onUnauthorized` is wired in `useAuth` to redirect to `/login` and clear state.
+
+## Service Method Reference (selected)
+
+### Clubs / Posts
+- `listPostsPage(clubId, offset = 0, limit = 10): Post[]` — GET `/clubs/{clubId}/posts?offset=&limit=`. Used for Club Posts tab infinite scroll.
+- `createPost(clubId, content, picture?)` — JSON or multipart depending on `picture`.
+- `updatePost`, `deletePost`, `likePost`, `unlikePost`.
+
+### Clubs / Threads
+- `listThreadsPage(clubId, offset = 0, limit = 10): Thread[]` — GET `/clubs/{clubId}/threads?offset=&limit=`. Called when Forum tab mounts and for pagination.
+- `createThread(clubId, title, content)` — POST `/clubs/{clubId}/threads` (members only).
+- `getThread(threadId): Thread` — GET `/threads/{threadId}` (includes `commentsList` when provided by backend).
+- `addThreadComment(threadId, content): Comment` — POST `/threads/{threadId}/comments`.
+- Note: `listThreadComments(threadId)` exists but UI prefers embedded `commentsList` on the thread when present to avoid an extra request.
 
 ## Feed.getPage payload shapes
 

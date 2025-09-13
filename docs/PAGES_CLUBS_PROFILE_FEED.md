@@ -30,10 +30,12 @@ Tabs within ClubDetail:
   - Mini-calendar, event list, CRUD, join, CSV export of attendees.
   - Methods: `createEvent`, `updateEvent`, `deleteEvent`, `joinEvent`.
 - ForumTab (`components/ForumTab.tsx`)
-  - Lightweight thread creation and listing inside the club.
-  - Methods: Local manipulation; can be wired to backend later.
+  - Thread creation and server-backed listing with pagination.
+  - Fetches fresh threads when the tab mounts (offset=0, limit=10), then supports Load More via `ClubService.listThreadsPage`.
+  - Methods: `createThread(clubId, title, content)`, `listThreadsPage(clubId, offset, limit)`.
 - PostsTab (`components/PostsTab.tsx`)
   - Composer + list with like, comment (opens detail), share, bookmark.
+  - Infinite scroll using an `IntersectionObserver` sentinel; loads pages of 10 via `ClubService.listPostsPage`.
   - Role restriction: only `ADMIN` and `MODERATOR` can create posts in a club.
   - Images: attach a single `picture` (multipart) up to 100MB; rendered responsively in lists and detail.
   - Methods: `createPost`, `likePost`, `unlikePost`; bookmarks via `bookmarksService.add/remove`.
@@ -48,6 +50,7 @@ Sub-views:
   - Methods: `listComments(postId)`, `addComment(postId, content)`, `likeComment(commentId)`, `unlikeComment(commentId)`.
 - ThreadDetail (`components/ThreadDetail.tsx`)
   - Dedicated forum thread view displaying replies; includes share popup.
+  - Renders embedded comments from `thread.posts` (mapped from `commentsList`). Posting a reply calls `addThreadComment` and appends locally.
 
 ### MyClubsPage (`src/features/clubs/pages/MyClubsPage.tsx`)
 - Purpose: List of user’s joined clubs with Leave action; create new club modal.
