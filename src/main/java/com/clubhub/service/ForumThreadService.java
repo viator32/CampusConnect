@@ -38,13 +38,18 @@ public class ForumThreadService {
 	@Inject
 	EntityManager em;
 
-        @Transactional
-        public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
-                var threads = threadRepository.findByClub(clubId, offset, limit);
-                // Initialize lazy associations to avoid issues outside the transaction
-                threads.forEach(t -> t.getCommentsList().size());
-                return threads;
-        }
+       @Transactional
+       public List<ForumThread> getThreadsForClub(UUID clubId, int offset, int limit) {
+               var threads = threadRepository.findByClub(clubId, offset, limit);
+               // Initialize lazy associations to avoid issues outside the transaction
+               threads.forEach(t -> {
+                       t.getCommentsList().size();
+                       t.getClub().getMembersList().size();
+                       t.getClub().getEvents().size();
+                       t.getClub().getPosts().size();
+               });
+               return threads;
+       }
 
         @Transactional
         public ForumThread getThread(UUID id) {
@@ -58,11 +63,13 @@ public class ForumThreadService {
                                         .sourcePointer("threadId")
                                         .build());
                 }
-                // Initialize required collections before returning
-                thread.getCommentsList().size();
-                thread.getClub().getMembersList().size();
-                return thread;
-        }
+               // Initialize required collections before returning
+               thread.getCommentsList().size();
+               thread.getClub().getMembersList().size();
+               thread.getClub().getEvents().size();
+               thread.getClub().getPosts().size();
+               return thread;
+       }
 
 	@Transactional
 	public ForumThread addThread(UUID clubId, UUID userId, String title, String content) {
