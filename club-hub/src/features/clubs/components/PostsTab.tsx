@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useEffect, useRef } from 'react';
+import React, { useState, ChangeEvent, useEffect, useRef, useCallback } from 'react';
 // Lazy-load heavy emoji picker to reduce initial bundle size
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'));
 import { Club, Post } from '../types';
@@ -12,7 +12,8 @@ import {
   Smile,
   MoreHorizontal,
   Edit3,
-  Trash2
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
@@ -54,6 +55,77 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [actionError, setActionError] = useState<string | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [menuPostId, setMenuPostId] = useState<string | null>(null);
+  // Infinite scroll state
+  const [offset, setOffset] = useState<number>(club.posts.length || 0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const inFlightRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const offsetRef = useRef(offset);
+  const loaderElRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
+  useEffect(() => { offsetRef.current = offset; }, [offset]);
+  const clubRef = useRef(club);
+  useEffect(() => { clubRef.current = club; }, [club]);
+
+  const loadMore = useCallback(async () => {
+    if (inFlightRef.current || !hasMoreRef.current) return;
+    inFlightRef.current = true;
+    setLoadingMore(true);
+    try {
+      const limit = 10;
+      const next = await clubService.listPostsPage(clubRef.current.id, offsetRef.current, limit);
+      if (next && next.length > 0) {
+        const existing = new Set(clubRef.current.posts.map(p => p.id));
+        const filtered = next.filter(p => {
+          if (existing.has(p.id)) return false;
+          existing.add(p.id);
+          return true;
+        });
+        if (filtered.length > 0) {
+          // Append to parent club state to keep routing/detail in sync
+          const updated = { ...clubRef.current, posts: [...clubRef.current.posts, ...filtered] };
+          onClubUpdate(updated);
+        }
+        setOffset(o => o + limit);
+      }
+      if (!next || next.length < 10) setHasMore(false);
+    } catch (e) {
+      // Swallow silently; optional: use a toast if needed
+    } finally {
+      setLoadingMore(false);
+      inFlightRef.current = false;
+    }
+  }, [onClubUpdate]);
+
+  // Initial fetch when the Posts tab mounts
+  useEffect(() => {
+    loadMore();
+  }, [loadMore]);
+
+  // IntersectionObserver to trigger loading more when the sentinel enters viewport
+  const observer = useRef<IntersectionObserver | null>(null);
+  const loaderRef = useCallback((node: HTMLDivElement | null) => {
+    loaderElRef.current = node;
+    if (!node) return;
+    if (!observer.current) {
+      observer.current = new IntersectionObserver(entries => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !inFlightRef.current && hasMoreRef.current) {
+          if (loaderElRef.current) observer.current?.unobserve(loaderElRef.current);
+          loadMore();
+        }
+      });
+    }
+    observer.current.observe(node);
+  }, [loadMore]);
+
+  // Re-observe loader after each load completes if more data remains
+  useEffect(() => {
+    if (!loadingMore && hasMoreRef.current && loaderElRef.current) {
+      observer.current?.observe(loaderElRef.current);
+    }
+  }, [loadingMore, hasMore]);
 
   // edit state
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
@@ -567,6 +639,15 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           </div>
         );
       })}
+      <div ref={loaderRef} />
+      {loadingMore && (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+        </div>
+      )}
+      {!loadingMore && !hasMore && (
+        <div className="text-center text-gray-500 py-4">No more posts</div>
+      )}
     </div>
     {lightboxSrc && (
       <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />

@@ -130,6 +130,19 @@ export class ClubService extends BaseService {
   }
 
   /**
+   * List a page of posts for a club using offset/limit pagination.
+   * Backend endpoint: GET /api/clubs/{clubId}/posts?offset=0&limit=10
+   */
+  async listPostsPage(clubId: string, offset = 0, limit = 10): Promise<Post[]> {
+    const params = new URLSearchParams();
+    if (typeof offset === 'number') params.set('offset', String(offset));
+    if (typeof limit === 'number') params.set('limit', String(limit));
+    const query = params.toString();
+    const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts${query ? `?${query}` : ''}`);
+    return arr.map(mapPost);
+  }
+
+  /**
    * Create a new post inside a club.
    * Sends JSON when `picture` is not provided; otherwise uses multipart form.
    */
