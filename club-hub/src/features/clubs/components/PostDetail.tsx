@@ -1,24 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { Post, Comment } from '../types';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Post, Comment, Role } from '../types';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Edit3, Trash2, Image as PhotoIcon } from 'lucide-react';
 import Button from '../../../components/Button';
+import Toast from '../../../components/Toast';
+import { ApiError } from '../../../services/api';
 import SharePopup from '../../../components/SharePopup';
 import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import Avatar from '../../../components/Avatar';
+import ImageLightbox from '../../../components/ImageLightbox';
 
 /** Props for the dedicated post view. */
 interface PostDetailProps {
   post: Post;
+  clubId: string;
+  currentUserRole?: Role;
   onBack: () => void;
   onPostUpdate?: (p: Post) => void;
+  onPostDelete?: (id: string) => void;
+  backLabel?: string;
 }
 
 /** Detailed post view with comments, likes, and sharing. */
-export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailProps) {
+export default function PostDetail({ post, clubId, currentUserRole, onBack, onPostUpdate, onPostDelete, backLabel }: PostDetailProps) {
   const [showShare, setShowShare] = useState(false);
   const [postData, setPostData] = useState(post);
   const [commentText, setCommentText] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState(post.content);
+  const [editPhoto, setEditPhoto] = useState<File | null>(null);
+  const [editPreview, setEditPreview] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     clubService
@@ -35,6 +50,8 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
+  const canManage = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
+
   const handleLikePost = async () => {
     const isLiked = postData.liked ?? false;
     setPostData(p => {
@@ -49,7 +66,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       if (isLiked) await clubService.unlikePost(postData.id);
       else await clubService.likePost(postData.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like posts.');
+      }
       setPostData(p => {
         const next = {
           ...p,
@@ -59,6 +80,69 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         onPostUpdate?.(next);
         return next;
       });
+    }
+  };
+
+  const handleEditPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setActionError('Only image files are allowed.');
+      e.currentTarget.value = '';
+      return;
+    }
+    setEditPhoto(file);
+    const url = URL.createObjectURL(file);
+    if (editPreview) URL.revokeObjectURL(editPreview);
+    setEditPreview(url);
+  };
+
+  const saveEdit = async () => {
+    if (!canManage) return;
+    setSaving(true);
+    try {
+      let updated: Post | null = null;
+      if (editContent.trim() !== postData.content.trim()) {
+        updated = await clubService.updatePost(clubId, postData.id, editContent.trim());
+      }
+      if (editPhoto) {
+        const dto = await clubService.updatePostPicture(postData.id, editPhoto);
+        updated = dto;
+      }
+      if (updated) {
+        setPostData(updated);
+        onPostUpdate?.(updated);
+      }
+      setEditing(false);
+      setMenuOpen(false);
+      if (editPreview) URL.revokeObjectURL(editPreview);
+      setEditPreview(null);
+      setEditPhoto(null);
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to edit this post.');
+      } else {
+        setActionError('Failed to update post');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deletePost = async () => {
+    if (!canManage) return;
+    try {
+      await clubService.deletePost(clubId, postData.id);
+      onPostDelete?.(postData.id);
+      onBack();
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to delete this post.');
+      } else {
+        setActionError('Failed to delete post');
+      }
     }
   };
 
@@ -82,7 +166,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     try {
       if (prevLiked) await clubService.unlikeComment(commentId);
       else await clubService.likeComment(commentId);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like comments.');
+      }
       // Revert on error
       setPostData(p => ({
         ...p,
@@ -99,8 +187,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
     if (!commentText.trim()) return;
     try {
       await clubService.addComment(postData.id, commentText);
-    } catch {
-      // ignore backend parse errors
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to comment.');
+      }
     }
 
     try {
@@ -119,9 +210,11 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
   };
 
   return (
+    <>
     <div className="space-y-6">
+      {actionError && <Toast message={actionError} onClose={() => setActionError(null)} />}
       <button onClick={onBack} className="text-gray-500 hover:text-gray-700">
-        ← Back to Posts
+        ← {backLabel ?? 'Back'}
       </button>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -131,8 +224,104 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
             <p className="font-medium text-gray-900">{postData.author}</p>
             <p className="text-sm text-gray-500">{formatDateTime(postData.time)}</p>
           </div>
+          {canManage && (
+            <div className="ml-auto relative">
+              <button
+                className="p-1 rounded hover:bg-gray-100"
+                onClick={() => setMenuOpen(o => !o)}
+                aria-label="Post actions"
+              >
+                <MoreHorizontal className="w-5 h-5 text-gray-600" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded shadow z-10">
+                  <button
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                    onClick={() => {
+                      setEditing(true);
+                      setMenuOpen(false);
+                      setEditContent(postData.content);
+                    }}
+                  >
+                    <Edit3 className="w-4 h-4 text-gray-600" /> Edit
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    onClick={deletePost}
+                  >
+                    <Trash2 className="w-4 h-4" /> Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <p className="text-gray-700 mb-4">{postData.content}</p>
+        {editing ? (
+          <div className="mb-4">
+            <textarea
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none mb-2"
+              rows={4}
+              value={editContent}
+              onChange={e => setEditContent(e.target.value)}
+              disabled={saving}
+            />
+            <div className="flex items-center gap-3 mb-2">
+              <label className="inline-flex items-center gap-2 px-3 py-1 border rounded cursor-pointer hover:bg-gray-50">
+                <PhotoIcon className="w-4 h-4 text-gray-600" />
+                <span className="text-sm">Change photo</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleEditPhoto} />
+              </label>
+            </div>
+            {(editPreview || postData.picture) && (
+              <div className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-72 md:h-96 lg:h-[32rem] overflow-hidden">
+                <img
+                  src={editPreview ?? postData.picture}
+                  alt="attachment"
+                  className="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Button onClick={saveEdit} disabled={saving} className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                Save
+              </Button>
+              <button
+                className="px-4 py-2 rounded border text-sm"
+                onClick={() => {
+                  setEditing(false);
+                  setMenuOpen(false);
+                  if (editPreview) URL.revokeObjectURL(editPreview);
+                  setEditPreview(null);
+                  setEditPhoto(null);
+                }}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-gray-700 mb-4">{postData.content}</p>
+            {postData.picture && (
+              <button
+                className="w-full rounded-lg bg-gray-100 mb-4 flex items-center justify-center h-72 md:h-96 lg:h-[32rem] overflow-hidden"
+                onClick={() => setLightboxSrc(postData.picture!)}
+                aria-label="Open image"
+              >
+                <img
+                  src={postData.picture}
+                  alt="attachment"
+                  className="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
+            )}
+          </>
+        )}
         <div className="flex items-center gap-6 text-gray-500">
           <button
             className="flex items-center gap-1 hover:text-orange-500"
@@ -167,9 +356,9 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         {(postData.commentsList ?? []).map((c: Comment) => (
           <div key={c.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Avatar avatar={c.avatar} size={32} />
+              <Avatar avatar={c.author?.avatar} size={32} />
               <div>
-                <p className="font-medium text-gray-900">{c.author}</p>
+                <p className="font-medium text-gray-900">{c.author?.username}</p>
                 <p className="text-sm text-gray-500">{formatDateTime(c.time)}</p>
               </div>
             </div>
@@ -206,5 +395,9 @@ export default function PostDetail({ post, onBack, onPostUpdate }: PostDetailPro
         </div>
       </div>
     </div>
+    {lightboxSrc && (
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+    )}
+  </>
   );
 }

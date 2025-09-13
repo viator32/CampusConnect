@@ -1,12 +1,13 @@
-// src/features/feed/pages/FeedPage.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, Bookmark, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { bookmarksService } from '../../bookmarks/services/BookmarksService';
 import Toast from '../../../components/Toast';
+import { ApiError } from '../../../services/api';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
+import ImageLightbox from '../../../components/ImageLightbox';
 import { clubService } from '../../clubs/services/ClubService';
 import { useProfile } from '../../profile/hooks/useProfile';
 import { type FeedItem, type FeedEventItem, type FeedPost, feedService } from '../services/FeedService';
@@ -36,6 +37,7 @@ const isEvent = (item: FeedItem): item is EventFeedItem =>
  */
 export default function FeedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useProfile();
 
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -122,6 +124,8 @@ export default function FeedPage() {
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [joinedEvents, setJoinedEvents] = useState<Set<string>>(new Set()); // key: `${clubId}-${eventId}`
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   const visibleItems = items.filter(item =>
     activeTab === 'events' ? isEvent(item) : !isEvent(item)
@@ -200,7 +204,11 @@ export default function FeedPage() {
     try {
       if (isLiked) await clubService.unlikePost(post.id);
       else await clubService.likePost(post.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to like posts.');
+      }
       setItems(prev =>
         prev.map(item =>
           isEvent(item)
@@ -245,7 +253,11 @@ export default function FeedPage() {
     try {
       // Use the raw event id as provided by the feed (string or number)
       await clubService.joinEvent(ev.clubId, ev.id);
-    } catch {
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to join events.');
+      }
       setJoinedEvents(prev => {
         const next = new Set(prev);
         next.delete(key);
@@ -307,7 +319,10 @@ export default function FeedPage() {
         <main className="flex-1 space-y-4">
           {visibleItems.length === 0 && !loadingMore && (
             <p className="text-center text-gray-500">No items to show.</p>
-          )}
+      )}
+      {actionError && (
+        <Toast message={actionError} onClose={() => setActionError(null)} />
+      )}
           <div className="space-y-4">
             {visibleItems.map((item, index) => {
             if (isEvent(item)) {
@@ -382,19 +397,43 @@ export default function FeedPage() {
               <div
                 key={`${post.clubId ?? 'unknown'}-${post.id}-${index}`}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
-                onClick={() => navigate(`/clubs/${post.clubId}/posts/${post.id}`)}
+                onClick={() =>
+                  navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                    state: { from: location.pathname },
+                  })
+                }
               >
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar avatar={post.authorAvatar} size={32} />
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{post.author}</p>
-                    <p className="text-sm text-gray-500">
-                      <span className="mr-1">{post.clubImage}</span>
-                      {post.clubName} • {formatDateTime(post.time)}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-gray-900">{post.author}</span>
+                      {post.clubName && (
+                        <span className="text-sm text-gray-500 flex items-center gap-1">
+                          {post.clubImage && <span className="mr-0.5">{post.clubImage}</span>}
+                          • {post.clubName}
+                        </span>
+                      )}
+                      <span className="text-sm text-gray-500">• {formatDateTime(post.time)}</span>
+                    </div>
                   </div>
                 </div>
                 <p className="text-gray-700 mb-3">{post.content}</p>
+                {post.picture && (
+                  <button
+                    className="w-full rounded-lg bg-gray-100 mb-3 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
+                    onClick={(e) => { e.stopPropagation(); setLightboxSrc(post.picture!); }}
+                    aria-label="Open image"
+                  >
+                    <img
+                      src={post.picture}
+                      alt="attachment"
+                      className="max-h-full max-w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                )}
                 <div className="flex items-center gap-6 text-gray-500 mb-2">
                   <button
                     className="flex items-center gap-1 hover:text-orange-500"
@@ -410,7 +449,9 @@ export default function FeedPage() {
                     className="flex items-center gap-1 hover:text-orange-500"
                     onClick={e => {
                       e.stopPropagation();
-                      navigate(`/clubs/${post.clubId}/posts/${post.id}`);
+                      navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                        state: { from: location.pathname },
+                      });
                     }}
                   >
                     <MessageCircle className="w-4 h-4" />
@@ -458,6 +499,9 @@ export default function FeedPage() {
       </main>
         {bookmarkError && (
           <Toast message={bookmarkError} onClose={() => setBookmarkError(null)} />
+        )}
+        {lightboxSrc && (
+          <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
         )}
       </div>
     </div>

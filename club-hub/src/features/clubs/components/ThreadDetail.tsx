@@ -4,6 +4,7 @@ import { Heart, Share2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
+import { formatDateTime } from '../../../utils/date';
 
 /** Props for the dedicated thread view. */
 interface ThreadDetailProps {
@@ -56,10 +57,10 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
         {(thread.posts ?? []).map((post: Comment) => (
           <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Avatar avatar={post.avatar} size={32} />
+              <Avatar avatar={post.author?.avatar} size={32} />
               <div>
-                <p className="font-medium text-gray-900">{post.author}</p>
-                <p className="text-sm text-gray-500">{post.time}</p>
+                <p className="font-medium text-gray-900">{post.author?.username}</p>
+                <p className="text-sm text-gray-500">{formatDateTime(post.time)}</p>
               </div>
             </div>
             <p className="text-gray-700 mb-3">{post.content}</p>

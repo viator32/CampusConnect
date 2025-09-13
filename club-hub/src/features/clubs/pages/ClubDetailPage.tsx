@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Users,
   BookOpen,
@@ -50,6 +50,7 @@ const formatEnum = (v: string) =>
 export default function ClubDetailPage() {
   const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, refresh } = useProfile();
 
@@ -105,13 +106,30 @@ export default function ClubDetailPage() {
         />
       );
   }
+  // Determine current user role in this club for permissions
+  const userRole: Role | undefined =
+    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
+
   if (postId && club) {
     const post = club.posts.find(p => p.id === postId);
     if (post)
       return (
         <PostDetail
           post={post}
-          onBack={() => navigate(`/clubs/${clubId}?tab=posts`)}
+          clubId={club.id}
+          currentUserRole={userRole}
+          onBack={() => {
+            const from = (location.state as any)?.from as string | undefined;
+            if (from && typeof from === 'string') navigate(from);
+            else navigate(`/clubs/${clubId}?tab=posts`);
+          }}
+          backLabel={((): string => {
+            const from = (location.state as any)?.from as string | undefined;
+            if (!from) return 'Back to Posts';
+            if (from.includes('/feed')) return 'Back to Feed';
+            if (from.includes('/bookmarks')) return 'Back to Bookmarks';
+            return 'Back';
+          })()}
           onPostUpdate={updated =>
             setClub(c =>
               c
@@ -119,12 +137,14 @@ export default function ClubDetailPage() {
                 : c
             )
           }
+          onPostDelete={(id) =>
+            setClub(c =>
+              c ? { ...c, posts: c.posts.filter(p => p.id !== id) } : c
+            )
+          }
         />
       );
   }
-
-  const userRole: Role | undefined =
-    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
 
   const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = club.isJoined
     ? [

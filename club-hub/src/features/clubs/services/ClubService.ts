@@ -30,8 +30,29 @@ export class ClubService extends BaseService {
 
     const query = search.toString();
     const dto = await this.api.request<any>(`/clubs${query ? `?${query}` : ''}`); // public in docs
-    const content = Array.isArray(dto) ? dto : dto.content ?? [];
-    const totalPages = dto.totalPages ?? 1;
+    // Support multiple backend response shapes:
+    // 1) Array<ClubDto>
+    // 2) { content: ClubDto[], totalPages: number }
+    // 3) { clubs: ClubDto[], totalCount: number }
+    let content: any[] = [];
+    let totalPages = 1;
+    if (Array.isArray(dto)) {
+      content = dto;
+      totalPages = 1;
+    } else if (dto && Array.isArray(dto.content)) {
+      content = dto.content;
+      totalPages = typeof dto.totalPages === 'number' ? dto.totalPages : 1;
+    } else if (dto && Array.isArray(dto.clubs)) {
+      content = dto.clubs;
+      const totalCount = typeof dto.totalCount === 'number' ? dto.totalCount : undefined;
+      if (typeof totalCount === 'number' && typeof params.size === 'number' && params.size > 0) {
+        totalPages = Math.ceil(totalCount / params.size);
+      } else if (typeof totalCount === 'number' && totalCount === 0) {
+        totalPages = 0;
+      } else {
+        totalPages = 1;
+      }
+    }
     return { clubs: content.map(mapClub), totalPages };
   }
 
@@ -108,12 +129,41 @@ export class ClubService extends BaseService {
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
   }
 
-  /** Create a new post inside a club. */
-  async createPost(clubId: string, content: string): Promise<Post> {
-    const dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    });
+  /**
+   * List a page of posts for a club using offset/limit pagination.
+   * Backend endpoint: GET /api/clubs/{clubId}/posts?offset=0&limit=10
+   */
+  async listPostsPage(clubId: string, offset = 0, limit = 10): Promise<Post[]> {
+    const params = new URLSearchParams();
+    if (typeof offset === 'number') params.set('offset', String(offset));
+    if (typeof limit === 'number') params.set('limit', String(limit));
+    const query = params.toString();
+    const arr = await this.api.request<any[]>(`/clubs/${clubId}/posts${query ? `?${query}` : ''}`);
+    return arr.map(mapPost);
+  }
+
+  /**
+   * Create a new post inside a club.
+   * Sends JSON when `picture` is not provided; otherwise uses multipart form.
+   */
+  async createPost(clubId: string, content: string, picture?: File | Blob): Promise<Post> {
+    let dto: any;
+    if (picture) {
+      const form = new FormData();
+      form.append('content', content);
+      form.append('picture', picture);
+      dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
+        method: 'POST',
+        body: form,
+        // Do NOT set Content-Type for FormData; browser adds boundary automatically
+        headers: {},
+      });
+    } else {
+      dto = await this.api.request<any>(`/clubs/${clubId}/posts`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+      });
+    }
     return mapPost(dto);
   }
 
@@ -129,6 +179,20 @@ export class ClubService extends BaseService {
   /** Delete a club post by IDs. */
   async deletePost(clubId: string, postId: string): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/posts/${postId}`, { method: 'DELETE' });
+  }
+
+  /**
+   * Replace/update a post picture by post ID.
+   * Backend endpoint: PUT /api/posts/{postId}/picture
+   */
+  async updatePostPicture(postId: string, file: Blob): Promise<Post> {
+    const dto = await this.api.request<any>(`/posts/${postId}/picture`, {
+      method: 'PUT',
+      // The backend example uses image/jpeg; use generic octet-stream to support any image
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: file,
+    });
+    return mapPost(dto);
   }
 
   /** Like a post by ID. */

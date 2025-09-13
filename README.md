@@ -6,7 +6,7 @@ ClubHub is a social student hub for organizations and interest groups. Members c
 
 - React + TypeScript
 - Tailwind CSS
-- Vite-style env via `import.meta.env`
+- Vite-style env via `import.meta.env` (configure `VITE_API_URL`)
 - Feature-first folder structure with a small service layer
 
 ## Getting Started
@@ -57,3 +57,9 @@ Build the production image and run it with Nginx serving the static app.
 Notes:
 - The client defaults its API root to `http://localhost:8080` (see `club-hub/src/services/api/ClientApi.ts`). Make sure your backend is reachable there (serving `/api`).
 - If your backend lives elsewhere, pass a build arg for Vite: `--build-arg VITE_API_URL=https://your.api` and rebuild the image.
+
+## Notable Data Model Notes
+
+- Feed uses offset/limit pagination: `GET /api/feed?offset=<o>&limit=<n>`.
+- Posts can include a single `picture` (object storage URL). JSON posts omit it; multipart posts include it under the `picture` field.
+- Comment author DTO shape: `{ id, username, avatar }`.

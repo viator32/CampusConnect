@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Bookmark, Heart, MessageCircle, Share2 } from 'lucide-react';
 import { bookmarksService } from '../services/BookmarksService';
 import type { BookmarkedPost } from '../types';
 import Toast from '../../../components/Toast';
 import Avatar from '../../../components/Avatar';
+import ImageLightbox from '../../../components/ImageLightbox';
+import { formatDateTime } from '../../../utils/date';
+import { ApiError } from '../../../services/api';
 
 /**
  * Page listing the user's bookmarked posts with basic actions.
  */
 export default function BookmarksPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -29,9 +36,14 @@ export default function BookmarksPage() {
     setBookmarks(prev => prev.filter(b => b.id !== id));
     try {
       await bookmarksService.remove(id);
-    } catch (err) {
+    } catch (e) {
       setBookmarks(prev);
-      setError('Failed to remove bookmark');
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setError('You do not have permission to modify bookmarks.');
+      } else {
+        setError('Failed to remove bookmark');
+      }
     }
   };
 
@@ -44,28 +56,48 @@ export default function BookmarksPage() {
           {bookmarks.map(post => (
             <div
               key={post.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
+              onClick={() =>
+                post.clubId &&
+                navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                  state: { from: location.pathname },
+                })
+              }
             >
               {/* Header */}
               <div className="flex items-center gap-3 mb-2">
                 <Avatar avatar={post.authorAvatar} size={32} />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{post.author}</p>
-                  <p className="text-sm text-gray-500">
-                    {post.clubName ? (
-                      <>
-                        <span className="mr-1">{post.clubImage}</span>
-                        {post.clubName} • {post.time}
-                      </>
-                    ) : (
-                      post.time
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-gray-900">{post.author}</span>
+                    {post.clubName && (
+                      <span className="text-sm text-gray-500 flex items-center gap-1">
+                        {post.clubImage && <span className="mr-0.5">{post.clubImage}</span>}
+                        • {post.clubName}
+                      </span>
                     )}
-                  </p>
+                    <span className="text-sm text-gray-500">• {formatDateTime(post.time)}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Content */}
               <p className="text-gray-700 mb-3">{post.content}</p>
+              {post.picture && (
+                <button
+                  className="w-full rounded-lg bg-gray-100 mb-3 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden"
+                  onClick={(e) => { e.stopPropagation(); setLightboxSrc(post.picture!); }}
+                  aria-label="Open image"
+                >
+                  <img
+                    src={post.picture}
+                    alt="attachment"
+                    className="max-h-full max-w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              )}
 
               {/* Actions */}
               <div className="flex items-center gap-6 text-gray-500">
@@ -80,7 +112,7 @@ export default function BookmarksPage() {
                 <div className="flex items-center gap-1">
                   <Share2 className="w-4 h-4" />
                 </div>
-                <button className="flex items-center gap-1 hover:text-orange-500">
+                <button className="flex items-center gap-1 hover:text-orange-500" onClick={(e) => { e.stopPropagation(); }}>
                   <Bookmark
                     className="w-4 h-4 text-orange-500"
                     onClick={() => handleRemove(post.id)}
@@ -98,6 +130,9 @@ export default function BookmarksPage() {
         </div>
       )}
       {error && <Toast message={error} onClose={() => setError(null)} />}
+      {lightboxSrc && (
+        <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      )}
     </div>
   );
 }

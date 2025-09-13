@@ -26,14 +26,20 @@ export interface Event {
   participants?: Participant[];
 }
 
+/** Minimal user reference attached to comments. */
+export interface AuthorRef {
+  id: string;
+  username: string;
+  avatar?: string;
+}
+
 /** Comment on posts or threads. */
 export interface Comment {
   id: string;
-  author: string;
+  author: AuthorRef;
   content: string;
   time: string;
   likes?: number;
-  avatar?: string;
   liked?: boolean;
 }
 
@@ -59,7 +65,7 @@ export interface Post {
   comments: number;
   time: string;
   commentsList?: Comment[];
-  photo?: string;
+  picture?: string;
   poll?: Poll;
   liked?: boolean;
 }

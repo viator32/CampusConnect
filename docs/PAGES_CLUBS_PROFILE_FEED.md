@@ -34,6 +34,8 @@ Tabs within ClubDetail:
   - Methods: Local manipulation; can be wired to backend later.
 - PostsTab (`components/PostsTab.tsx`)
   - Composer + list with like, comment (opens detail), share, bookmark.
+  - Role restriction: only `ADMIN` and `MODERATOR` can create posts in a club.
+  - Images: attach a single `picture` (multipart) up to 100MB; rendered responsively in lists and detail.
   - Methods: `createPost`, `likePost`, `unlikePost`; bookmarks via `bookmarksService.add/remove`.
 - MembersTab (`components/MembersTab.tsx`)
   - Grid/list views, search, role management for admins.
@@ -41,8 +43,9 @@ Tabs within ClubDetail:
 
 Sub-views:
 - PostDetail (`components/PostDetail.tsx`)
-  - Dedicated post page: loads comments, allows adding comments and liking comments.
-  - Methods: `listComments(postId)`, `addComment(postId, content)`, `likeComment(commentId)`.
+  - Dedicated post page: loads comments, allows adding comments and liking/unliking comments.
+  - Comment authors are structured as `{ id, username, avatar }`.
+  - Methods: `listComments(postId)`, `addComment(postId, content)`, `likeComment(commentId)`, `unlikeComment(commentId)`.
 - ThreadDetail (`components/ThreadDetail.tsx`)
   - Dedicated forum thread view displaying replies; includes share popup.
 
@@ -72,9 +75,9 @@ Sub-views:
 ### FeedPage (`src/features/feed/pages/FeedPage.tsx`)
 - Purpose: Infinite feed combining upcoming events and recent posts. Tabbed view toggles between Events and Posts.
 - Composition: `Avatar`, `SharePopup`, `Toast`, `Button`, intersection observer sentinel for infinite scroll.
-- Data flow: `feedService.getPage(page, size)` normalizes varying responses; integrates with `bookmarksService` and selected `clubService` actions.
+- Data flow: `feedService.getPage(offset, limit)` normalizes varying responses; integrates with `bookmarksService` and selected `clubService` actions.
 - Frequent methods:
-  - `feedService.getPage(page, size)` – fetch feed items, normalized to an array.
+  - `feedService.getPage(offset, limit)` – fetch feed items (offset/limit), normalized to an array.
   - Post actions: `clubService.likePost(id)`, `clubService.unlikePost(id)`.
   - Bookmarks: `bookmarksService.add(id)`, `bookmarksService.remove(id)`.
   - Events: `clubService.joinEvent(clubId, eventId)`.
@@ -88,5 +91,4 @@ Sub-views:
 - Loading: Show spinners (`Loader2`) and/or skeletons while fetching.
 - Routing: Use `Navigate` and `useNavigate`; guard protected routes via `RequireAuth`.
 - URL State: Store tab or filter state in URL (`useSearchParams`) when it benefits deep linking.
-- File Uploads: For avatars, `Content-Type: application/octet-stream` with raw blob.
-
+- File Uploads: For avatars, `Content-Type: application/octet-stream` with raw blob. For post pictures, use multipart `FormData` with field `picture`.
