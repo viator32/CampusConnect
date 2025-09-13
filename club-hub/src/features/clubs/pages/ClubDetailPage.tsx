@@ -21,6 +21,7 @@ import ForumTab     from '../components/ForumTab';
 import PostsTab     from '../components/PostsTab';
 import MembersTab   from '../components/MembersTab';
 import ThreadDetail from '../components/ThreadDetail';
+import type { Thread } from '../types';
 import PostDetail   from '../components/PostDetail';
 
 type TabId = 'about'|'events'|'forum'|'posts'|'members';
@@ -60,6 +61,11 @@ export default function ClubDetailPage() {
   const [error, setError]         = useState<string | null>(null);
   const [toast, setToast]         = useState<string | null>(null);
 
+  // Thread single-view state (must be declared before any early returns)
+  const [threadView, setThreadView] = useState<Thread | null>(null);
+  const [threadLoading, setThreadLoading] = useState(false);
+  const [threadError, setThreadError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!clubId) return;
     setLoading(true);
@@ -83,6 +89,17 @@ export default function ClubDetailPage() {
     if (t) setActiveTab(t);
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!threadId) { setThreadView(null); return; }
+    setThreadLoading(true);
+    setThreadError(null);
+    clubService
+      .getThread(threadId)
+      .then(t => setThreadView(t))
+      .catch(e => setThreadError(e?.message ?? 'Failed to load thread'))
+      .finally(() => setThreadLoading(false));
+  }, [threadId]);
+
   if (error) {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
@@ -95,16 +112,25 @@ export default function ClubDetailPage() {
     );
   }
 
-  // single‑views via routing
   if (threadId && club) {
-    const thread = club.forum_threads.find(t => t.id === Number(threadId));
-    if (thread)
+    if (threadLoading) {
+      return (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        </div>
+      );
+    }
+    if (threadError) {
+      return <div className="text-center text-red-500 py-8">{threadError}</div>;
+    }
+    if (threadView) {
       return (
         <ThreadDetail
-          thread={thread}
+          thread={threadView}
           onBack={() => navigate(`/clubs/${clubId}?tab=forum`)}
         />
       );
+    }
   }
   // Determine current user role in this club for permissions
   const userRole: Role | undefined =

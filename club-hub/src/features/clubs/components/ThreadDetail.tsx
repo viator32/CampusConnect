@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Thread, Comment } from '../types';
 import { Heart, Share2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import SharePopup from '../../../components/SharePopup';
 import Avatar from '../../../components/Avatar';
 import { formatDateTime } from '../../../utils/date';
+import { clubService } from '../services/ClubService';
+import { Loader2 } from 'lucide-react';
+import { ApiError } from '../../../services/api';
 
 /** Props for the dedicated thread view. */
 interface ThreadDetailProps {
@@ -15,6 +18,15 @@ interface ThreadDetailProps {
 /** Detailed thread view with replies and share actions. */
 export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
   const [showShare, setShowShare] = useState(false);
+  const [comments, setComments] = useState<Comment[]>(thread.posts ?? []);
+  const [error, setError] = useState<string | null>(null);
+  const [reply, setReply] = useState<string>('');
+  const [posting, setPosting] = useState<boolean>(false);
+
+  // Keep local comments in sync with the provided thread object
+  useEffect(() => {
+    setComments(thread.posts ?? []);
+  }, [thread.id, thread.posts]);
 
   return (
     <div className="space-y-6">
@@ -54,7 +66,8 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">Replies</h3>
-        {(thread.posts ?? []).map((post: Comment) => (
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        {comments.map((post: Comment) => (
           <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
               <Avatar avatar={post.author?.avatar} size={32} />
@@ -80,10 +93,38 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
           placeholder="Write your reply..."
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
           rows={3}
+          value={reply}
+          onChange={e => setReply(e.target.value)}
         />
         <div className="flex justify-end mt-3">
-          <Button variant="primary">
-            Post Reply
+          <Button
+            variant="primary"
+            disabled={posting || !reply.trim()}
+            onClick={async () => {
+              if (!reply.trim()) return;
+              setPosting(true);
+              setError(null);
+              try {
+                const created = await clubService.addThreadComment(thread.id, reply.trim());
+                setComments(prev => [...prev, created]);
+                setReply('');
+              } catch (e) {
+                const err = e as any;
+                if (err instanceof ApiError && err.status === 403) {
+                  setError('You must be a member to comment.');
+                } else {
+                  setError('Failed to post reply');
+                }
+              } finally {
+                setPosting(false);
+              }
+            }}
+          >
+            {posting ? (
+              <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Posting…</span>
+            ) : (
+              'Post Reply'
+            )}
           </Button>
         </div>
       </div>

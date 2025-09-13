@@ -86,7 +86,7 @@ export interface Member {
 
 /** Forum thread inside a club. */
 export interface Thread {
-  id: number;
+  id: string;
   title: string;
   author: string;
   avatar?: string;

@@ -1,4 +1,4 @@
-import type { Club, Event as ClubEvent, Post, Comment, Member } from './types';
+import type { Club, Event as ClubEvent, Post, Comment, Member, Thread } from './types';
 import { Subject, Preference } from '../profile/types';
 
 /** Normalize a backend club DTO to the app's `Club` model. */
@@ -21,7 +21,13 @@ export function mapClub(dto: any): Club {
       .map(mapPost)
       .sort((a: Post, b: Post) => new Date(b.time).getTime() - new Date(a.time).getTime()),
     members_list: (dto.membersList ?? dto.members_list ?? []).map(mapMember),
-    forum_threads: dto.forumThreads ?? dto.forum_threads ?? [],
+    forum_threads: (dto.forumThreads ?? dto.forum_threads ?? [])
+      .map(mapThread)
+      .sort((a: Thread, b: Thread) => {
+        const ta = new Date(a.lastActivity || '').getTime();
+        const tb = new Date(b.lastActivity || '').getTime();
+        return (isNaN(tb) ? 0 : tb) - (isNaN(ta) ? 0 : ta);
+      }),
   };
 }
 
@@ -92,5 +98,27 @@ export function mapComment(dto: any): Comment {
     time: dto.time ?? dto.createdAt ?? '',
     likes: dto.likes ?? 0,
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
+  };
+}
+
+/** Normalize a backend thread DTO into a `Thread`. */
+export function mapThread(dto: any): Thread {
+  const authorObj = dto.author ?? {};
+  const author = authorObj.username ?? dto.author ?? dto.username ?? 'Unknown';
+  const avatar = authorObj.avatar ?? dto.avatar ?? '';
+  const commentsList = Array.isArray(dto.posts)
+    ? (dto.posts as any[]).map(mapComment)
+    : Array.isArray(dto.commentsList)
+      ? (dto.commentsList as any[]).map(mapComment)
+      : [];
+  return {
+    id: String(dto.id ?? dto.threadId ?? dto._id ?? ''),
+    title: dto.title ?? '',
+    author,
+    avatar,
+    replies: dto.replies ?? dto.comments ?? dto.commentCount ?? commentsList.length ?? 0,
+    lastActivity: dto.lastActivity ?? dto.updatedAt ?? dto.time ?? dto.createdAt ?? '',
+    content: dto.content ?? '',
+    posts: commentsList,
   };
 }

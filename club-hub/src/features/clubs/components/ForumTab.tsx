@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Club, Thread } from '../types';
 import Button from '../../../components/Button';
+import { clubService } from '../services/ClubService';
+import { ApiError } from '../../../services/api';
+import { Loader2 } from 'lucide-react';
 
 /** Props for the club Forum tab. */
 interface ForumTabProps {
@@ -16,24 +19,70 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
   const [title, setTitle]   = useState('');
   const [content, setContent] = useState('');
   const [error, setError]   = useState<string|null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState<number>(club.forum_threads.length || 0);
+  const clubRef = useRef(club);
+  useEffect(() => { clubRef.current = club; }, [club]);
 
-  const handleCreate = () => {
+  useEffect(() => {
+    // Always fetch fresh threads when this tab mounts
+    setLoading(true);
+    setHasMore(true);
+    clubService
+      .listThreadsPage(club.id, 0, 10)
+      .then(list => {
+        onClubUpdate({ ...clubRef.current, forum_threads: list });
+        setOffset(list.length);
+        if (list.length < 10) setHasMore(false);
+      })
+      .catch(err => setError(err?.message ?? 'Failed to load threads'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleCreate = async () => {
     setError(null);
     if (!title.trim() || !content.trim()) {
       setError('Both title and content are required.');
       return;
     }
-    const newThread: Thread = {
-      id: Date.now(),
-      title,
-      author: 'You',
-      replies: 0,
-      lastActivity: 'Just now',
-      content,
-      posts: []
-    };
-    onClubUpdate({ ...club, forum_threads: [ newThread, ...club.forum_threads ] });
-    setTitle(''); setContent('');
+    try {
+      const created = await clubService.createThread(club.id, title.trim(), content.trim());
+      onClubUpdate({ ...club, forum_threads: [ created, ...club.forum_threads ] });
+      setTitle(''); setContent('');
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setError('Only club members can create threads.');
+      } else {
+        setError('Failed to create thread');
+      }
+    }
+  };
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const limit = 10;
+      const list = await clubService.listThreadsPage(club.id, offset, limit);
+      const existing = new Set((clubRef.current.forum_threads ?? []).map(t => t.id));
+      const filtered = list.filter(t => {
+        if (existing.has(t.id)) return false;
+        existing.add(t.id);
+        return true;
+      });
+      if (filtered.length > 0) {
+        onClubUpdate({ ...clubRef.current, forum_threads: [...clubRef.current.forum_threads, ...filtered] });
+      }
+      setOffset(o => o + limit);
+      if (list.length < limit) setHasMore(false);
+    } catch (e) {
+      setError('Failed to load more threads');
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   return (
@@ -62,6 +111,12 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
         </Button>
       </div>
 
+      {loading && (
+        <div className="flex justify-center py-6">
+          <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+        </div>
+      )}
+
       {club.forum_threads.map(thread => (
         <div
           key={thread.id}
@@ -74,6 +129,18 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
           </p>
         </div>
       ))}
+
+      {hasMore && !loading && (
+        <div className="flex justify-center py-4">
+          <Button onClick={loadMore} disabled={loadingMore} className="px-4 py-2">
+            {loadingMore ? (
+              <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</span>
+            ) : (
+              'Load more'
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

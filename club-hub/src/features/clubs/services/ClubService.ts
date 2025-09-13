@@ -1,7 +1,7 @@
 import { BaseService } from '../../../services/BaseService';
 import type { Club, Event as ClubEvent, Post, Comment, Role } from '../types';
 import { Subject, Preference } from '../../profile/types';
-import { mapClub, mapEvent, mapPost, mapComment } from '../mappers';
+import { mapClub, mapEvent, mapPost, mapComment, mapThread } from '../mappers';
 
 /** Query parameters used to search/filter clubs. */
 export interface ClubSearchParams {
@@ -60,6 +60,47 @@ export class ClubService extends BaseService {
   async getById(id: string): Promise<Club | undefined> {
     const dto = await this.api.request<any>(`/clubs/${id}`);
     return mapClub(dto);
+  }
+
+  // Forum threads inside a club
+  /** List a page of forum threads for a club. */
+  async listThreadsPage(clubId: string, offset = 0, limit = 10) {
+    const params = new URLSearchParams();
+    params.set('offset', String(offset));
+    params.set('limit', String(limit));
+    const query = params.toString();
+    const arr = await this.api.request<any[]>(`/clubs/${clubId}/threads${query ? `?${query}` : ''}`);
+    return arr.map(mapThread);
+  }
+
+  /** Create a new thread in a club (members only). */
+  async createThread(clubId: string, title: string, content: string) {
+    const dto = await this.api.request<any>(`/clubs/${clubId}/threads`, {
+      method: 'POST',
+      body: JSON.stringify({ title, content }),
+    });
+    return mapThread(dto);
+  }
+
+  /** Fetch a single thread by id. */
+  async getThread(threadId: string | number) {
+    const dto = await this.api.request<any>(`/threads/${threadId}`);
+    return mapThread(dto);
+  }
+
+  /** List comments of a thread. */
+  async listThreadComments(threadId: string | number) {
+    const arr = await this.api.request<any[]>(`/threads/${threadId}/comments`);
+    return arr.map(mapComment);
+  }
+
+  /** Add comment to a thread. */
+  async addThreadComment(threadId: string | number, content: string) {
+    const dto = await this.api.request<any>(`/threads/${threadId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+    return mapComment(dto);
   }
 
   /** Create a new club. */
