@@ -218,6 +218,20 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     setEditPhotoPreview(url);
   };
 
+  // Remove selected image while composing a new post
+  const removeSelectedPhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(null);
+    setPhotoPreview(null);
+  };
+
+  // Remove selected replacement image during edit (client-side only)
+  const removeSelectedEditPhoto = () => {
+    if (editPhotoPreview) URL.revokeObjectURL(editPhotoPreview);
+    setEditPhoto(null);
+    setEditPhotoPreview(null);
+  };
+
   const addPollOption = () => setOptions(o => [...o, '']);
   const changeOpt = (i: number, v: string) =>
     setOptions(o => o.map((x,idx) => idx===i? v:x));
@@ -367,6 +381,30 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     }
   };
 
+  // Remove existing server-side photo for a post while editing
+  const removePostPhoto = async (post: Post) => {
+    if (!canEditPost(post)) {
+      setActionError('Only the author can edit this post.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const updated = await clubService.deletePostPicture(post.id);
+      setPosts(prev => prev.map(p => (p.id === post.id ? updated : p)));
+      // clear any client-side selection/preview
+      removeSelectedEditPhoto();
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to remove the photo.');
+      } else {
+        setActionError('Failed to remove photo');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const deletePost = async (post: Post) => {
     if (!canDeletePost(post)) {
       setActionError('You do not have permission to delete this post.');
@@ -483,12 +521,23 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
 
             {photoPreview && (
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-600 mb-2">Image preview</p>
-                <img
-                  src={photoPreview}
-                  alt="preview"
-                  className="rounded-lg max-h-72 object-cover w-full"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-gray-600">Image preview</p>
+                  <button
+                    type="button"
+                    onClick={removeSelectedPhoto}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div className="w-full rounded-lg bg-gray-100 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden">
+                  <img
+                    src={photoPreview}
+                    alt="preview"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
               </div>
             )}
           </>
@@ -552,6 +601,25 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                     <span className="text-sm">Change photo</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleEditPhoto} />
                   </label>
+                  {editPhotoPreview && (
+                    <button
+                      type="button"
+                      onClick={removeSelectedEditPhoto}
+                      className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+                    >
+                      Remove selected
+                    </button>
+                  )}
+                  {!editPhotoPreview && post.picture && (
+                    <button
+                      type="button"
+                      onClick={() => removePostPhoto(post)}
+                      className="px-3 py-1 border rounded text-sm text-red-600 hover:bg-red-50"
+                      disabled={saving}
+                    >
+                      Remove photo
+                    </button>
+                  )}
                 </div>
                 {(editPhotoPreview || post.picture) && (
                   <div className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-64 md:h-80 lg:h-96 overflow-hidden">

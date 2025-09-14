@@ -270,6 +270,17 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
+  /**
+   * Remove a picture from a post by ID.
+   * Backend endpoint: DELETE /api/posts/{postId}/picture
+   */
+  async deletePostPicture(postId: string): Promise<Post> {
+    const dto = await this.api.request<any>(`/posts/${postId}/picture`, {
+      method: 'DELETE',
+    });
+    return mapPost(dto);
+  }
+
   /** Like a post by ID. */
   async likePost(postId: string): Promise<void> {
     await this.api.request<void>(`/posts/${postId}/like`, { method: 'POST' });

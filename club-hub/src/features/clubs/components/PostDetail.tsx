@@ -126,6 +126,35 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
     setEditPreview(url);
   };
 
+  const removeSelectedEditPhoto = () => {
+    if (editPreview) URL.revokeObjectURL(editPreview);
+    setEditPreview(null);
+    setEditPhoto(null);
+  };
+
+  const removeServerPhoto = async () => {
+    if (!canEdit) {
+      setActionError('Only the author can edit this post.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const updated = await clubService.deletePostPicture(postData.id);
+      setPostData(updated);
+      onPostUpdate?.(updated);
+      removeSelectedEditPhoto();
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to remove the photo.');
+      } else {
+        setActionError('Failed to remove photo');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const saveEdit = async () => {
     if (!canEdit) {
       setActionError('Only the author can edit this post.');
@@ -354,6 +383,26 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
                 <span className="text-sm">Change photo</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleEditPhoto} />
               </label>
+              {editPreview && (
+                <button
+                  type="button"
+                  onClick={removeSelectedEditPhoto}
+                  className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+                  disabled={saving}
+                >
+                  Remove selected
+                </button>
+              )}
+              {!editPreview && postData.picture && (
+                <button
+                  type="button"
+                  onClick={removeServerPhoto}
+                  className="px-3 py-1 border rounded text-sm text-red-600 hover:bg-red-50"
+                  disabled={saving}
+                >
+                  Remove photo
+                </button>
+              )}
             </div>
             {(editPreview || postData.picture) && (
               <div className="w-full rounded-lg bg-gray-100 mb-2 flex items-center justify-center h-72 md:h-96 lg:h-[32rem] overflow-hidden">
