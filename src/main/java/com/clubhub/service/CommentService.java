@@ -1,8 +1,8 @@
 package com.clubhub.service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,13 +35,6 @@ public class CommentService {
     @Inject
     UserService userService;
 
-    /**
-     * Retrieves a comment by its identifier.
-     *
-     * @param id the comment identifier
-     * @return the found comment
-     * @throws NotFoundException if the comment does not exist
-     */
     public Comment getComment(UUID id) {
         Comment comment = commentRepository.findById(id);
         if (comment == null) {
@@ -56,18 +49,9 @@ public class CommentService {
         return comment;
     }
 
-    /**
-     * Adds a new comment to the specified post by the given user.
-     *
-     * @param postId  identifier of the post being commented on
-     * @param userId  identifier of the author
-     * @param content text content of the comment
-     * @return the created comment
-     */
     @Transactional
     public Comment addComment(UUID postId, UUID userId, String content) {
         Post post = postService.getPost(postId);
-        // verify that user is member of the club
         Set<Member> members = post.getClub().getMembersList();
         boolean isMember = members.stream()
                 .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
@@ -95,16 +79,10 @@ public class CommentService {
         return comment;
     }
 
-    /**
-     * Likes a comment on behalf of the specified user.
-     *
-     * @param commentId identifier of the comment to like
-     * @param userId    identifier of the liking user
-     */
     @Transactional
     public void like(UUID commentId, UUID userId) {
         Comment c = getComment(commentId);
-        var club = c.getPost() != null ? c.getPost().getClub() : c.getThread().getClub();
+        var club = c.getPost().getClub();
         boolean isMember = club.getMembersList().stream()
                 .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
         if (!isMember) {
@@ -124,16 +102,10 @@ public class CommentService {
         }
     }
 
-    /**
-     * Removes a user's like from a comment.
-     *
-     * @param commentId identifier of the comment to unlike
-     * @param userId    identifier of the unliking user
-     */
     @Transactional
     public void unlike(UUID commentId, UUID userId) {
         Comment c = getComment(commentId);
-        var club = c.getPost() != null ? c.getPost().getClub() : c.getThread().getClub();
+        var club = c.getPost().getClub();
         boolean isMember = club.getMembersList().stream()
                 .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
         if (!isMember) {
@@ -150,19 +122,11 @@ public class CommentService {
         commentRepository.update(c);
     }
 
-    /**
-     * Updates the content of a comment if the requester is the author.
-     *
-     * @param commentId identifier of the comment to update
-     * @param userId    identifier of the user requesting the update
-     * @param content   new comment content
-     * @return the updated comment
-     */
     @Transactional
     public Comment updateComment(UUID commentId, UUID userId, String content) {
         Comment comment = getComment(commentId);
         User user = userService.getUserById(userId);
-        var club = comment.getPost() != null ? comment.getPost().getClub() : comment.getThread().getClub();
+        var club = comment.getPost().getClub();
         Member membership = club.getMembersList().stream()
                 .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
                 .findFirst().orElse(null);
@@ -188,17 +152,11 @@ public class CommentService {
         return commentRepository.update(comment);
     }
 
-    /**
-     * Deletes a comment if the requester is the author or has sufficient role.
-     *
-     * @param commentId identifier of the comment to delete
-     * @param userId    identifier of the user requesting deletion
-     */
     @Transactional
     public void deleteComment(UUID commentId, UUID userId) {
         Comment comment = getComment(commentId);
         User user = userService.getUserById(userId);
-        var club = comment.getPost() != null ? comment.getPost().getClub() : comment.getThread().getClub();
+        var club = comment.getPost().getClub();
         Member membership = club.getMembersList().stream()
                 .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
                 .findFirst().orElse(null);
@@ -221,18 +179,10 @@ public class CommentService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        if (comment.getPost() != null) {
-            Post p = comment.getPost();
-            p.getCommentsList().remove(comment);
-            p.setComments(p.getComments() - 1);
-            commentRepository.delete(commentId);
-            em.merge(p);
-        } else if (comment.getThread() != null) {
-            var thread = comment.getThread();
-            thread.getCommentsList().remove(comment);
-            thread.setReplies(thread.getReplies() - 1);
-            commentRepository.delete(commentId);
-            em.merge(thread);
-        }
+        Post p = comment.getPost();
+        p.getCommentsList().remove(comment);
+        p.setComments(p.getComments() - 1);
+        commentRepository.delete(commentId);
+        em.merge(p);
     }
 }

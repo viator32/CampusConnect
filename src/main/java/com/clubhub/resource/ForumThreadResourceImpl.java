@@ -12,13 +12,14 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
-import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ForumThreadDTO;
+import com.clubhub.entity.dto.ReplyDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
 import com.clubhub.exception.ValidationException;
 import com.clubhub.service.ForumThreadService;
+import com.clubhub.service.ReplyService;
 
 @RequestScoped
 @Path("/api")
@@ -28,6 +29,9 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 
         @Inject
         ForumThreadService threadService;
+
+        @Inject
+        ReplyService replyService;
 
         @Override
         public ForumThreadDTO getThread(UUID threadId, @Context ContainerRequestContext ctx) {
@@ -48,7 +52,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
         }
 
         @Override
-        public List<CommentDTO> getComments(UUID threadId, @Context ContainerRequestContext ctx) {
+    public List<ReplyDTO> getReplies(UUID threadId, @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 var thread = threadService.getThread(threadId);
                 boolean isMember = thread.getClub().getMembersList().stream()
@@ -57,20 +61,20 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
                         throw new ValidationException(ErrorPayload.builder()
                                         .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
                                         .title("User not a member")
-                                        .details("User must be a member of the club to view comments.")
+                                        .details("User must be a member of the club to view replies.")
                                         .messageParameter("threadId", threadId.toString())
                                         .messageParameter("userId", userId.toString())
                                         .build());
                 }
-                return thread.getCommentsList().stream().map(c -> ClubMapper.toDTO(c, userId)).toList();
+                return thread.getReplies().stream().map(r -> ClubMapper.toDTO(r, userId)).toList();
         }
 
         @Override
-        public CommentDTO addComment(UUID threadId, CommentDTO dto,
-                        @Context ContainerRequestContext ctx) {
+    public ReplyDTO addReply(UUID threadId, ReplyDTO dto,
+                    @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
-                var comment = threadService.addReply(threadId, userId, dto.getContent());
-                return ClubMapper.toDTO(comment, userId);
+                var reply = replyService.addReply(threadId, userId, dto.getContent());
+                return ClubMapper.toDTO(reply, userId);
         }
 
         @Override

@@ -29,7 +29,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "club", "commentsList", "upvotedBy", "downvotedBy" })
+@ToString(exclude = { "club", "replies", "upvotedBy", "downvotedBy" })
 public class ForumThread {
 
 	@Id
@@ -40,16 +40,17 @@ public class ForumThread {
 
 	@ManyToOne
 	@JoinColumn(name = "author_id")
-	private User author;
-	private int replies;
+    private User author;
+    @Column(name = "replies")
+    private int replyCount;
 
 	@Column(name = "last_activity")
 	private String lastActivity;
 
 	private String content;
 
-	@OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
-	private List<Comment> commentsList = new ArrayList<>();
+    @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
+    private List<Reply> replies = new ArrayList<>();
 
 	private int upvotes;
 

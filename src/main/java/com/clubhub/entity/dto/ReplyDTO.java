@@ -1,26 +1,23 @@
 package com.clubhub.entity.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO representing a reply on a forum thread.
+ */
 @Data
 @NoArgsConstructor
-public class ForumThreadDTO {
-
+public class ReplyDTO {
     private UUID id;
-    private String title;
     private AuthorDTO author;
-    private int replyCount;
-    private String lastActivity;
     private String content;
+    private String time;
     private int upvotes;
     private int downvotes;
     private boolean upvoted;
     private boolean downvoted;
-    private final List<ReplyDTO> replies = new ArrayList<>();
-    private ClubDTO club;
 }
+
