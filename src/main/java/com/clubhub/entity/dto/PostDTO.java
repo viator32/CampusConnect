@@ -1,8 +1,6 @@
 package com.clubhub.entity.dto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import lombok.Data;
@@ -22,10 +20,8 @@ public class PostDTO {
 	private LocalDateTime time;
 	private String picture;
 
-	private PollDTO poll;
-	private final List<CommentDTO> commentsList = new ArrayList<>();
-
-	private ClubDTO club;
-	private boolean liked;
+        private PollDTO poll;
+        private ClubDTO club;
+        private boolean liked;
 
 }

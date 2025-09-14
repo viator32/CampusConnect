@@ -1,7 +1,5 @@
 package com.clubhub.entity.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import lombok.Data;
@@ -21,6 +19,5 @@ public class ForumThreadDTO {
     private int downvotes;
     private boolean upvoted;
     private boolean downvoted;
-    private final List<ReplyDTO> replies = new ArrayList<>();
     private ClubDTO club;
 }

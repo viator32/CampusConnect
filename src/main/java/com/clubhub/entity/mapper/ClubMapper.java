@@ -30,13 +30,11 @@ public class ClubMapper {
 	}
 
 	public static ClubDTO toDTO(Club club, UUID userId) {
-		ClubDTO dto = toSummaryDTO(club);
+                ClubDTO dto = toSummaryDTO(club);
 
-		dto.getEvents().addAll(club.getEvents().stream().map(ClubMapper::toDTO).toList());
-		dto.getMembersList().addAll(club.getMembersList().stream().map(ClubMapper::toDTO).toList());
-		dto.getForumThreads().addAll(club.getForumThreads().stream().map(t -> ClubMapper.toDTO(t, userId)).toList());
+                dto.getMembersList().addAll(club.getMembersList().stream().map(ClubMapper::toDTO).toList());
 
-		return dto;
+                return dto;
 	}
 
 	public static ClubDTO toSummaryDTO(Club club) {
@@ -108,11 +106,10 @@ public class ClubMapper {
 		dto.setTime(p.getTime());
 		dto.setPicture(ObjectStorageService.url(p.getPictureBucket(), p.getPictureObject()));
 
-		dto.setPoll(p.getPoll() != null ? toDTO(p.getPoll()) : null);
-		dto.getCommentsList().addAll(p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList());
-		dto.setClub(p.getClub() != null ? toSummaryDTO(p.getClub()) : null);
-		dto.setLiked(userId != null && p.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
-		return dto;
+                dto.setPoll(p.getPoll() != null ? toDTO(p.getPoll()) : null);
+                dto.setClub(p.getClub() != null ? toSummaryDTO(p.getClub()) : null);
+                dto.setLiked(userId != null && p.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                return dto;
 	}
 
 	public static PollDTO toDTO(Poll poll) {
@@ -190,9 +187,8 @@ public class ClubMapper {
 		dto.setUpvotes(t.getUpvotes());
 		dto.setDownvotes(t.getDownvotes());
 		dto.setUpvoted(userId != null && t.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
-		dto.setDownvoted(userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
-                dto.getReplies().addAll(t.getReplies().stream().map(r -> toDTO(r, userId)).toList());
-		dto.setClub(t.getClub() != null ? toSummaryDTO(t.getClub()) : null);
-		return dto;
-	}
+                dto.setDownvoted(userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                dto.setClub(t.getClub() != null ? toSummaryDTO(t.getClub()) : null);
+                return dto;
+        }
 }
