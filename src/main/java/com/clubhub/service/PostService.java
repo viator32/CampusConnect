@@ -179,14 +179,28 @@ public class PostService {
                     .build());
         }
         boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(userId);
-        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+        if ((membership.getRole() == MemberRole.MEMBER || membership.getRole() == MemberRole.MODERATOR) && !isAuthor) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
                     .title("Insufficient permissions")
-                    .details("Members can only update their own posts.")
+                    .details("Members and moderators can only update their own posts.")
                     .messageParameter("postId", postId.toString())
                     .messageParameter("userId", userId.toString())
                     .build());
+        }
+        if (membership.getRole() == MemberRole.ADMIN && !isAuthor) {
+            Member authorMembership = post.getAuthor() != null
+                    ? memberRepository.findByClubAndUser(post.getClub().getId(), post.getAuthor().getId())
+                    : null;
+            if (authorMembership != null && authorMembership.getRole() == MemberRole.MODERATOR) {
+                throw new ValidationException(ErrorPayload.builder()
+                        .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                        .title("Insufficient permissions")
+                        .details("Admins cannot update posts from moderators.")
+                        .messageParameter("postId", postId.toString())
+                        .messageParameter("userId", userId.toString())
+                        .build());
+            }
         }
         var stored = objectStorageService.uploadTo(postBucket, "posts/" + postId, picture, contentType);
         post.setPictureBucket(stored.bucket());
@@ -219,14 +233,28 @@ public class PostService {
                     .build());
         }
         boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
-        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+        if ((membership.getRole() == MemberRole.MEMBER || membership.getRole() == MemberRole.MODERATOR) && !isAuthor) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
                     .title("Insufficient permissions")
-                    .details("Members can only update their own posts.")
+                    .details("Members and moderators can only update their own posts.")
                     .messageParameter("postId", postId.toString())
                     .messageParameter("userId", userId.toString())
                     .build());
+        }
+        if (membership.getRole() == MemberRole.ADMIN && !isAuthor) {
+            Member authorMembership = post.getAuthor() != null
+                    ? memberRepository.findByClubAndUser(post.getClub().getId(), post.getAuthor().getId())
+                    : null;
+            if (authorMembership != null && authorMembership.getRole() == MemberRole.MODERATOR) {
+                throw new ValidationException(ErrorPayload.builder()
+                        .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+                        .title("Insufficient permissions")
+                        .details("Admins cannot update posts from moderators.")
+                        .messageParameter("postId", postId.toString())
+                        .messageParameter("userId", userId.toString())
+                        .build());
+            }
         }
         post.setContent(dto.content);
         postRepository.update(post);
@@ -256,11 +284,11 @@ public class PostService {
                     .build());
         }
         boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
-        if (membership.getRole() == MemberRole.MEMBER && !isAuthor) {
+        if (membership.getRole() != MemberRole.ADMIN && !isAuthor) {
             throw new ValidationException(ErrorPayload.builder()
                     .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
                     .title("Insufficient permissions")
-                    .details("Members can only delete their own posts.")
+                    .details("Members and moderators can only delete their own posts.")
                     .messageParameter("postId", postId.toString())
                     .messageParameter("userId", userId.toString())
                     .build());
