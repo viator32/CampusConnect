@@ -13,6 +13,7 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.SetBucketPolicyArgs;
 
 @ApplicationScoped
@@ -43,7 +44,7 @@ public class ObjectStorageService {
 		return uploadTo(bucket, objectNamePrefix, data, contentType);
 	}
 
-	public StoredObject uploadTo(String targetBucket, String objectNamePrefix, byte[] data, String contentType) {
+        public StoredObject uploadTo(String targetBucket, String objectNamePrefix, byte[] data, String contentType) {
 		String extension = EXTENSIONS.getOrDefault(contentType, "");
 		String objectName = objectNamePrefix + extension;
 		try (var stream = new ByteArrayInputStream(data)) {
@@ -78,9 +79,24 @@ public class ObjectStorageService {
 			return new StoredObject(targetBucket, objectName, response.etag());
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to upload object", e);
-		}
-	}
+                }
+        }
 
-	public record StoredObject(String bucket, String objectKey, String etag) {
-	}
+        public void delete(String objectName) {
+                deleteFrom(bucket, objectName);
+        }
+
+        public void deleteFrom(String targetBucket, String objectName) {
+                try {
+                        minioClient.removeObject(RemoveObjectArgs.builder()
+                                        .bucket(targetBucket)
+                                        .object(objectName)
+                                        .build());
+                } catch (Exception e) {
+                        throw new RuntimeException("Failed to delete object", e);
+                }
+        }
+
+        public record StoredObject(String bucket, String objectKey, String etag) {
+        }
 }
