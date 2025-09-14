@@ -12,65 +12,65 @@ public class UserMapper {
 
         public static UserDTO toDTO(User user) {
                 UserDTO dto = new UserDTO();
-                dto.id = user.getId();
-                dto.email = user.getEmail();
-                dto.username = user.getUsername();
-                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
-                dto.description = user.getDescription();
-               dto.preferences = user.getPreferences();
-                dto.subject = user.getSubject() != null ? user.getSubject() : Subject.NONE;
-                dto.memberships = user.getMemberships()
+                dto.setId(user.getId());
+                dto.setEmail(user.getEmail());
+                dto.setUsername(user.getUsername());
+                dto.setAvatar(ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject()));
+                dto.setDescription(user.getDescription());
+               dto.setPreferences(user.getPreferences());
+                dto.setSubject(user.getSubject() != null ? user.getSubject() : Subject.NONE);
+                dto.setMemberships(user.getMemberships()
                                 .stream()
                                 .map(ClubMapper::toDTO)
-                                .toList();
-                dto.clubsJoined = dto.memberships != null ? dto.memberships.size() : 0;
+                                .toList());
+                dto.setClubsJoined(dto.getMemberships() != null ? dto.getMemberships().size() : 0);
                 return dto;
         }
 
         public static UserDTO toSummaryDTO(User user) {
                 UserDTO dto = new UserDTO();
-                dto.id = user.getId();
-                dto.email = user.getEmail();
-                dto.username = user.getUsername();
-                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
-                dto.description = user.getDescription();
+                dto.setId(user.getId());
+                dto.setEmail(user.getEmail());
+                dto.setUsername(user.getUsername());
+                dto.setAvatar(ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject()));
+                dto.setDescription(user.getDescription());
                 return dto;
         }
 
        public static AuthorDTO toAuthorDTO(User user) {
                 AuthorDTO dto = new AuthorDTO();
-                dto.id = user.getId();
-                dto.username = user.getUsername();
-                dto.avatar = ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject());
+                dto.setId(user.getId());
+                dto.setUsername(user.getUsername());
+                dto.setAvatar(ObjectStorageService.url(user.getAvatarBucket(), user.getAvatarObject()));
                 return dto;
        }
 
         public static User toEntity(UserDTO dto) {
                 User user = new User();
-                user.setId(dto.id);
-                user.setEmail(dto.email);
-                user.setUsername(dto.username);
+                user.setId(dto.getId());
+                user.setEmail(dto.getEmail());
+                user.setUsername(dto.getUsername());
                 // avatar handled separately
-                user.setDescription(dto.description);
-               user.setPreferences(dto.preferences);
-               user.setSubject(dto.subject);
+                user.setDescription(dto.getDescription());
+               user.setPreferences(dto.getPreferences());
+               user.setSubject(dto.getSubject());
                return user;
        }
 
        public static User toEntity(UserUpdateDTO dto) {
                User user = new User();
-               user.setEmail(dto.email);
-               user.setUsername(dto.username);
-               user.setDescription(dto.description);
-               user.setPreferences(dto.preferences);
-               user.setSubject(dto.subject);
+               user.setEmail(dto.getEmail());
+               user.setUsername(dto.getUsername());
+               user.setDescription(dto.getDescription());
+               user.setPreferences(dto.getPreferences());
+               user.setSubject(dto.getSubject());
                return user;
        }
 
         public static User toEntity(RegisterDTO dto) {
                 User user = new User();
-                user.setEmail(dto.email);
-                user.setUsername(dto.username);
+                user.setEmail(dto.getEmail());
+                user.setUsername(dto.getUsername());
                 return user;
         }
 }

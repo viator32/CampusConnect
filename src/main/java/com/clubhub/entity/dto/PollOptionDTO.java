@@ -1,7 +1,12 @@
 package com.clubhub.entity.dto;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class PollOptionDTO {
 
-	public String text;
-	public int votes;
+        private String text;
+        private int votes;
 }

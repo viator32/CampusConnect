@@ -3,8 +3,13 @@ package com.clubhub.entity.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class PollDTO {
 
-	public String question;
-	public List<PollOptionDTO> options = new ArrayList<>();
+        private String question;
+        private final List<PollOptionDTO> options = new ArrayList<>();
 }

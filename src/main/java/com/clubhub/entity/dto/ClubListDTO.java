@@ -2,8 +2,13 @@ package com.clubhub.entity.dto;
 
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class ClubListDTO {
-    public List<ClubDTO> clubs;
-    public long totalCount;
+    private List<ClubDTO> clubs;
+    private long totalCount;
 }
 

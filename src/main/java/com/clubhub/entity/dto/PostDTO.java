@@ -5,22 +5,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class PostDTO {
 
-        public UUID id;
-        public AuthorDTO author;
-        public String content;
-	public int likes;
-	public int comments;
-	public int bookmarks;
-        public int shares;
-        public LocalDateTime time;
-        public String picture;
+        private UUID id;
+        private AuthorDTO author;
+        private String content;
+        private int likes;
+        private int comments;
+        private int bookmarks;
+        private int shares;
+        private LocalDateTime time;
+        private String picture;
 
-        public PollDTO poll;
-        public List<CommentDTO> commentsList = new ArrayList<>();
+        private PollDTO poll;
+        private final List<CommentDTO> commentsList = new ArrayList<>();
 
-        public ClubDTO club;
-        public boolean liked;
+        private ClubDTO club;
+        private boolean liked;
 
 }

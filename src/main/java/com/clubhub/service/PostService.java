@@ -256,7 +256,7 @@ public class PostService {
                         .build());
             }
         }
-        post.setContent(dto.content);
+        post.setContent(dto.getContent());
         postRepository.update(post);
     }
 

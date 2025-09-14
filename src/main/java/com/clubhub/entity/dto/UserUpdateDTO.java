@@ -5,10 +5,15 @@ import java.util.Set;
 import com.clubhub.entity.Preference;
 import com.clubhub.entity.Subject;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class UserUpdateDTO {
-        public String email;
-        public String username;
-        public String description;
-        public Set<Preference> preferences;
-        public Subject subject;
+        private String email;
+        private String username;
+        private String description;
+        private Set<Preference> preferences;
+        private Subject subject;
 }

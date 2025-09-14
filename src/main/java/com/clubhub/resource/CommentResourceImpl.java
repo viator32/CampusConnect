@@ -54,7 +54,7 @@ public class CommentResourceImpl implements CommentResource {
 	@Override
 	public CommentDTO addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-                var comment = commentService.addComment(postId, userId, dto.content);
+                var comment = commentService.addComment(postId, userId, dto.getContent());
                 return ClubMapper.toDTO(comment, userId);
 	}
 
@@ -77,7 +77,7 @@ public class CommentResourceImpl implements CommentResource {
 	@Override
 	public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
-                var updated = commentService.updateComment(commentId, userId, dto.content);
+                var updated = commentService.updateComment(commentId, userId, dto.getContent());
                 return ClubMapper.toDTO(updated, userId);
 	}
 

@@ -7,21 +7,26 @@ import java.util.UUID;
 import com.clubhub.entity.Preference;
 import com.clubhub.entity.Subject;
 
-public class ClubDTO {
-	public UUID id;
-	public String name;
-        public String description;
-        public String category;
-       public Subject subject;
-       public Preference interest;
-        public String location;
-        public String avatar;
-        public boolean isJoined;
-	public int members;
-	public int eventsCount;
-	public int postsCount;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-	public List<EventDTO> events = new ArrayList<>();
-	public List<MemberDTO> members_list = new ArrayList<>();
-	public List<ForumThreadDTO> forum_threads = new ArrayList<>();
+@Data
+@NoArgsConstructor
+public class ClubDTO {
+        private UUID id;
+        private String name;
+        private String description;
+        private String category;
+       private Subject subject;
+       private Preference interest;
+        private String location;
+        private String avatar;
+        private boolean isJoined;
+        private int members;
+        private int eventsCount;
+        private int postsCount;
+
+        private final List<EventDTO> events = new ArrayList<>();
+        private final List<MemberDTO> membersList = new ArrayList<>();
+        private final List<ForumThreadDTO> forumThreads = new ArrayList<>();
 }

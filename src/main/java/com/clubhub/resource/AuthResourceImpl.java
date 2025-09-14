@@ -26,40 +26,40 @@ public class AuthResourceImpl implements AuthResource {
 
 	@Override
 	public AuthResponseDTO register(RegisterDTO register) {
-		if (register.email == null || !register.email.endsWith("@study.thws.de")) {
+                if (register.getEmail() == null || !register.getEmail().endsWith("@study.thws.de")) {
 			throw new ValidationException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
 					.title("Invalid email")
 					.details("Email must end with @study.thws.de")
-					.messageParameter("email", register.email)
-					.sourcePointer("email")
+                                        .messageParameter("email", register.getEmail())
+                                        .sourcePointer("email")
 					.build());
 		}
-		if (userService.getUserByEmail(register.email) != null) {
+                if (userService.getUserByEmail(register.getEmail()) != null) {
 			throw new ValidationException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.USER_ALREADY_EXISTS)
 					.title("User already exists")
 					.details("A user with this email already exists.")
-					.messageParameter("email", register.email)
-					.sourcePointer("email")
+                                        .messageParameter("email", register.getEmail())
+                                        .sourcePointer("email")
 					.build());
 		}
-		var user = UserMapper.toEntity(register);
-		userService.createUser(user, register.password);
+                var user = UserMapper.toEntity(register);
+                userService.createUser(user, register.getPassword());
 		String token = authService.createToken(user.getId());
 		return new AuthResponseDTO(token);
 	}
 
 	@Override
 	public AuthResponseDTO login(AuthRequestDTO request) {
-		var user = userService.authenticate(request.email, request.password);
+                var user = userService.authenticate(request.getEmail(), request.getPassword());
 		String token = authService.createToken(user.getId());
 		return new AuthResponseDTO(token);
 	}
 
 	@Override
 	public AuthResponseDTO refresh(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
-		String token = tokenDto != null ? tokenDto.token : null;
+                String token = tokenDto != null ? tokenDto.getToken() : null;
 		if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
 			token = authorization.substring("Bearer ".length());
 		}
@@ -79,7 +79,7 @@ public class AuthResourceImpl implements AuthResource {
 
 	@Override
 	public ActionResponseDTO logout(@HeaderParam("Authorization") String authorization, AuthResponseDTO tokenDto) {
-		String token = tokenDto != null ? tokenDto.token : null;
+                String token = tokenDto != null ? tokenDto.getToken() : null;
 		if (token == null && authorization != null && authorization.startsWith("Bearer ")) {
 			token = authorization.substring("Bearer ".length());
 		}

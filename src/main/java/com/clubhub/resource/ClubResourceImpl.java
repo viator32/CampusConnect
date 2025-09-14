@@ -62,8 +62,8 @@ public class ClubResourceImpl implements ClubResource {
                                 .map(ClubMapper::toSummaryDTO)
                                 .toList();
                 ClubListDTO dto = new ClubListDTO();
-                dto.clubs = clubs;
-                dto.totalCount = clubService.getClubCount(name, category, interest, minMembers, maxMembers);
+                dto.setClubs(clubs);
+                dto.setTotalCount(clubService.getClubCount(name, category, interest, minMembers, maxMembers));
                 return dto;
         }
 
@@ -122,7 +122,7 @@ public class ClubResourceImpl implements ClubResource {
         public ActionResponseDTO updateRole(UUID clubId, UUID memberId, MemberDTO dto,
                         @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
-                clubService.updateMemberRole(clubId, memberId, MemberRole.valueOf(dto.role.toUpperCase()), userId);
+                clubService.updateMemberRole(clubId, memberId, MemberRole.valueOf(dto.getRole().toUpperCase()), userId);
                 return new ActionResponseDTO(true, "Role updated");
         }
 
@@ -151,7 +151,7 @@ public class ClubResourceImpl implements ClubResource {
        public ForumThreadDTO createThread(UUID clubId, ForumThreadDTO dto,
                        @Context ContainerRequestContext ctx) {
                UUID userId = (UUID) ctx.getProperty("userId");
-               var thread = threadService.addThread(clubId, userId, dto.title, dto.content);
+               var thread = threadService.addThread(clubId, userId, dto.getTitle(), dto.getContent());
                return ClubMapper.toDTO(thread, userId);
        }
 
@@ -212,21 +212,21 @@ public class ClubResourceImpl implements ClubResource {
         @Override
         public PostDTO createPost(UUID clubId, PostCreateForm form, @Context ContainerRequestContext ctx) {
                 PostDTO dto = new PostDTO();
-                dto.content = form.content;
+                dto.setContent(form.getContent());
                 var created = createPost(clubId, dto, ctx);
-               if (form.picture != null && form.picture.length > 0) {
+               if (form.getPicture() != null && form.getPicture().length > 0) {
                         UUID userId = (UUID) ctx.getProperty("userId");
-                        String contentType = form.pictureContentType;
+                        String contentType = form.getPictureContentType();
                         if (contentType == null) {
-                                try (var is = new ByteArrayInputStream(form.picture)) {
+                                try (var is = new ByteArrayInputStream(form.getPicture())) {
                                         contentType = URLConnection.guessContentTypeFromStream(is);
                                 } catch (IOException e) {
                                         contentType = null;
                                 }
                         }
                         if (contentType != null) {
-                                postService.updatePicture(created.id, userId, form.picture, contentType);
-                                var post = postService.getPost(created.id);
+                                postService.updatePicture(created.getId(), userId, form.getPicture(), contentType);
+                                var post = postService.getPost(created.getId());
                                 return ClubMapper.toDTO(post, userId);
                         }
                }

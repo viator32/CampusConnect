@@ -29,63 +29,63 @@ public class ClubMapper {
         public static ClubDTO toDTO(Club club, UUID userId) {
                 ClubDTO dto = toSummaryDTO(club);
 
-                dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
-                dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
-                dto.forum_threads = club.getForumThreads().stream().map(t -> ClubMapper.toDTO(t, userId)).toList();
+                dto.getEvents().addAll(club.getEvents().stream().map(ClubMapper::toDTO).toList());
+                dto.getMembersList().addAll(club.getMembersList().stream().map(ClubMapper::toDTO).toList());
+                dto.getForumThreads().addAll(club.getForumThreads().stream().map(t -> ClubMapper.toDTO(t, userId)).toList());
 
                 return dto;
         }
 
-	public static ClubDTO toSummaryDTO(Club club) {
-		ClubDTO dto = new ClubDTO();
-		dto.id = club.getId();
-                dto.name = club.getName();
-                dto.description = club.getDescription();
-                dto.category = club.getCategory();
-               dto.subject = club.getSubject();
-               dto.interest = club.getInterest();
-                dto.location = club.getLocation();
-                dto.avatar = ObjectStorageService.url(club.getAvatarBucket(), club.getAvatarObject());
-                dto.isJoined = club.isJoined();
-                dto.members = club.getMembersList() != null ? club.getMembersList().size() : 0;
-                dto.eventsCount = club.getEvents() != null ? club.getEvents().size() : 0;
-                dto.postsCount = club.getPosts() != null ? club.getPosts().size() : 0;
+        public static ClubDTO toSummaryDTO(Club club) {
+                ClubDTO dto = new ClubDTO();
+                dto.setId(club.getId());
+                dto.setName(club.getName());
+                dto.setDescription(club.getDescription());
+                dto.setCategory(club.getCategory());
+               dto.setSubject(club.getSubject());
+               dto.setInterest(club.getInterest());
+                dto.setLocation(club.getLocation());
+                dto.setAvatar(ObjectStorageService.url(club.getAvatarBucket(), club.getAvatarObject()));
+                dto.setJoined(club.isJoined());
+                dto.setMembers(club.getMembersList() != null ? club.getMembersList().size() : 0);
+                dto.setEventsCount(club.getEvents() != null ? club.getEvents().size() : 0);
+                dto.setPostsCount(club.getPosts() != null ? club.getPosts().size() : 0);
                 return dto;
-	}
+        }
 
-	public static Club toEntity(ClubDTO dto) {
-		Club club = new Club();
+        public static Club toEntity(ClubDTO dto) {
+                Club club = new Club();
 
-		if (dto.id != null) {
-			club.setId(dto.id);
-		}
+                if (dto.getId() != null) {
+                        club.setId(dto.getId());
+                }
 
-		club.setName(dto.name);
-                club.setDescription(dto.description);
-                club.setCategory(dto.category);
-               club.setSubject(dto.subject);
-               club.setInterest(dto.interest);
-                club.setLocation(dto.location);
+                club.setName(dto.getName());
+                club.setDescription(dto.getDescription());
+                club.setCategory(dto.getCategory());
+               club.setSubject(dto.getSubject());
+               club.setInterest(dto.getInterest());
+                club.setLocation(dto.getLocation());
                 // avatar handled separately
-                club.setJoined(dto.isJoined);
-                club.setMembers(dto.members);
+                club.setJoined(dto.isJoined());
+                club.setMembers(dto.getMembers());
 
                 return club;
         }
 
         public static EventDTO toDTO(Event e) {
                 EventDTO dto = new EventDTO();
-                dto.id = e.getId();
-                dto.title = e.getTitle();
-                dto.description = e.getDescription();
-                dto.date = e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null;
-                dto.time = e.getTime();
-                dto.location = e.getLocation();
-                dto.createdAt = e.getCreatedAt();
-                dto.status = e.getStatus();
-                dto.clubId = e.getClub() != null ? e.getClub().getId() : null;
-                dto.attendeesCount = e.getAttendees() != null ? e.getAttendees().size() : 0;
-                dto.club = e.getClub() != null ? toSummaryDTO(e.getClub()) : null;
+                dto.setId(e.getId());
+                dto.setTitle(e.getTitle());
+                dto.setDescription(e.getDescription());
+                dto.setDate(e.getDate() != null ? LocalDate.parse(e.getDate().toString()) : null);
+                dto.setTime(e.getTime());
+                dto.setLocation(e.getLocation());
+                dto.setCreatedAt(e.getCreatedAt());
+                dto.setStatus(e.getStatus());
+                dto.setClubId(e.getClub() != null ? e.getClub().getId() : null);
+                dto.setAttendeesCount(e.getAttendees() != null ? e.getAttendees().size() : 0);
+                dto.setClub(e.getClub() != null ? toSummaryDTO(e.getClub()) : null);
                 return dto;
         }
 
@@ -95,36 +95,36 @@ public class ClubMapper {
 
         public static PostDTO toDTO(Post p, UUID userId) {
                 PostDTO dto = new PostDTO();
-                dto.id = p.getId();
-                dto.author = p.getAuthor() != null ? UserMapper.toAuthorDTO(p.getAuthor()) : null;
-                dto.content = p.getContent();
-                dto.likes = p.getLikes();
-                dto.comments = p.getComments();
-                dto.bookmarks = p.getBookmarks();
-                dto.shares = p.getShares();
-                dto.time = p.getTime();
-                dto.picture = ObjectStorageService.url(p.getPictureBucket(), p.getPictureObject());
+                dto.setId(p.getId());
+                dto.setAuthor(p.getAuthor() != null ? UserMapper.toAuthorDTO(p.getAuthor()) : null);
+                dto.setContent(p.getContent());
+                dto.setLikes(p.getLikes());
+                dto.setComments(p.getComments());
+                dto.setBookmarks(p.getBookmarks());
+                dto.setShares(p.getShares());
+                dto.setTime(p.getTime());
+                dto.setPicture(ObjectStorageService.url(p.getPictureBucket(), p.getPictureObject()));
 
-                dto.poll = p.getPoll() != null ? toDTO(p.getPoll()) : null;
-                dto.commentsList = p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
-                dto.club = p.getClub() != null ? toSummaryDTO(p.getClub()) : null;
-                dto.liked = userId != null && p.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId));
+                dto.setPoll(p.getPoll() != null ? toDTO(p.getPoll()) : null);
+                dto.getCommentsList().addAll(p.getCommentsList().stream().map(c -> toDTO(c, userId)).toList());
+                dto.setClub(p.getClub() != null ? toSummaryDTO(p.getClub()) : null);
+                dto.setLiked(userId != null && p.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
                 return dto;
         }
 
-	public static PollDTO toDTO(Poll poll) {
-		PollDTO dto = new PollDTO();
-		dto.question = poll.getQuestion();
-		dto.options = poll.getOptions().stream().map(ClubMapper::toDTO).toList();
-		return dto;
-	}
+        public static PollDTO toDTO(Poll poll) {
+                PollDTO dto = new PollDTO();
+                dto.setQuestion(poll.getQuestion());
+                dto.getOptions().addAll(poll.getOptions().stream().map(ClubMapper::toDTO).toList());
+                return dto;
+        }
 
-	public static PollOptionDTO toDTO(PollOption opt) {
-		PollOptionDTO dto = new PollOptionDTO();
-		dto.text = opt.getText();
-		dto.votes = opt.getVotes();
-		return dto;
-	}
+        public static PollOptionDTO toDTO(PollOption opt) {
+                PollOptionDTO dto = new PollOptionDTO();
+                dto.setText(opt.getText());
+                dto.setVotes(opt.getVotes());
+                return dto;
+        }
 
         public static CommentDTO toDTO(Comment c) {
                 return toDTO(c, null);
@@ -132,28 +132,28 @@ public class ClubMapper {
 
         public static CommentDTO toDTO(Comment c, UUID userId) {
                 CommentDTO dto = new CommentDTO();
-                dto.id = c.getId();
-                dto.author = c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null;
-                dto.content = c.getContent();
-                dto.time = c.getTime();
-                dto.likes = c.getLikes();
-                dto.liked = userId != null && c.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId));
+                dto.setId(c.getId());
+                dto.setAuthor(c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null);
+                dto.setContent(c.getContent());
+                dto.setTime(c.getTime());
+                dto.setLikes(c.getLikes());
+                dto.setLiked(userId != null && c.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
                 return dto;
         }
 
         public static MemberDTO toDTO(Member m) {
                MemberDTO dto = new MemberDTO();
-               dto.id = m.getId();
-               dto.clubId = m.getClub() != null ? m.getClub().getId() : null;
-               dto.userId = m.getUser() != null ? m.getUser().getId() : null;
-               dto.role = m.getRole() != null ? m.getRole().name() : null;
-                dto.avatar = (m.getUser() != null)
+               dto.setId(m.getId());
+               dto.setClubId(m.getClub() != null ? m.getClub().getId() : null);
+               dto.setUserId(m.getUser() != null ? m.getUser().getId() : null);
+               dto.setRole(m.getRole() != null ? m.getRole().name() : null);
+                dto.setAvatar((m.getUser() != null)
                                 ? ObjectStorageService.url(m.getUser().getAvatarBucket(), m.getUser().getAvatarObject())
-                                : null;
-               dto.joinedAt = m.getJoinedAt();
+                                : null);
+               dto.setJoinedAt(m.getJoinedAt());
 
                if (m.getUser() != null) {
-                       dto.name = m.getUser().getUsername();
+                       dto.setName(m.getUser().getUsername());
                }
 
                return dto;
@@ -165,18 +165,18 @@ public class ClubMapper {
 
         public static ForumThreadDTO toDTO(ForumThread t, UUID userId) {
                 ForumThreadDTO dto = new ForumThreadDTO();
-                dto.id = t.getId();
-                dto.title = t.getTitle();
-                dto.author = t.getAuthor() != null ? UserMapper.toAuthorDTO(t.getAuthor()) : null;
-                dto.replies = t.getReplies();
-                dto.lastActivity = t.getLastActivity();
-                dto.content = t.getContent();
-                dto.upvotes = t.getUpvotes();
-                dto.downvotes = t.getDownvotes();
-                dto.upvoted = userId != null && t.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId));
-                dto.downvoted = userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId));
-                dto.commentsList = t.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
-                dto.club = t.getClub() != null ? toSummaryDTO(t.getClub()) : null;
+                dto.setId(t.getId());
+                dto.setTitle(t.getTitle());
+                dto.setAuthor(t.getAuthor() != null ? UserMapper.toAuthorDTO(t.getAuthor()) : null);
+                dto.setReplies(t.getReplies());
+                dto.setLastActivity(t.getLastActivity());
+                dto.setContent(t.getContent());
+                dto.setUpvotes(t.getUpvotes());
+                dto.setDownvotes(t.getDownvotes());
+                dto.setUpvoted(userId != null && t.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                dto.setDownvoted(userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                dto.getCommentsList().addAll(t.getCommentsList().stream().map(c -> toDTO(c, userId)).toList());
+                dto.setClub(t.getClub() != null ? toSummaryDTO(t.getClub()) : null);
                 return dto;
         }
 }

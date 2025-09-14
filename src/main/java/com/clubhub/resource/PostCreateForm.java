@@ -10,12 +10,36 @@ import org.jboss.resteasy.reactive.RestForm;
 public class PostCreateForm {
 
     @RestForm
-    public String content;
+    private String content;
 
     @RestForm
-    public byte[] picture;
+    private byte[] picture;
 
     @RestForm
-    public String pictureContentType;
+    private String pictureContentType;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
+    public String getPictureContentType() {
+        return pictureContentType;
+    }
+
+    public void setPictureContentType(String pictureContentType) {
+        this.pictureContentType = pictureContentType;
+    }
 }
 
