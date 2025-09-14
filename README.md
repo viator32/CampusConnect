@@ -7,7 +7,7 @@ Backend service for ClubHub built with [Quarkus](https://quarkus.io/).
 ### Requirements
 
 - Docker and Docker Compose
-- Java 21 (if running without Docker)
+- Java 21 (if running without Docker)
 
 ### Environment configuration
 
@@ -31,7 +31,8 @@ docker compose up --build
 
 The API will be available at <http://localhost:8080>.
 
-MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (credentials `minio`/`minio123`).
+MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (
+credentials `minio`/`minio123`).
 
 ### MinIO setup
 
@@ -39,13 +40,12 @@ MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web conso
 2. Log in using `minio` as the username and `minio123` as the password.
 3. Create buckets named `avatars` and `posts` (must match `MINIO_BUCKET` and `MINIO_POST_BUCKET` in `.env`).
 
-
 ### Development mode
 
 Alternatively, start the application directly (requires a running PostgreSQL instance):
 
 ```bash
-./mvnw quarkus:dev
+./mvn quarkus:dev
 ```
 
 ### Database migrations
@@ -59,9 +59,14 @@ script following the `V<version>__description.sql` naming convention.
 
 Each club member is assigned one of the following roles, which determine what actions are allowed inside a club:
 
-- **Member** – Default role for new members. Can view club content, create comments on posts and replies in threads, interact with posts (like, share, bookmark), like comments and upvote or downvote replies, update or delete only their own comments and replies, and join events. Members cannot create, update or delete posts or events, and they cannot modify other members' roles.
-- **Moderator** – Inherits all member abilities and can additionally create posts, create, update and delete events, update or delete any post, and delete any comment.
-- **Admin** – Highest privilege level. In addition to moderator capabilities, admins can change the roles of other members. At least one admin must remain in every club.
+- **Member** – Default role for new members. Can view club content, create comments on posts and replies in threads,
+  interact with posts (like, share, bookmark), like comments and upvote or downvote replies, update or delete only their
+  own comments and replies, and join events. Members cannot create, update or delete posts or events, and they cannot
+  modify other members' roles.
+- **Moderator** – Inherits all member abilities and can additionally create posts, create, update and delete events,
+  update or delete any post, and delete any comment.
+- **Admin** – Highest privilege level. In addition to moderator capabilities, admins can change the roles of other
+  members. At least one admin must remain in every club.
 
 ## API Endpoints
 
@@ -143,7 +148,9 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.jpg"
   ```
 
-  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile contains the public URL. Only the bucket name and object key are persisted in the database.
+  The endpoint expects raw image bytes in the request body. Supported formats include PNG, JPEG, WebP and GIF. Use the
+  appropriate `Content-Type` header (e.g. `image/png`, `image/jpeg`). The image is stored in MinIO and the user profile
+  contains the public URL. Only the bucket name and object key are persisted in the database.
 
 - **Change password** – `PUT /api/users/{id}/password` (200 OK)
 
@@ -208,9 +215,10 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        --data-binary "@avatar.png"
   ```
 
-  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. Only the bucket name and object key are saved in the database. The same image formats as for user avatars are supported.
+  Uploaded images are stored in MinIO and the club DTO contains the resulting URL. Only the bucket name and object key
+  are saved in the database. The same image formats as for user avatars are supported.
 
-  - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
+    - **Delete club** – `DELETE /api/clubs/{id}` (200 OK)
 
   ```bash
   curl -X DELETE -H "Authorization: Bearer <token>" \
@@ -374,7 +382,6 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -H "Authorization: Bearer <token>"
   ```
 
-
 ### Events
 
 Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED`.
@@ -413,33 +420,33 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        http://localhost:8080/api/clubs/<clubId>/events/<eventId>
   ```
 
- - **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
+- **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
 
-  ```bash
-  curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
-       -H "Authorization: Bearer <token>"
-  ```
+```bash
+curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
+     -H "Authorization: Bearer <token>"
+```
 
- - **Get single event of a club** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
+- **Get single event of a club** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
-  ```bash
-  curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/clubs/<clubId>/events/<eventId>
-  ```
+```bash
+curl -H "Authorization: Bearer <token>" \
+     http://localhost:8080/api/clubs/<clubId>/events/<eventId>
+```
 
- - **Get event** – `GET /api/events/{eventId}` (200 OK)
+- **Get event** – `GET /api/events/{eventId}` (200 OK)
 
-  ```bash
-  curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/events/<eventId>
-  ```
+```bash
+curl -H "Authorization: Bearer <token>" \
+     http://localhost:8080/api/events/<eventId>
+```
 
- - **Download event attendees (CSV)** – `GET /api/events/{eventId}/attendees/csv` (200 OK)
+- **Download event attendees (CSV)** – `GET /api/events/{eventId}/attendees/csv` (200 OK)
 
-  ```bash
-  curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/events/<eventId>/attendees/csv
-  ```
+```bash
+curl -H "Authorization: Bearer <token>" \
+     http://localhost:8080/api/events/<eventId>/attendees/csv
+```
 
 ### Comments
 
@@ -459,19 +466,19 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -d '{"content":"Nice post!"}'
   ```
 
- - **Like comment** – `POST /api/comments/{commentId}/like` (200 OK)
+- **Like comment** – `POST /api/comments/{commentId}/like` (200 OK)
 
-  ```bash
-  curl -X POST http://localhost:8080/api/comments/<commentId>/like \
-       -H "Authorization: Bearer <token>"
-  ```
+```bash
+curl -X POST http://localhost:8080/api/comments/<commentId>/like \
+     -H "Authorization: Bearer <token>"
+```
 
- - **Unlike comment** – `DELETE /api/comments/{commentId}/like` (200 OK)
+- **Unlike comment** – `DELETE /api/comments/{commentId}/like` (200 OK)
 
-  ```bash
-  curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
-       -H "Authorization: Bearer <token>"
-  ```
+```bash
+curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
+     -H "Authorization: Bearer <token>"
+```
 
 ### Feed
 
@@ -539,7 +546,8 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        --data-binary "@picture.jpg"
   ```
 
-  Uploaded images are stored in the `posts` bucket in MinIO. Only the bucket name and object key are persisted in the database.
+  Uploaded images are stored in the `posts` bucket in MinIO. Only the bucket name and object key are persisted in the
+  database.
 
 ## Error Codes
 
@@ -547,35 +555,35 @@ All API errors return a structured JSON payload. A typical error looks like:
 
 ```json
 {
-  "errorCode": "CLB-00-0000-0001",
-  "title": "User not found",
-  "details": "The specified user does not exist",
-  "messageParameters": {
-    "userId": "123"
-  },
-  "sourcePointer": "/api/users/123"
+	"errorCode": "CLB-00-0000-0001",
+	"title": "User not found",
+	"details": "The specified user does not exist",
+	"messageParameters": {
+		"userId": "123"
+	},
+	"sourcePointer": "/api/users/123"
 }
 ```
 
 The `errorCode` format is `CLB-XX-XXXX-XXXX` where `CLB` identifies the ClubHub module.
 The following codes are currently in use:
 
-| Code | HTTP Status | Meaning |
-|------|-------------|---------|
-| `CLB-00-0000-0001` | 404 Not Found | User not found |
-| `CLB-00-0000-0002` | 404 Not Found | Club not found |
-| `CLB-00-0000-0003` | 404 Not Found | Post not found |
-| `CLB-00-0000-0004` | 400 Bad Request | User is not a member of the club |
-| `CLB-00-0000-0005` | 400 Bad Request | User is already a member of the club |
-| `CLB-00-0000-0006` | 400 Bad Request | Invalid credentials provided |
-| `CLB-00-0000-0007` | 404 Not Found | Comment not found |
-| `CLB-00-0000-0008` | 404 Not Found | Event not found |
-| `CLB-00-0000-0009` | 400 Bad Request | User already exists |
-| `CLB-00-0000-0010` | 404 Not Found | Member not found |
-| `CLB-00-0000-0011` | 403 Forbidden | Insufficient permissions |
-| `CLB-00-0000-0012` | 400 Bad Request | Last admin cannot leave |
-| `CLB-00-0000-0013` | 400 Bad Request | Last admin cannot change own role |
-| `CLB-00-0000-0014` | 401 Unauthorized | Invalid or expired token |
+| Code               | HTTP Status      | Meaning                              |
+|--------------------|------------------|--------------------------------------|
+| `CLB-00-0000-0001` | 404 Not Found    | User not found                       |
+| `CLB-00-0000-0002` | 404 Not Found    | Club not found                       |
+| `CLB-00-0000-0003` | 404 Not Found    | Post not found                       |
+| `CLB-00-0000-0004` | 400 Bad Request  | User is not a member of the club     |
+| `CLB-00-0000-0005` | 400 Bad Request  | User is already a member of the club |
+| `CLB-00-0000-0006` | 400 Bad Request  | Invalid credentials provided         |
+| `CLB-00-0000-0007` | 404 Not Found    | Comment not found                    |
+| `CLB-00-0000-0008` | 404 Not Found    | Event not found                      |
+| `CLB-00-0000-0009` | 400 Bad Request  | User already exists                  |
+| `CLB-00-0000-0010` | 404 Not Found    | Member not found                     |
+| `CLB-00-0000-0011` | 403 Forbidden    | Insufficient permissions             |
+| `CLB-00-0000-0012` | 400 Bad Request  | Last admin cannot leave              |
+| `CLB-00-0000-0013` | 400 Bad Request  | Last admin cannot change own role    |
+| `CLB-00-0000-0014` | 401 Unauthorized | Invalid or expired token             |
 
 The `title` gives a brief summary while `details` can contain a human-readable
 description. `messageParameters` provides contextual values, and `sourcePointer`
