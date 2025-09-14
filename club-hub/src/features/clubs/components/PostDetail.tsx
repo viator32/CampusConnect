@@ -9,6 +9,7 @@ import { clubService } from '../services/ClubService';
 import { formatDateTime } from '../../../utils/date';
 import Avatar from '../../../components/Avatar';
 import ImageLightbox from '../../../components/ImageLightbox';
+import { useProfile } from '../../profile/hooks/useProfile';
 
 /** Props for the dedicated post view. */
 interface PostDetailProps {
@@ -34,6 +35,7 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   const [editPhoto, setEditPhoto] = useState<File | null>(null);
   const [editPreview, setEditPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const { user } = useProfile();
 
   useEffect(() => {
     clubService
@@ -50,7 +52,10 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
-  const canManage = currentUserRole === 'ADMIN' || currentUserRole === 'MODERATOR';
+  // Permissions
+  const isAuthor = !!user?.name && String(postData.author) === String(user?.name);
+  const canEdit = isAuthor; // only author can edit
+  const canDelete = isAuthor || user?.role === 'ADMIN'; // author or global ADMIN can delete
 
   const handleLikePost = async () => {
     const isLiked = postData.liked ?? false;
@@ -98,7 +103,10 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   };
 
   const saveEdit = async () => {
-    if (!canManage) return;
+    if (!canEdit) {
+      setActionError('Only the author can edit this post.');
+      return;
+    }
     if (!clubId) {
       setActionError('Cannot edit this post: missing club context.');
       return;
@@ -135,7 +143,10 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   };
 
   const deletePost = async () => {
-    if (!canManage) return;
+    if (!canDelete) {
+      setActionError('You do not have permission to delete this post.');
+      return;
+    }
     if (!clubId) {
       setActionError('Cannot delete this post: missing club context.');
       return;
@@ -232,7 +243,7 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
             <p className="font-medium text-gray-900">{postData.author}</p>
             <p className="text-sm text-gray-500">{formatDateTime(postData.time)}</p>
           </div>
-          {canManage && (
+          {(canEdit || canDelete) && (
             <div className="ml-auto relative">
               <button
                 className="p-1 rounded hover:bg-gray-100"
@@ -243,22 +254,26 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
               </button>
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded shadow z-10">
-                  <button
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                    onClick={() => {
-                      setEditing(true);
-                      setMenuOpen(false);
-                      setEditContent(postData.content);
-                    }}
-                  >
-                    <Edit3 className="w-4 h-4 text-gray-600" /> Edit
-                  </button>
-                  <button
-                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    onClick={deletePost}
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
+                  {canEdit && (
+                    <button
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                      onClick={() => {
+                        setEditing(true);
+                        setMenuOpen(false);
+                        setEditContent(postData.content);
+                      }}
+                    >
+                      <Edit3 className="w-4 h-4 text-gray-600" /> Edit
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      onClick={deletePost}
+                    >
+                      <Trash2 className="w-4 h-4" /> Delete
+                    </button>
+                  )}
                 </div>
               )}
             </div>

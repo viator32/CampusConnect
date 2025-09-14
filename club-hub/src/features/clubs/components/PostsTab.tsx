@@ -136,10 +136,16 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Role-based permissions: only Admin/Moderator can post in a club
+  // Role-based permissions
   const { user } = useProfile();
   const membership = user?.memberships?.find(m => String(m.clubId) === String(club.id));
+  // Creating posts: only Admin/Moderator members of the club
   const canPost = membership?.role === 'ADMIN' || membership?.role === 'MODERATOR';
+  // Editing: only the author of the post
+  const isAuthor = (post: Post) => !!user?.name && String(post.author) === String(user?.name);
+  const canEditPost = (post: Post) => isAuthor(post);
+  // Deleting: author of the post OR global ADMIN
+  const canDeletePost = (post: Post) => isAuthor(post) || user?.role === 'ADMIN';
 
   useEffect(() => {
     setLikedPosts(posts.filter((p: any) => p.liked).map(p => p.id));
@@ -325,7 +331,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   };
 
   const saveEdit = async (post: Post) => {
-    if (!canPost) return;
+    if (!canEditPost(post)) {
+      setActionError('Only the author can edit this post.');
+      return;
+    }
     setSaving(true);
     try {
       let updated: Post | null = null;
@@ -358,7 +367,10 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   };
 
   const deletePost = async (post: Post) => {
-    if (!canPost) return;
+    if (!canDeletePost(post)) {
+      setActionError('You do not have permission to delete this post.');
+      return;
+    }
     setMenuPostId(null);
     try {
       await clubService.deletePost(club.id, post.id);
@@ -492,7 +504,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                 <span className="text-xs text-gray-500">• {club.name}</span>
                 <span className="text-xs text-gray-500">• {formatDateTime(post.time)}</span>
               </div>
-              {canPost && (
+              {(canEditPost(post) || canDeletePost(post)) && (
                 <div className="ml-auto relative">
                   <button
                     className="p-1 rounded hover:bg-gray-100"
@@ -503,18 +515,22 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                   </button>
                   {menuPostId === post.id && (
                     <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded shadow z-10">
-                      <button
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                        onClick={() => startEdit(post)}
-                      >
-                        <Edit3 className="w-4 h-4 text-gray-600" /> Edit
-                      </button>
-                      <button
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        onClick={() => deletePost(post)}
-                      >
-                        <Trash2 className="w-4 h-4" /> Delete
-                      </button>
+                      {canEditPost(post) && (
+                        <button
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                          onClick={() => startEdit(post)}
+                        >
+                          <Edit3 className="w-4 h-4 text-gray-600" /> Edit
+                        </button>
+                      )}
+                      {canDeletePost(post) && (
+                        <button
+                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          onClick={() => deletePost(post)}
+                        >
+                          <Trash2 className="w-4 h-4" /> Delete
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
