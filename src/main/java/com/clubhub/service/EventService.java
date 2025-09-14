@@ -29,6 +29,11 @@ public class EventService {
     UserService userService;
 
 
+    /**
+     * Persists a new event, setting the creation timestamp if missing.
+     *
+     * @param event the event to save
+     */
     @Transactional
     public void save(Event event) {
         if (event.getCreatedAt() == null) {
@@ -37,6 +42,13 @@ public class EventService {
         eventRepository.save(event);
     }
 
+    /**
+     * Retrieves an event by its identifier.
+     *
+     * @param id the event identifier
+     * @return the requested event
+     * @throws NotFoundException if the event does not exist
+     */
     public Event getEventById(UUID id) {
         Event event = eventRepository.findById(id);
         if (event == null) {
@@ -51,6 +63,12 @@ public class EventService {
         return event;
     }
 
+    /**
+     * Adds a user to an event's attendee list if they belong to the club.
+     *
+     * @param eventId identifier of the event
+     * @param userId  identifier of the joining user
+     */
     @Transactional
     public void joinEvent(UUID eventId, UUID userId) {
         Event event = getEventById(eventId);
@@ -74,15 +92,39 @@ public class EventService {
         }
     }
 
+    /**
+     * Retrieves a paginated feed of events for a user.
+     *
+     * @param userId identifier of the user
+     * @param offset starting index
+     * @param limit  maximum number of events
+     * @return list of events for the user's feed
+     */
     public List<Event> getFeedForUser(UUID userId, int offset, int limit) {
         userService.getUserById(userId);
         return eventRepository.findFeedForUser(userId, offset, limit);
     }
 
+    /**
+     * Retrieves events for a specific club with pagination.
+     *
+     * @param clubId identifier of the club
+     * @param offset starting index
+     * @param limit  maximum number of events
+     * @return list of events for the club
+     */
     public List<Event> getEventsForClub(UUID clubId, int offset, int limit) {
         return eventRepository.findByClub(clubId, offset, limit);
     }
 
+    /**
+     * Updates an event's details if the user has the required role.
+     *
+     * @param clubId  club owning the event
+     * @param eventId identifier of the event to update
+     * @param dto     updated event data
+     * @param userId  identifier of the acting user
+     */
     @Transactional
     public void updateEvent(UUID clubId, UUID eventId, EventDTO dto, UUID userId) {
         Event event = getEventById(eventId);
@@ -125,6 +167,13 @@ public class EventService {
         eventRepository.update(event);
     }
 
+    /**
+     * Deletes an event if the acting user has sufficient permissions.
+     *
+     * @param clubId  club owning the event
+     * @param eventId identifier of the event to delete
+     * @param userId  identifier of the acting user
+     */
     @Transactional
     public void deleteEvent(UUID clubId, UUID eventId, UUID userId) {
         Event event = getEventById(eventId);
