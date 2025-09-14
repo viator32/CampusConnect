@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for the ClubHub frontend (Vite)
 
 # 1) Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies first for better layer caching
@@ -27,6 +27,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
-HEALTHCHECK CMD wget -qO- http://localhost/ || exit 1
+# Install curl for reliable healthchecks
+RUN apk add --no-cache curl
+
+# Healthcheck with curl (fail fast)
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -fsS http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
