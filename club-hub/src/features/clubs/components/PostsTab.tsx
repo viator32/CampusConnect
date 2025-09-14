@@ -144,8 +144,9 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   // Editing: only the author of the post
   const isAuthor = (post: Post) => !!user?.name && String(post.author) === String(user?.name);
   const canEditPost = (post: Post) => isAuthor(post);
-  // Deleting: author of the post OR global ADMIN
-  const canDeletePost = (post: Post) => isAuthor(post) || user?.role === 'ADMIN';
+  // Deleting: author of the post OR club ADMIN OR global ADMIN
+  const canDeletePost = (post: Post) =>
+    isAuthor(post) || membership?.role === 'ADMIN' || user?.role === 'ADMIN';
 
   useEffect(() => {
     setLikedPosts(posts.filter((p: any) => p.liked).map(p => p.id));

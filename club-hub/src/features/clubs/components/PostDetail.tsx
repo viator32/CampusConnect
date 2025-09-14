@@ -55,7 +55,7 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   // Permissions
   const isAuthor = !!user?.name && String(postData.author) === String(user?.name);
   const canEdit = isAuthor; // only author can edit
-  const canDelete = isAuthor || user?.role === 'ADMIN'; // author or global ADMIN can delete
+  const canDelete = isAuthor || currentUserRole === 'ADMIN' || user?.role === 'ADMIN'; // author, club ADMIN, or global ADMIN can delete
 
   const handleLikePost = async () => {
     const isLiked = postData.liked ?? false;
