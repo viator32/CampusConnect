@@ -378,6 +378,11 @@ export class ClubService extends BaseService {
   async removeDownvoteComment(commentId: string): Promise<void> {
     await this.api.request<void>(`/comments/${commentId}/downvote`, { method: 'DELETE' });
   }
+
+  /** Delete a comment by ID (admins/moderators permitted). */
+  async deleteComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}`, { method: 'DELETE' });
+  }
 }
 
 export const clubService = new ClubService();

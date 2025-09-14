@@ -228,6 +228,42 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
     } catch {}
   };
 
+  const canDeleteComment = (c: Comment) => {
+    const isAuthor = String(c.author?.id ?? '') === String(user?.id ?? '');
+    const isClubAdmin = currentUserRole === 'ADMIN';
+    const isClubModerator = currentUserRole === 'MODERATOR';
+    const isGlobalAdmin = user?.role === 'ADMIN';
+    return isAuthor || isClubAdmin || isClubModerator || isGlobalAdmin;
+  };
+
+  const handleDeleteComment = async (comment: Comment) => {
+    if (!canDeleteComment(comment)) {
+      setActionError('You do not have permission to delete this comment.');
+      return;
+    }
+    // optimistic remove
+    setPostData(p => ({
+      ...p,
+      comments: Math.max(0, p.comments - 1),
+      commentsList: (p.commentsList ?? []).filter(c => c.id !== comment.id),
+    }));
+    try {
+      await clubService.deleteComment(comment.id);
+    } catch (e) {
+      const err = e as any;
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You do not have permission to delete comments.');
+      } else {
+        setActionError('Failed to delete comment');
+      }
+      // revert: re-fetch comments to be consistent
+      try {
+        const comments = await clubService.listComments(postData.id);
+        setPostData(p => ({ ...p, comments: comments.length, commentsList: comments }));
+      } catch {}
+    }
+  };
+
   return (
     <>
     <div className="space-y-6">
@@ -394,6 +430,15 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
                 <Heart className={`w-4 h-4 ${c.liked ? 'text-orange-500' : ''}`} />
                 <span className="text-sm">{c.likes ?? 0}</span>
               </button>
+              {canDeleteComment(c) && (
+                <button
+                  className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                  onClick={() => handleDeleteComment(c)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm">Delete</span>
+                </button>
+              )}
             </div>
           </div>
         ))}
