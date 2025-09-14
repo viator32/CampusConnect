@@ -1,8 +1,13 @@
 package com.clubhub.entity.dto;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class RegisterDTO {
 
-        public String email;
-        public String username;
-        public String password;
+        private String email;
+        private String username;
+        private String password;
 }

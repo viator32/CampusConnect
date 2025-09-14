@@ -9,12 +9,12 @@ public class PostMapper {
         public static Post toEntity(PostDTO dto, Club club, User author) {
                 Post post = new Post();
                 post.setAuthor(author);
-                post.setContent(dto.content);
-                post.setLikes(dto.likes);
-                post.setComments(dto.comments);
-                post.setBookmarks(dto.bookmarks);
-                post.setShares(dto.shares);
-                post.setTime(dto.time);
+                post.setContent(dto.getContent());
+                post.setLikes(dto.getLikes());
+                post.setComments(dto.getComments());
+                post.setBookmarks(dto.getBookmarks());
+                post.setShares(dto.getShares());
+                post.setTime(dto.getTime());
                 post.setClub(club);
                 return post;
         }

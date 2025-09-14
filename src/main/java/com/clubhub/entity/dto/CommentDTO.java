@@ -2,12 +2,17 @@ package com.clubhub.entity.dto;
 
 import java.util.UUID;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class CommentDTO {
 
-        public UUID id;
-        public AuthorDTO author;
-        public String content;
-        public String time;
-        public int likes;
-        public boolean liked;
+        private UUID id;
+        private AuthorDTO author;
+        private String content;
+        private String time;
+        private int likes;
+        private boolean liked;
 }

@@ -1,10 +1,12 @@
 package com.clubhub.entity.dto;
 
-public class AuthResponseDTO {
-    public String token;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    public AuthResponseDTO() {}
-    public AuthResponseDTO(String token) {
-        this.token = token;
-    }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthResponseDTO {
+    private String token;
 }

@@ -69,7 +69,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
         public CommentDTO addComment(UUID threadId, CommentDTO dto,
                         @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
-                var comment = threadService.addReply(threadId, userId, dto.content);
+                var comment = threadService.addReply(threadId, userId, dto.getContent());
                 return ClubMapper.toDTO(comment, userId);
         }
 

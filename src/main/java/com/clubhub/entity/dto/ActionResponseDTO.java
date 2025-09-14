@@ -1,13 +1,13 @@
 package com.clubhub.entity.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ActionResponseDTO {
-    public boolean success;
-    public String message;
-
-    public ActionResponseDTO() {}
-
-    public ActionResponseDTO(boolean success, String message) {
-        this.success = success;
-        this.message = message;
-    }
+    private boolean success;
+    private String message;
 }

@@ -49,8 +49,8 @@ public class UserService {
         public List<UserDTO> getAllUserProfiles() {
                 return userRepository.findAll().stream().map(u -> {
                         UserDTO dto = UserMapper.toDTO(u);
-                        dto.eventsAttended = eventRepository.countEventsAttendedByUser(u.getId());
-                        dto.postsCreated = postRepository.countPostsByAuthor(u.getId());
+                        dto.setEventsAttended(eventRepository.countEventsAttendedByUser(u.getId()));
+                        dto.setPostsCreated(postRepository.countPostsByAuthor(u.getId()));
                         return dto;
                 }).toList();
         }
@@ -72,8 +72,8 @@ public class UserService {
         public UserDTO getUserProfile(UUID id) {
                 User user = getUserById(id);
                 UserDTO dto = UserMapper.toDTO(user);
-                dto.eventsAttended = eventRepository.countEventsAttendedByUser(id);
-                dto.postsCreated = postRepository.countPostsByAuthor(user.getId());
+                dto.setEventsAttended(eventRepository.countEventsAttendedByUser(id));
+                dto.setPostsCreated(postRepository.countPostsByAuthor(user.getId()));
                 return dto;
         }
 

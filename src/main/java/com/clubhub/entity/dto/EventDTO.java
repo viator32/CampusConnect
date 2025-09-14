@@ -7,17 +7,22 @@ import java.util.UUID;
 
 import com.clubhub.entity.EventStatus;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class EventDTO {
-        public UUID id;
-        public String title;
-        public String description;
-        public LocalDate date;
-        public String time;
-        public String location;
-        public LocalDateTime createdAt;
-        public EventStatus status;
-        public UUID clubId;
-        public int attendeesCount;
-        public List<UserDTO> attendees;
-        public ClubDTO club;
+        private UUID id;
+        private String title;
+        private String description;
+        private LocalDate date;
+        private String time;
+        private String location;
+        private LocalDateTime createdAt;
+        private EventStatus status;
+        private UUID clubId;
+        private int attendeesCount;
+        private List<UserDTO> attendees;
+        private ClubDTO club;
 }

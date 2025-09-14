@@ -7,17 +7,22 @@ import java.util.UUID;
 import com.clubhub.entity.Preference;
 import com.clubhub.entity.Subject;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class UserDTO {
 
-        public UUID id;
-        public String email;
-        public String username;
-        public String avatar;
-        public String description;
-        public Set<Preference> preferences;
-        public Subject subject;
-        public List<MemberDTO> memberships;
-        public int clubsJoined;
-        public long eventsAttended;
-        public long postsCreated;
+        private UUID id;
+        private String email;
+        private String username;
+        private String avatar;
+        private String description;
+        private Set<Preference> preferences;
+        private Subject subject;
+        private List<MemberDTO> memberships;
+        private int clubsJoined;
+        private long eventsAttended;
+        private long postsCreated;
 }

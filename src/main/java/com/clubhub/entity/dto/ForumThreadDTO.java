@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class ForumThreadDTO {
 
-        public UUID id;
-        public String title;
-        public AuthorDTO author;
-        public int replies;
-        public String lastActivity;
-        public String content;
-        public int upvotes;
-        public int downvotes;
-        public boolean upvoted;
-        public boolean downvoted;
-        public List<CommentDTO> commentsList = new ArrayList<>();
-        public ClubDTO club;
+        private UUID id;
+        private String title;
+        private AuthorDTO author;
+        private int replies;
+        private String lastActivity;
+        private String content;
+        private int upvotes;
+        private int downvotes;
+        private boolean upvoted;
+        private boolean downvoted;
+        private final List<CommentDTO> commentsList = new ArrayList<>();
+        private ClubDTO club;
 }
