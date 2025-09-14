@@ -43,6 +43,7 @@ public class ForumThreadService {
                var threads = threadRepository.findByClub(clubId, offset, limit);
                // Initialize lazy associations to avoid issues outside the transaction
                threads.forEach(t -> {
+                       t.getCommentsList().forEach(c -> c.getLikedBy().size());
                        t.getCommentsList().size();
                        t.getClub().getMembersList().size();
                        t.getClub().getEvents().size();
@@ -66,6 +67,7 @@ public class ForumThreadService {
                                         .build());
                 }
                // Initialize required collections before returning
+               thread.getCommentsList().forEach(c -> c.getLikedBy().size());
                thread.getCommentsList().size();
                thread.getClub().getMembersList().size();
                thread.getClub().getEvents().size();
