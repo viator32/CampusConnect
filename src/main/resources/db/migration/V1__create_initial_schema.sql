@@ -116,8 +116,7 @@ CREATE TABLE comment (
     content   TEXT,
     time      VARCHAR,
     likes     INTEGER,
-    post_id   UUID REFERENCES post (id) ON DELETE CASCADE,
-    thread_id UUID REFERENCES forumthread (id) ON DELETE CASCADE
+    post_id   UUID REFERENCES post (id) ON DELETE CASCADE
 );
 
 CREATE TABLE comment_likes (
@@ -132,10 +131,34 @@ CREATE TABLE user_preferences (
     CONSTRAINT fk_user_preferences_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE reply (
+    id        UUID PRIMARY KEY,
+    author_id UUID REFERENCES users (id) ON DELETE SET NULL,
+    content   TEXT,
+    time      VARCHAR,
+    upvotes   INTEGER,
+    downvotes INTEGER,
+    thread_id UUID REFERENCES forumthread (id) ON DELETE CASCADE
+);
+
+CREATE TABLE reply_upvotes (
+    reply_id UUID NOT NULL REFERENCES reply (id) ON DELETE CASCADE,
+    user_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (reply_id, user_id)
+);
+
+CREATE TABLE reply_downvotes (
+    reply_id UUID NOT NULL REFERENCES reply (id) ON DELETE CASCADE,
+    user_id  UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (reply_id, user_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_post_time ON post ("time");
 CREATE INDEX IF NOT EXISTS idx_member_club_user ON member (club_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_post_likes_post_user ON post_likes (post_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_comment_likes_comment_user ON comment_likes (comment_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_thread_upvotes_thread_user ON thread_upvotes (thread_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_thread_downvotes_thread_user ON thread_downvotes (thread_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_reply_upvotes_reply_user ON reply_upvotes (reply_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_reply_downvotes_reply_user ON reply_downvotes (reply_id, user_id);
 
