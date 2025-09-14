@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Post, Comment, Role } from '../types';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Edit3, Trash2, Image as PhotoIcon } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Edit3, Trash2, Image as PhotoIcon, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import Toast from '../../../components/Toast';
 import { ApiError } from '../../../services/api';
