@@ -1,5 +1,6 @@
 package com.clubhub.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +13,7 @@ import com.clubhub.entity.Reply;
 public class ReplyRepository {
 
 	@Inject
-	EntityManager em;
+        EntityManager em;
 
 	public void save(Reply reply) {
 		em.persist(reply);
@@ -22,9 +23,22 @@ public class ReplyRepository {
 		return em.find(Reply.class, id);
 	}
 
-	public Reply update(Reply reply) {
-		return em.merge(reply);
-	}
+        public Reply update(Reply reply) {
+                return em.merge(reply);
+        }
+
+        public List<Reply> findByThread(UUID threadId, int offset, int limit) {
+                return em.createQuery("""
+                                SELECT r
+                                FROM Reply r
+                                WHERE r.thread.id = :threadId
+                                ORDER BY r.time ASC
+                                """, Reply.class)
+                                .setParameter("threadId", threadId)
+                                .setFirstResult(offset)
+                                .setMaxResults(limit)
+                                .getResultList();
+        }
 
 	public boolean hasUserUpvotedReply(UUID replyId, UUID userId) {
 		Long count = em.createQuery("""

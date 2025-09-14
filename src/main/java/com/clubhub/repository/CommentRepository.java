@@ -1,5 +1,6 @@
 package com.clubhub.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +13,7 @@ import com.clubhub.entity.Comment;
 public class CommentRepository {
 
 	@Inject
-	EntityManager em;
+        EntityManager em;
 
 	public void save(Comment comment) {
 		em.persist(comment);
@@ -22,9 +23,22 @@ public class CommentRepository {
 		return em.find(Comment.class, id);
 	}
 
-	public Comment update(Comment comment) {
-		return em.merge(comment);
-	}
+        public Comment update(Comment comment) {
+                return em.merge(comment);
+        }
+
+        public List<Comment> findByPost(UUID postId, int offset, int limit) {
+                return em.createQuery("""
+                                SELECT c
+                                FROM Comment c
+                                WHERE c.post.id = :postId
+                                ORDER BY c.time ASC
+                                """, Comment.class)
+                                .setParameter("postId", postId)
+                                .setFirstResult(offset)
+                                .setMaxResults(limit)
+                                .getResultList();
+        }
 
 	public boolean hasUserLikedComment(UUID commentId, UUID userId) {
 		Long count = em.createQuery("""

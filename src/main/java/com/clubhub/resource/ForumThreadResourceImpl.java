@@ -51,23 +51,12 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 		return ClubMapper.toDTO(thread, userId);
 	}
 
-	@Override
-	public List<ReplyDTO> getReplies(UUID threadId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
-		var thread = threadService.getThread(threadId);
-		boolean isMember = thread.getClub().getMembersList().stream()
-				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
-		if (!isMember) {
-			throw new ValidationException(ErrorPayload.builder()
-					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-					.title("User not a member")
-					.details("User must be a member of the club to view replies.")
-					.messageParameter("threadId", threadId.toString())
-					.messageParameter("userId", userId.toString())
-					.build());
-		}
-		return thread.getReplies().stream().map(r -> ClubMapper.toDTO(r, userId)).toList();
-	}
+        @Override
+        public List<ReplyDTO> getReplies(UUID threadId, int offset, int limit, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                var replies = replyService.getReplies(threadId, userId, offset, limit);
+                return replies.stream().map(r -> ClubMapper.toDTO(r, userId)).toList();
+        }
 
 	@Override
 	public ReplyDTO addReply(UUID threadId, ReplyDTO dto,

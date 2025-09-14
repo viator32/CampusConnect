@@ -1,6 +1,7 @@
 package com.clubhub.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,8 +31,25 @@ public class ReplyService {
 	@Inject
 	ForumThreadRepository threadRepository;
 
-	@Inject
-	UserService userService;
+        @Inject
+        UserService userService;
+
+        public List<Reply> getReplies(UUID threadId, UUID userId, int offset, int limit) {
+                var thread = threadService.getThread(threadId);
+                var club = thread.getClub();
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to view replies.")
+                                        .messageParameter("threadId", threadId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                return replyRepository.findByThread(threadId, offset, limit);
+        }
 
 	public Reply getReply(UUID id) {
 		Reply reply = replyRepository.findById(id);

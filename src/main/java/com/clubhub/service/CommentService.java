@@ -1,6 +1,7 @@
 package com.clubhub.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,7 +34,23 @@ public class CommentService {
 	EntityManager em;
 
 	@Inject
-	UserService userService;
+        UserService userService;
+
+        public List<Comment> getComments(UUID postId, UUID userId, int offset, int limit) {
+                Post post = postService.getPost(postId);
+                boolean isMember = post.getClub().getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to view comments.")
+                                        .messageParameter("postId", postId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                return commentRepository.findByPost(postId, offset, limit);
+        }
 
 	public Comment getComment(UUID id) {
 		Comment comment = commentRepository.findById(id);
