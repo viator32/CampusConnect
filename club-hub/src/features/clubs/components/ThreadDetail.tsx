@@ -185,7 +185,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
         {threadState.content && <p className="text-gray-700 mb-4">{threadState.content}</p>}
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{threadState.replies} replies</span>
-          <span>{threadState.lastActivity}</span>
+          <span>{formatDateTime(threadState.lastActivity)}</span>
           <div className="flex items-center gap-2 text-gray-600">
             <button
               className={`p-1 rounded hover:bg-gray-100 ${threadState.upvoted ? 'text-orange-600' : ''}`}
