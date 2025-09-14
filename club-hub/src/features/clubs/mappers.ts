@@ -1,4 +1,4 @@
-import type { Club, Event as ClubEvent, Post, Comment, Member, Thread } from './types';
+import type { Club, Event as ClubEvent, Comment, Member, Thread } from './types';
 import { Subject, Preference } from '../profile/types';
 
 /** Normalize a backend club DTO to the app's `Club` model. */
@@ -17,9 +17,6 @@ export function mapClub(dto: any): Club {
     isJoined: !!dto.isJoined,
 
     events: (dto.events ?? []).map(mapEvent),
-    posts: (dto.posts ?? [])
-      .map(mapPost)
-      .sort((a: Post, b: Post) => new Date(b.time).getTime() - new Date(a.time).getTime()),
     members_list: (dto.membersList ?? dto.members_list ?? []).map(mapMember),
     forum_threads: (dto.forumThreads ?? dto.forum_threads ?? [])
       .map(mapThread)
@@ -65,7 +62,7 @@ export function mapEvent(dto: any): ClubEvent {
 }
 
 /** Normalize a backend post DTO into a `Post`. */
-export function mapPost(dto: any): Post {
+export function mapPost(dto: any) {
   return {
     id: dto.id,
     author: dto.author?.username ?? dto.author ?? dto.username ?? 'Unknown',

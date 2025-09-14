@@ -8,7 +8,7 @@ import {
   MessageCircle,
   Loader2
 } from 'lucide-react';
-import { Club, Role } from '../types';
+import { Club, Role, Post } from '../types';
 import { Subject, Preference } from '../../profile/types';
 import { clubService } from '../services/ClubService';
 import Button from '../../../components/Button';
@@ -65,6 +65,10 @@ export default function ClubDetailPage() {
   const [threadView, setThreadView] = useState<Thread | null>(null);
   const [threadLoading, setThreadLoading] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
+  // Post single-view state
+  const [postView, setPostView] = useState<Post | null>(null);
+  const [postLoading, setPostLoading] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!clubId) return;
@@ -99,6 +103,24 @@ export default function ClubDetailPage() {
       .catch(e => setThreadError(e?.message ?? 'Failed to load thread'))
       .finally(() => setThreadLoading(false));
   }, [threadId]);
+
+  useEffect(() => {
+    if (!postId) { setPostView(null); return; }
+    setPostLoading(true);
+    setPostError(null);
+    // Prefer navigated state if provided
+    const statePost = (location.state as any)?.post as Post | undefined;
+    if (statePost && String(statePost.id) === String(postId)) {
+      setPostView(statePost);
+      setPostLoading(false);
+      return;
+    }
+    clubService
+      .getPost(postId)
+      .then(p => setPostView(p))
+      .catch(e => setPostError(e?.message ?? 'Failed to load post'))
+      .finally(() => setPostLoading(false));
+  }, [postId, location.state]);
 
   if (error) {
     return <div className="text-center text-red-500 py-8">{error}</div>;
@@ -137,11 +159,20 @@ export default function ClubDetailPage() {
     user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
 
   if (postId && club) {
-    const post = club.posts.find(p => p.id === postId);
-    if (post)
+    if (postLoading) {
+      return (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        </div>
+      );
+    }
+    if (postError) {
+      return <div className="text-center text-red-500 py-8">{postError}</div>;
+    }
+    if (postView) {
       return (
         <PostDetail
-          post={post}
+          post={postView}
           clubId={club.id}
           currentUserRole={userRole}
           onBack={() => {
@@ -156,20 +187,11 @@ export default function ClubDetailPage() {
             if (from.includes('/bookmarks')) return 'Back to Bookmarks';
             return 'Back';
           })()}
-          onPostUpdate={updated =>
-            setClub(c =>
-              c
-                ? { ...c, posts: c.posts.map(p => (p.id === updated.id ? updated : p)) }
-                : c
-            )
-          }
-          onPostDelete={(id) =>
-            setClub(c =>
-              c ? { ...c, posts: c.posts.filter(p => p.id !== id) } : c
-            )
-          }
+          onPostUpdate={updated => setPostView(updated)}
+          onPostDelete={() => navigate(`/clubs/${clubId}?tab=posts`)}
         />
       );
+    }
   }
 
   const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = club.isJoined
@@ -348,7 +370,11 @@ export default function ClubDetailPage() {
         <PostsTab
           club={club}
           onClubUpdate={updateClub}
-          onSelectPost={post => navigate(`/clubs/${club.id}/posts/${post.id}`)}
+          onSelectPost={post =>
+            navigate(`/clubs/${club.id}/posts/${post.id}`, {
+              state: { post, from: `${location.pathname}${location.search}` },
+            })
+          }
         />
       )}
       {activeTab === 'members' && (

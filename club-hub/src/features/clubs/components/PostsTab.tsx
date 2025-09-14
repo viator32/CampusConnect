@@ -39,6 +39,8 @@ interface PostsTabProps {
  * such as like, comment, share, and bookmark.
  */
 export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabProps) {
+  // Local posts state (Club no longer embeds posts)
+  const [posts, setPosts] = useState<Post[]>([]);
   const [text, setText]   = useState('');
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [photo, setPhoto] = useState<File|null>(null);
@@ -56,7 +58,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [menuPostId, setMenuPostId] = useState<string | null>(null);
   // Infinite scroll state
-  const [offset, setOffset] = useState<number>(club.posts.length || 0);
+  const [offset, setOffset] = useState<number>(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const inFlightRef = useRef(false);
@@ -67,6 +69,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   useEffect(() => { offsetRef.current = offset; }, [offset]);
   const clubRef = useRef(club);
   useEffect(() => { clubRef.current = club; }, [club]);
+  const postsRef = useRef<Post[]>(posts);
+  useEffect(() => { postsRef.current = posts; }, [posts]);
 
   const loadMore = useCallback(async () => {
     if (inFlightRef.current || !hasMoreRef.current) return;
@@ -76,16 +80,14 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       const limit = 10;
       const next = await clubService.listPostsPage(clubRef.current.id, offsetRef.current, limit);
       if (next && next.length > 0) {
-        const existing = new Set(clubRef.current.posts.map(p => p.id));
+        const existing = new Set(postsRef.current.map(p => p.id));
         const filtered = next.filter(p => {
           if (existing.has(p.id)) return false;
           existing.add(p.id);
           return true;
         });
         if (filtered.length > 0) {
-          // Append to parent club state to keep routing/detail in sync
-          const updated = { ...clubRef.current, posts: [...clubRef.current.posts, ...filtered] };
-          onClubUpdate(updated);
+          setPosts(prev => [...prev, ...filtered]);
         }
         setOffset(o => o + limit);
       }
@@ -140,8 +142,8 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const canPost = membership?.role === 'ADMIN' || membership?.role === 'MODERATOR';
 
   useEffect(() => {
-    setLikedPosts(club.posts.filter((p: any) => p.liked).map(p => p.id));
-  }, [club.posts]);
+    setLikedPosts(posts.filter((p: any) => p.liked).map(p => p.id));
+  }, [posts]);
 
   useEffect(() => {
     bookmarksService
@@ -227,7 +229,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     try {
       setPosting(true);
       const created = await clubService.createPost(club.id, text, photo ?? undefined);
-      onClubUpdate({ ...club, posts: [created, ...club.posts] });
+      setPosts(prev => [created, ...prev]);
       setText('');
       setPhoto(null);
       if (photoPreview) {
@@ -274,14 +276,11 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
 
   const handleLike = async (post: Post) => {
     const isLiked = likedPosts.includes(post.id);
-    onClubUpdate({
-      ...club,
-      posts: club.posts.map(p =>
-        p.id === post.id
-          ? { ...p, liked: !isLiked, likes: p.likes + (isLiked ? -1 : 1) }
-          : p
-      ),
-    });
+    setPosts(prev => prev.map(p =>
+      p.id === post.id
+        ? { ...p, liked: !isLiked, likes: p.likes + (isLiked ? -1 : 1) }
+        : p
+    ));
     setLikedPosts(prev =>
       isLiked ? prev.filter(id => id !== post.id) : [...prev, post.id]
     );
@@ -293,14 +292,11 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
       if (err instanceof ApiError && err.status === 403) {
         setActionError('You do not have permission to like posts.');
       }
-      onClubUpdate({
-        ...club,
-        posts: club.posts.map(p =>
-          p.id === post.id
-            ? { ...p, liked: isLiked, likes: p.likes + (isLiked ? 1 : -1) }
-            : p
-        ),
-      });
+      setPosts(prev => prev.map(p =>
+        p.id === post.id
+          ? { ...p, liked: isLiked, likes: p.likes + (isLiked ? 1 : -1) }
+          : p
+      ));
       setLikedPosts(prev =>
         isLiked ? [...prev, post.id] : prev.filter(id => id !== post.id)
       );
@@ -347,10 +343,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         cancelEdit();
         return;
       }
-      onClubUpdate({
-        ...club,
-        posts: club.posts.map(p => (p.id === post.id ? updated! : p)),
-      });
+      setPosts(prev => prev.map(p => (p.id === post.id ? updated! : p)));
       cancelEdit();
     } catch (e) {
       const err = e as any;
@@ -369,7 +362,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     setMenuPostId(null);
     try {
       await clubService.deletePost(club.id, post.id);
-      onClubUpdate({ ...club, posts: club.posts.filter(p => p.id !== post.id) });
+      setPosts(prev => prev.filter(p => p.id !== post.id));
     } catch (e) {
       const err = e as any;
       if (err instanceof ApiError && err.status === 403) {
@@ -488,7 +481,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
           </>
         )}
 
-      {club.posts.map(post => {
+      {posts.map(post => {
         const isBookmarked = bookmarks.includes(post.id);
         return (
           <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">

@@ -208,6 +208,12 @@ export class ClubService extends BaseService {
     return mapPost(dto);
   }
 
+  /** Fetch a single post by ID. */
+  async getPost(postId: string): Promise<Post> {
+    const dto = await this.api.request<any>(`/posts/${postId}`);
+    return mapPost(dto);
+  }
+
   /** Update a club post content by IDs. */
   async updatePost(clubId: string, postId: string, content: string): Promise<Post> {
     const dto = await this.api.request<any>(`/clubs/${clubId}/posts/${postId}`, {

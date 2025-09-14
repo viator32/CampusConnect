@@ -111,7 +111,6 @@ export interface Club {
   isJoined: boolean;
 
   events: Event[];
-  posts: Post[];
   members_list: Member[];
   forum_threads: Thread[];
 }
