@@ -45,14 +45,14 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String passwordHash;
 
-    @Column(name = "avatar_bucket")
-    private String avatarBucket;
+	@Column(name = "avatar_bucket")
+	private String avatarBucket;
 
-    @Column(name = "avatar_object")
-    private String avatarObject;
+	@Column(name = "avatar_object")
+	private String avatarObject;
 
-    @Column(name = "avatar_etag")
-    private String avatarEtag;
+	@Column(name = "avatar_etag")
+	private String avatarEtag;
 
 	@Column(length = 1024)
 	private String description;

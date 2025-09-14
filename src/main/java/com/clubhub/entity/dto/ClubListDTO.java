@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class ClubListDTO {
-    private List<ClubDTO> clubs;
-    private long totalCount;
+	private List<ClubDTO> clubs;
+	private long totalCount;
 }
-

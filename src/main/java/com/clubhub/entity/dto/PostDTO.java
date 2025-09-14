@@ -12,20 +12,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostDTO {
 
-        private UUID id;
-        private AuthorDTO author;
-        private String content;
-        private int likes;
-        private int comments;
-        private int bookmarks;
-        private int shares;
-        private LocalDateTime time;
-        private String picture;
+	private UUID id;
+	private AuthorDTO author;
+	private String content;
+	private int likes;
+	private int comments;
+	private int bookmarks;
+	private int shares;
+	private LocalDateTime time;
+	private String picture;
 
-        private PollDTO poll;
-        private final List<CommentDTO> commentsList = new ArrayList<>();
+	private PollDTO poll;
+	private final List<CommentDTO> commentsList = new ArrayList<>();
 
-        private ClubDTO club;
-        private boolean liked;
+	private ClubDTO club;
+	private boolean liked;
 
 }

@@ -20,10 +20,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Poll {
 
-        @Column(name = "poll_question")
-        private String question;
+	@Column(name = "poll_question")
+	private String question;
 
-       @ElementCollection(fetch = FetchType.EAGER)
-       @CollectionTable(name = "post_poll_options", joinColumns = @JoinColumn(name = "post_id"))
-       private List<PollOption> options = new ArrayList<>();
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "post_poll_options", joinColumns = @JoinColumn(name = "post_id"))
+	private List<PollOption> options = new ArrayList<>();
 }

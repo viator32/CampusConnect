@@ -38,9 +38,9 @@ public class Post {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-        @ManyToOne
-        @JoinColumn(name = "author_id")
-        private User author;
+	@ManyToOne
+	@JoinColumn(name = "author_id")
+	private User author;
 	private String content;
 	private int likes;
 	private int comments;
@@ -50,14 +50,14 @@ public class Post {
 	@Column(name = "time")
 	private LocalDateTime time;
 
-        @Column(name = "picture_bucket")
-        private String pictureBucket;
+	@Column(name = "picture_bucket")
+	private String pictureBucket;
 
-        @Column(name = "picture_object")
-        private String pictureObject;
+	@Column(name = "picture_object")
+	private String pictureObject;
 
-        @Column(name = "picture_etag")
-        private String pictureEtag;
+	@Column(name = "picture_etag")
+	private String pictureEtag;
 
 	@Embedded
 	private Poll poll;

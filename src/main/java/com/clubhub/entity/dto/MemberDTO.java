@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberDTO {
 
-        private UUID id;
-        private UUID clubId;
-        private UUID userId;
-        private String name;
-        private String role;
-        private String avatar;
-        private LocalDateTime joinedAt;
+	private UUID id;
+	private UUID clubId;
+	private UUID userId;
+	private String name;
+	private String role;
+	private String avatar;
+	private LocalDateTime joinedAt;
 }

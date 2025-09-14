@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,24 +37,24 @@ public class Club {
 
 	private String description;
 
-        private String location;
+	private String location;
 
-        private String category;
+	private String category;
 
-        @Enumerated(EnumType.STRING)
-        private Subject subject;
+	@Enumerated(EnumType.STRING)
+	private Subject subject;
 
-        @Enumerated(EnumType.STRING)
-        private Preference interest;
+	@Enumerated(EnumType.STRING)
+	private Preference interest;
 
-    @Column(name = "avatar_bucket")
-    private String avatarBucket;
+	@Column(name = "avatar_bucket")
+	private String avatarBucket;
 
-    @Column(name = "avatar_object")
-    private String avatarObject;
+	@Column(name = "avatar_object")
+	private String avatarObject;
 
-    @Column(name = "avatar_etag")
-    private String avatarEtag;
+	@Column(name = "avatar_etag")
+	private String avatarEtag;
 
 	@Column(name = "is_joined")
 	private boolean isJoined;

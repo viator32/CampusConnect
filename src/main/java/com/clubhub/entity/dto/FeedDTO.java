@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class FeedDTO {
-        private final List<PostDTO> posts = new ArrayList<>();
-        private final List<EventDTO> events = new ArrayList<>();
+	private final List<PostDTO> posts = new ArrayList<>();
+	private final List<EventDTO> events = new ArrayList<>();
 }

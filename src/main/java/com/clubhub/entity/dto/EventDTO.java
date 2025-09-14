@@ -13,16 +13,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class EventDTO {
-        private UUID id;
-        private String title;
-        private String description;
-        private LocalDate date;
-        private String time;
-        private String location;
-        private LocalDateTime createdAt;
-        private EventStatus status;
-        private UUID clubId;
-        private int attendeesCount;
-        private List<UserDTO> attendees;
-        private ClubDTO club;
+	private UUID id;
+	private String title;
+	private String description;
+	private LocalDate date;
+	private String time;
+	private String location;
+	private LocalDateTime createdAt;
+	private EventStatus status;
+	private UUID clubId;
+	private int attendeesCount;
+	private List<UserDTO> attendees;
+	private ClubDTO club;
 }

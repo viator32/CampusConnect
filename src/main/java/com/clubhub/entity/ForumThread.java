@@ -14,8 +14,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -36,34 +36,34 @@ public class ForumThread {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
-        private String title;
+	private String title;
 
-        @ManyToOne
-        @JoinColumn(name = "author_id")
-        private User author;
-        private int replies;
+	@ManyToOne
+	@JoinColumn(name = "author_id")
+	private User author;
+	private int replies;
 
-        @Column(name = "last_activity")
-        private String lastActivity;
+	@Column(name = "last_activity")
+	private String lastActivity;
 
-        private String content;
+	private String content;
 
-        @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
-        private List<Comment> commentsList = new ArrayList<>();
+	@OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
+	private List<Comment> commentsList = new ArrayList<>();
 
-        private int upvotes;
+	private int upvotes;
 
-        private int downvotes;
+	private int downvotes;
 
-        @ManyToMany
-        @JoinTable(name = "thread_upvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> upvotedBy = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "thread_upvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> upvotedBy = new HashSet<>();
 
-        @ManyToMany
-        @JoinTable(name = "thread_downvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-        private Set<User> downvotedBy = new HashSet<>();
+	@ManyToMany
+	@JoinTable(name = "thread_downvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> downvotedBy = new HashSet<>();
 
-        @ManyToOne
-        @JoinColumn(name = "club_id")
-        private Club club;
+	@ManyToOne
+	@JoinColumn(name = "club_id")
+	private Club club;
 }

@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDTO {
 
-        private UUID id;
-        private String email;
-        private String username;
-        private String avatar;
-        private String description;
-        private Set<Preference> preferences;
-        private Subject subject;
-        private List<MemberDTO> memberships;
-        private int clubsJoined;
-        private long eventsAttended;
-        private long postsCreated;
+	private UUID id;
+	private String email;
+	private String username;
+	private String avatar;
+	private String description;
+	private Set<Preference> preferences;
+	private Subject subject;
+	private List<MemberDTO> memberships;
+	private int clubsJoined;
+	private long eventsAttended;
+	private long postsCreated;
 }

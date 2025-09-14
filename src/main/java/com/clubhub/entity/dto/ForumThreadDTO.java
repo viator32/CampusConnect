@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ForumThreadDTO {
 
-        private UUID id;
-        private String title;
-        private AuthorDTO author;
-        private int replies;
-        private String lastActivity;
-        private String content;
-        private int upvotes;
-        private int downvotes;
-        private boolean upvoted;
-        private boolean downvoted;
-        private final List<CommentDTO> commentsList = new ArrayList<>();
-        private ClubDTO club;
+	private UUID id;
+	private String title;
+	private AuthorDTO author;
+	private int replies;
+	private String lastActivity;
+	private String content;
+	private int upvotes;
+	private int downvotes;
+	private boolean upvoted;
+	private boolean downvoted;
+	private final List<CommentDTO> commentsList = new ArrayList<>();
+	private ClubDTO club;
 }

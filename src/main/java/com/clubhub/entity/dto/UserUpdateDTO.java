@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserUpdateDTO {
-        private String email;
-        private String username;
-        private String description;
-        private Set<Preference> preferences;
-        private Subject subject;
+	private String email;
+	private String username;
+	private String description;
+	private Set<Preference> preferences;
+	private Subject subject;
 }

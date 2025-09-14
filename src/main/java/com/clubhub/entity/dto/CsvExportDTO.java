@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CsvExportDTO {
-    private String fileName;
-    private String data;
+	private String fileName;
+	private String data;
 }
-

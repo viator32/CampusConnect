@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class PollOptionDTO {
-
-        private String text;
-        private int votes;
+	private String text;
+	private int votes;
 }

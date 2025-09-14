@@ -12,8 +12,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PollOption {
-        @Column(name = "option_text")
-        private String text;
+	@Column(name = "option_text")
+	private String text;
 
-        private int votes;
+	private int votes;
 }

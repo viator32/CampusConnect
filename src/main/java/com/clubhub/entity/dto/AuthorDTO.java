@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AuthorDTO {
-        private UUID id;
-        private String username;
-        private String avatar;
+	private UUID id;
+	private String username;
+	private String avatar;
 }
