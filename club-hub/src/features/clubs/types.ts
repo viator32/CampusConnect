@@ -63,6 +63,8 @@ export interface Poll {
 /** Post created inside a club. */
 export interface Post {
   id: string;
+  /** Owning club id (when available). */
+  clubId?: string;
   author: string;
   avatar?: string;
   content: string;

@@ -65,6 +65,7 @@ export function mapEvent(dto: any): ClubEvent {
 export function mapPost(dto: any) {
   return {
     id: dto.id,
+    clubId: dto.club?.id ?? dto.clubId ?? dto.club_id ?? undefined,
     author: dto.author?.username ?? dto.author ?? dto.username ?? 'Unknown',
     avatar: dto.author?.avatar ?? dto.avatar ?? '',
     content: dto.content ?? '',

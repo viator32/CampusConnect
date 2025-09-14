@@ -36,6 +36,13 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   const [editPreview, setEditPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useProfile();
+  // Derive club role from the post's clubId if explicit role not provided
+  const derivedClubRole: Role | undefined = React.useMemo(() => {
+    const cid = postData.clubId;
+    if (!cid) return undefined;
+    const role = user?.memberships.find(m => String(m.clubId) === String(cid))?.role;
+    return role as Role | undefined;
+  }, [postData.clubId, user]);
   // Pagination state for comments
   const [cmOffset, setCmOffset] = useState<number>(0);
   const [cmHasMore, setCmHasMore] = useState<boolean>(true);
@@ -297,8 +304,9 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
 
   const canDeleteComment = (c: Comment) => {
     const isAuthor = String(c.author?.id ?? '') === String(user?.id ?? '');
-    const isClubAdmin = currentUserRole === 'ADMIN';
-    const isClubModerator = currentUserRole === 'MODERATOR';
+    const role = currentUserRole ?? derivedClubRole;
+    const isClubAdmin = role === 'ADMIN';
+    const isClubModerator = role === 'MODERATOR';
     const isGlobalAdmin = user?.role === 'ADMIN';
     return isAuthor || isClubAdmin || isClubModerator || isGlobalAdmin;
   };
