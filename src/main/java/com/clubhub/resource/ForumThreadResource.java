@@ -5,13 +5,13 @@ import java.util.UUID;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -31,11 +31,10 @@ public interface ForumThreadResource {
 	ForumThreadDTO getThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
 
 	@GET
-        @Path("/threads/{threadId}/replies")
-        List<ReplyDTO> getReplies(@PathParam("threadId") UUID threadId,
-                        @QueryParam("offset") @DefaultValue("0") int offset,
-                        @QueryParam("limit") @DefaultValue("10") int limit,
-                        @Context ContainerRequestContext ctx);
+	@Path("/threads/{threadId}/replies")
+	List<ReplyDTO> getReplies(@PathParam("threadId") UUID threadId,
+			@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("limit") @DefaultValue("10") int limit,
+			@Context ContainerRequestContext ctx);
 
 	@POST
 	@Path("/threads/{threadId}/replies")
