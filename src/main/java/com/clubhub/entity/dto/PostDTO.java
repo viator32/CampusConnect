@@ -19,9 +19,8 @@ public class PostDTO {
 	private int shares;
 	private LocalDateTime time;
 	private String picture;
-
-        private PollDTO poll;
-        private ClubDTO club;
-        private boolean liked;
+	private PollDTO poll;
+	private ClubDTO club;
+	private boolean liked;
 
 }
