@@ -219,7 +219,20 @@ export default function ClubDetailPage() {
         { id: 'about', label: 'About', icon: BookOpen }
       ];
 
-  const updateClub = (updated: Club) => setClub(updated);
+  const updateClub = (updated: Club) =>
+    setClub(prev => {
+      if (!updated) return prev ?? null;
+      // Preserve or recompute joined flag to avoid losing tabs after save
+      const joined =
+        updated.isJoined ||
+        prev?.isJoined ||
+        (updated.members_list ?? []).some(m => String(m.userId) === String(user?.id));
+      // Preserve lists if backend doesn't include them in update response
+      const events = (updated as any).events ?? prev?.events ?? [];
+      const members_list = (updated as any).members_list ?? prev?.members_list ?? [];
+      const forum_threads = (updated as any).forum_threads ?? prev?.forum_threads ?? [];
+      return { ...prev, ...updated, isJoined: !!joined, events, members_list, forum_threads } as Club;
+    });
 
   const toggleJoin = async () => {
     if (!club) return; // hard guard

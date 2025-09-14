@@ -160,18 +160,32 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
       setActionError('Only the author can edit this post.');
       return;
     }
-    if (!clubId) {
-      setActionError('Cannot edit this post: missing club context.');
+    const changedContent = editContent.trim() !== postData.content.trim();
+    const hasNewPhoto = !!editPhoto;
+    // If nothing changed, simply exit edit mode without errors
+    if (!changedContent && !hasNewPhoto) {
+      setEditing(false);
+      setMenuOpen(false);
+      if (editPreview) URL.revokeObjectURL(editPreview);
+      setEditPreview(null);
+      setEditPhoto(null);
       return;
     }
     setSaving(true);
     try {
       let updated: Post | null = null;
-      if (editContent.trim() !== postData.content.trim()) {
+      // Update text content if changed (requires club context)
+      if (changedContent) {
+        if (!clubId) {
+          setActionError('Cannot update text without club context.');
+          setSaving(false);
+          return;
+        }
         updated = await clubService.updatePost(clubId, postData.id, editContent.trim());
       }
-      if (editPhoto) {
-        const dto = await clubService.updatePostPicture(postData.id, editPhoto);
+      // Update picture if a new local file is selected
+      if (hasNewPhoto) {
+        const dto = await clubService.updatePostPicture(postData.id, editPhoto!);
         updated = dto;
       }
       if (updated) {
