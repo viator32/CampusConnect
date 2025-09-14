@@ -49,7 +49,7 @@ const formatEnum = (v: string) =>
  * Handles join/leave and routing into post/thread single views.
  */
 export default function ClubDetailPage() {
-  const { clubId, postId, threadId } = useParams<{ clubId: string; postId?: string; threadId?: string }>();
+  const { clubId, postId, threadId } = useParams<{ clubId?: string; postId?: string; threadId?: string }>();
   const navigate  = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -71,6 +71,8 @@ export default function ClubDetailPage() {
   const [postError, setPostError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip club fetch entirely when viewing a single post detail
+    if (postId) return;
     if (!clubId) return;
     setLoading(true);
     setError(null);
@@ -84,9 +86,9 @@ export default function ClubDetailPage() {
           c.members_list.some(m => String(m.userId) === String(user?.id));
         setClub({ ...c, isJoined: joined });
       })
-      .catch(err => setError(err.message ?? 'Failed to load club'))
+      .catch(err => setError(err?.message ?? 'Failed to load club'))
       .finally(() => setLoading(false));
-  }, [clubId, user]);
+  }, [clubId, user, postId]);
 
   useEffect(() => {
     const t = searchParams.get('tab') as TabId | null;
@@ -126,7 +128,8 @@ export default function ClubDetailPage() {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
-  if (loading || !club) {
+  // When NOT in single-post view, wait for club to load
+  if (!postId && (loading || !club)) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
@@ -134,6 +137,7 @@ export default function ClubDetailPage() {
     );
   }
 
+  // Thread single view (only render if we also have a club context)
   if (threadId && club) {
     if (threadLoading) {
       return (
@@ -154,11 +158,14 @@ export default function ClubDetailPage() {
       );
     }
   }
-  // Determine current user role in this club for permissions
-  const userRole: Role | undefined =
-    user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined;
 
-  if (postId && club) {
+  // Determine current user role in this club for permissions
+  const userRole: Role | undefined = club
+    ? (user?.memberships.find(m => m.clubId === club.id)?.role as Role | undefined)
+    : (user?.memberships.find(m => String(m.clubId) === String(clubId))?.role as Role | undefined);
+
+  // Single post view — render early and avoid touching club props
+  if (postId) {
     if (postLoading) {
       return (
         <div className="flex justify-center py-8">
@@ -173,28 +180,34 @@ export default function ClubDetailPage() {
       return (
         <PostDetail
           post={postView}
-          clubId={club.id}
+          // If route doesn't include a clubId, pass empty string; PostDetail should handle it.
+          clubId={clubId ?? ''}
           currentUserRole={userRole}
           onBack={() => {
             const from = (location.state as any)?.from as string | undefined;
             if (from && typeof from === 'string') navigate(from);
-            else navigate(`/clubs/${clubId}?tab=posts`);
+            else if (clubId) navigate(`/clubs/${clubId}?tab=posts`);
+            else navigate('/feed');
           }}
           backLabel={((): string => {
             const from = (location.state as any)?.from as string | undefined;
-            if (!from) return 'Back to Posts';
+            if (!from) return clubId ? 'Back to Posts' : 'Back to Feed';
             if (from.includes('/feed')) return 'Back to Feed';
             if (from.includes('/bookmarks')) return 'Back to Bookmarks';
             return 'Back';
           })()}
           onPostUpdate={updated => setPostView(updated)}
-          onPostDelete={() => navigate(`/clubs/${clubId}?tab=posts`)}
+          onPostDelete={() => {
+            if (clubId) navigate(`/clubs/${clubId}?tab=posts`);
+            else navigate('/feed');
+          }}
         />
       );
     }
   }
 
-  const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = club.isJoined
+  const isJoined = !!club?.isJoined;
+  const tabs: { id: TabId; label: string; icon: React.FC<any> }[] = isJoined
     ? [
         { id: 'about',   label: 'About',  icon: BookOpen      },
         { id: 'events',  label: 'Events', icon: Calendar      },
@@ -209,7 +222,7 @@ export default function ClubDetailPage() {
   const updateClub = (updated: Club) => setClub(updated);
 
   const toggleJoin = async () => {
-    if (!club) return;
+    if (!club) return; // hard guard
     setError(null);
     const prev = club;
     if (club.isJoined) {
@@ -223,7 +236,6 @@ export default function ClubDetailPage() {
         const title = (err && err.title) ? String(err.title) : 'Cannot leave club';
         const details = (err && err.details) ? String(err.details) : (err?.message ?? 'Failed to leave club');
         setToast(`${title}\n${details}`);
-        // Do not set page-level error to avoid view change
         return;
       }
     } else {
@@ -240,25 +252,25 @@ export default function ClubDetailPage() {
         }
       } catch (err: any) {
         setClub(prev);
-        setError(err.message ?? 'Failed to join club');
+        setError(err?.message ?? 'Failed to join club');
       }
     }
   };
 
   return (
     <div className="space-y-6">
-       <button onClick={() => navigate('/explore')} className="text-gray-500 hover:text-gray-700">
-            ← Back to Explore
-          </button>
+      <button onClick={() => navigate('/explore')} className="text-gray-500 hover:text-gray-700">
+        ← Back to Explore
+      </button>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-         
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            {club.avatar ? (
+            {club?.avatar ? (
               <img
                 src={club.avatar}
-                alt={club.name}
+                alt={club?.name ?? 'Club'}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
@@ -267,10 +279,10 @@ export default function ClubDetailPage() {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{club.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{club?.name ?? '—'}</h1>
               <p className="text-gray-600 flex flex-wrap items-center gap-1">
-                <span>{club.members} members</span>
-                {club.isJoined && userRole && (
+                <span>{club?.members ?? 0} members</span>
+                {club?.isJoined && userRole && (
                   <>
                     <span>• Your role:</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[userRole]}`}>
@@ -280,14 +292,14 @@ export default function ClubDetailPage() {
                 )}
               </p>
               <div className="flex flex-wrap gap-2 mt-1">
-                {club.subject !== Subject.NONE && (
+                {club?.subject !== undefined && club?.subject !== Subject.NONE && (
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">
-                    {formatEnum(club.subject)}
+                    {formatEnum(String(club?.subject))}
                   </span>
                 )}
-                {club.interest !== Preference.NONE && (
+                {club?.interest !== undefined && club?.interest !== Preference.NONE && (
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">
-                    {formatEnum(club.interest)}
+                    {formatEnum(String(club?.interest))}
                   </span>
                 )}
               </div>
@@ -296,7 +308,7 @@ export default function ClubDetailPage() {
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button onClick={toggleJoin} className="text-sm">
-            {club.isJoined ? 'Leave Club' : 'Join Club'}
+            {club?.isJoined ? 'Leave Club' : 'Join Club'}
           </Button>
           <button
             onClick={() => {
@@ -345,43 +357,43 @@ export default function ClubDetailPage() {
       </div>
 
       {/* Tab contents */}
-      {activeTab === 'about'  && (
+      {activeTab === 'about'  && club && (
         <AboutTab
           club={club}
           onUpdate={updateClub}
           currentUserRole={userRole}
         />
       )}
-      {activeTab === 'events' && (
+      {activeTab === 'events' && club && (
         <EventsTab
           club={club}
           onClubUpdate={updateClub}
           userRole={userRole}
         />
       )}
-      {activeTab === 'forum'  && (
+      {activeTab === 'forum'  && club && (
         <ForumTab
           club={club}
           onClubUpdate={updateClub}
           onSelectThread={thread => navigate(`/clubs/${club.id}/threads/${thread.id}`)}
         />
       )}
-      {activeTab === 'posts'  && (
+      {activeTab === 'posts'  && club && (
         <PostsTab
           club={club}
           onClubUpdate={updateClub}
           onSelectPost={post =>
-            navigate(`/clubs/${club.id}/posts/${post.id}`, {
+            navigate(`/posts/${post.id}`, {
               state: { post, from: `${location.pathname}${location.search}` },
             })
           }
         />
       )}
-      {activeTab === 'members' && (
+      {activeTab === 'members' && club && (
         <MembersTab
           club={club}
           currentUserRole={userRole}
-          onUpdate={members => updateClub({ ...club, members_list: members })}
+          onUpdate={members => club && updateClub({ ...club, members_list: members })}
         />
       )}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
