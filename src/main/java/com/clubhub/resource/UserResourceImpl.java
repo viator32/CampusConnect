@@ -36,28 +36,28 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-        public UserDTO update(UUID id, UserUpdateDTO userDto) {
-                var entity = UserMapper.toEntity(userDto);
-                entity.setId(id);
-                userService.updateUserProfile(entity);
-                return userService.getUserProfile(id);
-        }
+	public UserDTO update(UUID id, UserUpdateDTO userDto) {
+		var entity = UserMapper.toEntity(userDto);
+		entity.setId(id);
+		userService.updateUserProfile(entity);
+		return userService.getUserProfile(id);
+	}
 
-       @Override
-       public UserDTO updateAvatar(UUID id, byte[] avatar, String contentType) {
-               userService.updateAvatar(id, avatar, contentType);
-               return userService.getUserProfile(id);
-       }
+	@Override
+	public UserDTO updateAvatar(UUID id, byte[] avatar, String contentType) {
+		userService.updateAvatar(id, avatar, contentType);
+		return userService.getUserProfile(id);
+	}
 
-       @Override
-       public ActionResponseDTO updatePassword(UUID id, UserPasswordUpdateDTO passwordDto) {
-                userService.changePassword(id, passwordDto.getCurrentPassword(), passwordDto.getNewPassword());
-                return new ActionResponseDTO(true, "Password updated");
-        }
+	@Override
+	public ActionResponseDTO updatePassword(UUID id, UserPasswordUpdateDTO passwordDto) {
+		userService.changePassword(id, passwordDto.getCurrentPassword(), passwordDto.getNewPassword());
+		return new ActionResponseDTO(true, "Password updated");
+	}
 
-        @Override
-        public ActionResponseDTO delete(UUID id) {
-                userService.deleteUser(id);
-                return new ActionResponseDTO(true, "User deleted");
-        }
+	@Override
+	public ActionResponseDTO delete(UUID id) {
+		userService.deleteUser(id);
+		return new ActionResponseDTO(true, "User deleted");
+	}
 }

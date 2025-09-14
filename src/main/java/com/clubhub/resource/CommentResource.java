@@ -35,13 +35,13 @@ public interface CommentResource {
 	CommentDTO addComment(@PathParam("postId") UUID postId, CommentDTO commentDTO,
 			@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/comments/{commentId}/like")
-        CommentDTO likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/comments/{commentId}/like")
+	CommentDTO likeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
-        @DELETE
-        @Path("/comments/{commentId}/like")
-        CommentDTO unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
+	@DELETE
+	@Path("/comments/{commentId}/like")
+	CommentDTO unlikeComment(@PathParam("commentId") UUID commentId, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/comments/{commentId}")

@@ -22,52 +22,52 @@ import com.clubhub.service.ReplyService;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReplyResourceImpl implements ReplyResource {
 
-    @Inject
-    ReplyService replyService;
+	@Inject
+	ReplyService replyService;
 
-    @Override
-    public ReplyDTO upvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        replyService.upvote(replyId, userId);
-        var reply = replyService.getReply(replyId);
-        return ClubMapper.toDTO(reply, userId);
-    }
+	@Override
+	public ReplyDTO upvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		replyService.upvote(replyId, userId);
+		var reply = replyService.getReply(replyId);
+		return ClubMapper.toDTO(reply, userId);
+	}
 
-    @Override
-    public ReplyDTO removeUpvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        replyService.removeUpvote(replyId, userId);
-        var reply = replyService.getReply(replyId);
-        return ClubMapper.toDTO(reply, userId);
-    }
+	@Override
+	public ReplyDTO removeUpvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		replyService.removeUpvote(replyId, userId);
+		var reply = replyService.getReply(replyId);
+		return ClubMapper.toDTO(reply, userId);
+	}
 
-    @Override
-    public ReplyDTO downvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        replyService.downvote(replyId, userId);
-        var reply = replyService.getReply(replyId);
-        return ClubMapper.toDTO(reply, userId);
-    }
+	@Override
+	public ReplyDTO downvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		replyService.downvote(replyId, userId);
+		var reply = replyService.getReply(replyId);
+		return ClubMapper.toDTO(reply, userId);
+	}
 
-    @Override
-    public ReplyDTO removeDownvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        replyService.removeDownvote(replyId, userId);
-        var reply = replyService.getReply(replyId);
-        return ClubMapper.toDTO(reply, userId);
-    }
+	@Override
+	public ReplyDTO removeDownvoteReply(UUID replyId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		replyService.removeDownvote(replyId, userId);
+		var reply = replyService.getReply(replyId);
+		return ClubMapper.toDTO(reply, userId);
+	}
 
-    @Override
-    public ReplyDTO updateReply(UUID replyId, ReplyDTO dto, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        var updated = replyService.updateReply(replyId, userId, dto.getContent());
-        return ClubMapper.toDTO(updated, userId);
-    }
+	@Override
+	public ReplyDTO updateReply(UUID replyId, ReplyDTO dto, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var updated = replyService.updateReply(replyId, userId, dto.getContent());
+		return ClubMapper.toDTO(updated, userId);
+	}
 
-    @Override
-    public ActionResponseDTO deleteReply(UUID replyId, @Context ContainerRequestContext ctx) {
-        UUID userId = (UUID) ctx.getProperty("userId");
-        replyService.deleteReply(replyId, userId);
-        return new ActionResponseDTO(true, "Reply deleted");
-    }
+	@Override
+	public ActionResponseDTO deleteReply(UUID replyId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		replyService.deleteReply(replyId, userId);
+		return new ActionResponseDTO(true, "Reply deleted");
+	}
 }

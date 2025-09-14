@@ -3,8 +3,6 @@ package com.clubhub.service;
 import java.util.List;
 import java.util.UUID;
 
-import com.clubhub.entity.Preference;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -13,6 +11,7 @@ import jakarta.transaction.Transactional;
 import com.clubhub.entity.Club;
 import com.clubhub.entity.Member;
 import com.clubhub.entity.MemberRole;
+import com.clubhub.entity.Preference;
 import com.clubhub.entity.User;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
@@ -23,134 +22,94 @@ import com.clubhub.repository.ClubRepository;
 @ApplicationScoped
 public class ClubService {
 
-        @Inject
-        ClubRepository clubRepository;
+	@Inject
+	ClubRepository clubRepository;
 
-    @Inject
-    ClubService clubService;
+	@Inject
+	ClubService clubService;
 
-    @Inject
-    EntityManager em;
-    @Inject
-    UserService userService;
+	@Inject
+	EntityManager em;
+	@Inject
+	UserService userService;
 
-    @Inject
-    ObjectStorageService objectStorageService;
+	@Inject
+	ObjectStorageService objectStorageService;
 
-        /**
-         * Retrieves all clubs from the repository.
-         *
-         * @return list of all clubs
-         */
-        public List<Club> getAllClubs() {
-                return clubRepository.findAll();
-        }
+	/**
+	 * Retrieves all clubs from the repository.
+	 *
+	 * @return list of all clubs
+	 */
+	public List<Club> getAllClubs() {
+		return clubRepository.findAll();
+	}
 
-        /**
-         * Searches for clubs matching the provided filters.
-         *
-         * @param name        optional name fragment to match
-         * @param category    optional category to filter by
-         * @param interest    optional interest to filter by
-         * @param minMembers  minimum number of members
-         * @param maxMembers  maximum number of members
-         * @param page        page index for pagination
-         * @param size        number of results per page
-         * @return filtered list of clubs
-         */
-        public List<Club> searchClubs(String name, String category, Preference interest,
-                        Integer minMembers, Integer maxMembers, int page, int size) {
-                return clubRepository.search(name, category, interest, minMembers, maxMembers, page, size);
-        }
+	/**
+	 * Searches for clubs matching the provided filters.
+	 *
+	 * @param name
+	 *     optional name fragment to match
+	 * @param category
+	 *     optional category to filter by
+	 * @param interest
+	 *     optional interest to filter by
+	 * @param minMembers
+	 *     minimum number of members
+	 * @param maxMembers
+	 *     maximum number of members
+	 * @param page
+	 *     page index for pagination
+	 * @param size
+	 *     number of results per page
+	 * @return filtered list of clubs
+	 */
+	public List<Club> searchClubs(String name, String category, Preference interest,
+			Integer minMembers, Integer maxMembers, int page, int size) {
+		return clubRepository.search(name, category, interest, minMembers, maxMembers, page, size);
+	}
 
-        /**
-         * Counts all clubs in the repository.
-         *
-         * @return total number of clubs
-         */
-        public long getClubCount() {
-                return clubRepository.countAll();
-        }
+	/**
+	 * Counts all clubs in the repository.
+	 *
+	 * @return total number of clubs
+	 */
+	public long getClubCount() {
+		return clubRepository.countAll();
+	}
 
-       /**
-        * Counts clubs that match the given filters.
-        *
-        * @param name       optional name fragment to match
-        * @param category   optional category to filter by
-        * @param interest   optional interest to filter by
-        * @param minMembers minimum number of members
-        * @param maxMembers maximum number of members
-        * @return number of clubs matching the criteria
-        */
-       public long getClubCount(String name, String category, Preference interest,
-                       Integer minMembers, Integer maxMembers) {
-               return clubRepository.countSearch(name, category, interest, minMembers, maxMembers);
-       }
+	/**
+	 * Counts clubs that match the given filters.
+	 *
+	 * @param name
+	 *     optional name fragment to match
+	 * @param category
+	 *     optional category to filter by
+	 * @param interest
+	 *     optional interest to filter by
+	 * @param minMembers
+	 *     minimum number of members
+	 * @param maxMembers
+	 *     maximum number of members
+	 * @return number of clubs matching the criteria
+	 */
+	public long getClubCount(String name, String category, Preference interest,
+			Integer minMembers, Integer maxMembers) {
+		return clubRepository.countSearch(name, category, interest, minMembers, maxMembers);
+	}
 
-        /**
-         * Retrieves a club by its identifier.
-         *
-         * @param id the club identifier
-         * @return the requested club
-         * @throws NotFoundException if no club with the ID exists
-         */
-        public Club getClubById(UUID id) {
-                Club club = clubRepository.findById(id);
-                if (club == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                        .title("Club not found")
-                                        .details("No club with id %s exists.".formatted(id))
-                                        .messageParameter("clubId", id.toString())
-                                        .sourcePointer("clubId")
-                                        .build());
-                }
-                return club;
-        }
-
-        /**
-         * Creates a new club and assigns the creator as an admin.
-         *
-         * @param club       the club entity to persist
-         * @param creatorId  ID of the user creating the club
-         * @return the created club
-         */
-        @Transactional
-        public Club createClub(Club club, UUID creatorId) {
-                clubRepository.save(club);
-
-                User user = userService.getUserById(creatorId);
-
-                Member member = new Member();
-                member.setClub(club);
-                member.setUser(user);
-                member.setRole(MemberRole.ADMIN);
-                member.setJoinedAt(java.time.LocalDateTime.now());
-
-                em.persist(member);
-
-                club.getMembersList().add(member);
-                club.setMembers(club.getMembersList().size());
-
-                user.getMemberships().add(member);
-
-                em.merge(club);
-                em.merge(user);
-
-                return club;
-        }
-
-        /**
-         * Updates an existing club with the provided values.
-         *
-         * @param id      identifier of the club to update
-         * @param updated club containing new values
-         * @return the updated club
-         */
-        @Transactional
-        public Club updateClub(UUID id, Club updated) {
-                Club existing = clubRepository.findById(id);
-                if (existing == null) {
+	/**
+	 * Retrieves a club by its identifier.
+	 *
+	 * @param id
+	 *     the club identifier
+	 * @return the requested club
+	 * @throws NotFoundException
+	 *     if no club with the ID exists
+	 */
+	public Club getClubById(UUID id) {
+		Club club = clubRepository.findById(id);
+		if (club == null) {
 			throw new NotFoundException(ErrorPayload.builder()
 					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
 					.title("Club not found")
@@ -159,74 +118,138 @@ public class ClubService {
 					.sourcePointer("clubId")
 					.build());
 		}
-                existing.setName(updated.getName());
-                existing.setDescription(updated.getDescription());
-                existing.setLocation(updated.getLocation());
-                existing.setCategory(updated.getCategory());
-               existing.setSubject(updated.getSubject());
-               existing.setInterest(updated.getInterest());
+		return club;
+	}
 
-               Club merged = clubRepository.update(existing);
-               // Initialize collections to avoid LazyInitializationException
-               merged.getEvents().forEach(e -> e.getAttendees().size());
-               merged.getPosts().forEach(p -> {
-                       p.getCommentsList().size();
-                       p.getLikedBy().size();
-                       p.getBookmarkedBy().size();
-                       if (p.getPoll() != null) {
-                               p.getPoll().getOptions().size();
-                       }
-               });
-               return merged;
-       }
+	/**
+	 * Creates a new club and assigns the creator as an admin.
+	 *
+	 * @param club
+	 *     the club entity to persist
+	 * @param creatorId
+	 *     ID of the user creating the club
+	 * @return the created club
+	 */
+	@Transactional
+	public Club createClub(Club club, UUID creatorId) {
+		clubRepository.save(club);
 
-        /**
-         * Updates the avatar image for the specified club.
-         *
-         * @param id          the club identifier
-         * @param avatar      avatar image data
-         * @param contentType MIME type of the image
-         */
-        @Transactional
-        public void updateAvatar(UUID id, byte[] avatar, String contentType) {
-         Club existing = getClubById(id);
-         var stored = objectStorageService.upload("clubs/" + id, avatar, contentType);
-         existing.setAvatarBucket(stored.bucket());
-         existing.setAvatarObject(stored.objectKey());
-         existing.setAvatarEtag(stored.etag());
-         clubRepository.update(existing);
-     }
+		User user = userService.getUserById(creatorId);
 
-        /**
-         * Deletes a club by its identifier.
-         *
-         * @param id the club identifier
-         * @return {@code true} if the club was deleted
-         */
-        @Transactional
-        public boolean deleteClub(UUID id) {
-                Club existing = clubRepository.findById(id);
-                if (existing == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
-                                        .title("Club not found")
-                                        .details("No club with id %s exists.".formatted(id))
-                                        .messageParameter("clubId", id.toString())
-                                        .sourcePointer("clubId")
-                                        .build());
-                }
-                clubRepository.delete(id);
-                return true;
-        }
+		Member member = new Member();
+		member.setClub(club);
+		member.setUser(user);
+		member.setRole(MemberRole.ADMIN);
+		member.setJoinedAt(java.time.LocalDateTime.now());
 
-        /**
-         * Adds a user as a member of the specified club.
-         *
-         * @param clubId identifier of the club to join
-         * @param userId identifier of the joining user
-         */
-        @Transactional
-        public void joinClub(UUID clubId, UUID userId) {
+		em.persist(member);
+
+		club.getMembersList().add(member);
+		club.setMembers(club.getMembersList().size());
+
+		user.getMemberships().add(member);
+
+		em.merge(club);
+		em.merge(user);
+
+		return club;
+	}
+
+	/**
+	 * Updates an existing club with the provided values.
+	 *
+	 * @param id
+	 *     identifier of the club to update
+	 * @param updated
+	 *     club containing new values
+	 * @return the updated club
+	 */
+	@Transactional
+	public Club updateClub(UUID id, Club updated) {
+		Club existing = clubRepository.findById(id);
+		if (existing == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(id))
+					.messageParameter("clubId", id.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
+		existing.setName(updated.getName());
+		existing.setDescription(updated.getDescription());
+		existing.setLocation(updated.getLocation());
+		existing.setCategory(updated.getCategory());
+		existing.setSubject(updated.getSubject());
+		existing.setInterest(updated.getInterest());
+
+		Club merged = clubRepository.update(existing);
+		// Initialize collections to avoid LazyInitializationException
+		merged.getEvents().forEach(e -> e.getAttendees().size());
+		merged.getPosts().forEach(p -> {
+			p.getCommentsList().size();
+			p.getLikedBy().size();
+			p.getBookmarkedBy().size();
+			if (p.getPoll() != null) {
+				p.getPoll().getOptions().size();
+			}
+		});
+		return merged;
+	}
+
+	/**
+	 * Updates the avatar image for the specified club.
+	 *
+	 * @param id
+	 *     the club identifier
+	 * @param avatar
+	 *     avatar image data
+	 * @param contentType
+	 *     MIME type of the image
+	 */
+	@Transactional
+	public void updateAvatar(UUID id, byte[] avatar, String contentType) {
+		Club existing = getClubById(id);
+		var stored = objectStorageService.upload("clubs/" + id, avatar, contentType);
+		existing.setAvatarBucket(stored.bucket());
+		existing.setAvatarObject(stored.objectKey());
+		existing.setAvatarEtag(stored.etag());
+		clubRepository.update(existing);
+	}
+
+	/**
+	 * Deletes a club by its identifier.
+	 *
+	 * @param id
+	 *     the club identifier
+	 * @return {@code true} if the club was deleted
+	 */
+	@Transactional
+	public boolean deleteClub(UUID id) {
+		Club existing = clubRepository.findById(id);
+		if (existing == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.CLUB_NOT_FOUND)
+					.title("Club not found")
+					.details("No club with id %s exists.".formatted(id))
+					.messageParameter("clubId", id.toString())
+					.sourcePointer("clubId")
+					.build());
+		}
+		clubRepository.delete(id);
+		return true;
+	}
+
+	/**
+	 * Adds a user as a member of the specified club.
+	 *
+	 * @param clubId
+	 *     identifier of the club to join
+	 * @param userId
+	 *     identifier of the joining user
+	 */
+	@Transactional
+	public void joinClub(UUID clubId, UUID userId) {
 		Club club = em.find(Club.class, clubId);
 		if (club == null) {
 			throw new NotFoundException(ErrorPayload.builder()
@@ -255,8 +278,8 @@ public class ClubService {
 		Member member = new Member();
 		member.setClub(club);
 		member.setUser(user);
-                member.setRole(MemberRole.MEMBER);
-                member.setJoinedAt(java.time.LocalDateTime.now());
+		member.setRole(MemberRole.MEMBER);
+		member.setJoinedAt(java.time.LocalDateTime.now());
 
 		em.persist(member);
 
@@ -269,14 +292,16 @@ public class ClubService {
 		em.merge(user);
 	}
 
-        /**
-         * Removes a user from the specified club.
-         *
-         * @param clubId identifier of the club to leave
-         * @param userId identifier of the leaving user
-         */
-        @Transactional
-        public void leaveClub(UUID clubId, UUID userId) {
+	/**
+	 * Removes a user from the specified club.
+	 *
+	 * @param clubId
+	 *     identifier of the club to leave
+	 * @param userId
+	 *     identifier of the leaving user
+	 */
+	@Transactional
+	public void leaveClub(UUID clubId, UUID userId) {
 		Club club = getClubById(clubId);
 		Member membership = club.getMembersList().stream()
 				.filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
@@ -318,16 +343,20 @@ public class ClubService {
 		em.merge(user);
 	}
 
-        /**
-         * Changes the role of a club member if the acting user is an admin.
-         *
-         * @param clubId       club containing the member
-         * @param memberId     member whose role is to be changed
-         * @param newRole      new role to assign
-         * @param actingUserId user performing the action
-         */
-        @Transactional
-        public void updateMemberRole(UUID clubId, UUID memberId, MemberRole newRole, UUID actingUserId) {
+	/**
+	 * Changes the role of a club member if the acting user is an admin.
+	 *
+	 * @param clubId
+	 *     club containing the member
+	 * @param memberId
+	 *     member whose role is to be changed
+	 * @param newRole
+	 *     new role to assign
+	 * @param actingUserId
+	 *     user performing the action
+	 */
+	@Transactional
+	public void updateMemberRole(UUID clubId, UUID memberId, MemberRole newRole, UUID actingUserId) {
 		Club club = getClubById(clubId);
 		Member actingMember = club.getMembersList().stream()
 				.filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))

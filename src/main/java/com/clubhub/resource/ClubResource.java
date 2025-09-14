@@ -7,11 +7,11 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -23,9 +23,9 @@ import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.ClubListDTO;
 import com.clubhub.entity.dto.EventDTO;
+import com.clubhub.entity.dto.ForumThreadDTO;
 import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
-import com.clubhub.entity.dto.ForumThreadDTO;
 
 import org.jboss.resteasy.reactive.ResponseStatus;
 
@@ -34,14 +34,13 @@ import org.jboss.resteasy.reactive.ResponseStatus;
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA })
 public interface ClubResource {
 
-        @GET
-        ClubListDTO getAll(@QueryParam("page") @DefaultValue("0") int page,
-                        @QueryParam("size") @DefaultValue("20") int size,
-                        @QueryParam("interest") Preference interest,
-                        @QueryParam("category") String category,
-                        @QueryParam("name") String name,
-                        @QueryParam("minMembers") Integer minMembers,
-                        @QueryParam("maxMembers") Integer maxMembers);
+	@GET
+	ClubListDTO getAll(@QueryParam("page") @DefaultValue("0") int page,
+			@QueryParam("size") @DefaultValue("20") int size,
+			@QueryParam("interest") Preference interest,
+			@QueryParam("category") String category, @QueryParam("name") String name,
+			@QueryParam("minMembers") Integer minMembers,
+			@QueryParam("maxMembers") Integer maxMembers);
 
 	@GET
 	@Path("/{id}")
@@ -51,14 +50,14 @@ public interface ClubResource {
 	@ResponseStatus(201)
 	ClubDTO create(ClubDTO clubDTO, @Context ContainerRequestContext ctx);
 
-        @PUT
-        @Path("/{id}")
-        ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
+	@PUT
+	@Path("/{id}")
+	ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
 
-       @PUT
-       @Path("/{id}/avatar")
-       @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
-       ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
+	@PUT
+	@Path("/{id}/avatar")
+	@Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+	ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
 
 	@DELETE
 	@Path("/{id}")
@@ -72,43 +71,43 @@ public interface ClubResource {
 	@Path("/{clubId}/leave")
 	ActionResponseDTO leaveClub(@PathParam("clubId") UUID clubId, @Context ContainerRequestContext ctx);
 
-        @PUT
-        @Path("/{clubId}/members/{memberId}/role")
-        ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
-                        @Context ContainerRequestContext ctx);
+	@PUT
+	@Path("/{clubId}/members/{memberId}/role")
+	ActionResponseDTO updateRole(@PathParam("clubId") UUID clubId, @PathParam("memberId") UUID memberId, MemberDTO dto,
+			@Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{clubId}/threads")
-        List<ForumThreadDTO> getClubThreads(@PathParam("clubId") UUID clubId,
-                        @QueryParam("offset") @DefaultValue("0") int offset,
-                        @QueryParam("limit") @DefaultValue("10") int limit,
-                        @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/threads")
+	List<ForumThreadDTO> getClubThreads(@PathParam("clubId") UUID clubId,
+			@QueryParam("offset") @DefaultValue("0") int offset,
+			@QueryParam("limit") @DefaultValue("10") int limit,
+			@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/{clubId}/threads")
-        @ResponseStatus(201)
-        ForumThreadDTO createThread(@PathParam("clubId") UUID clubId, ForumThreadDTO threadDTO,
-                        @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/threads")
+	@ResponseStatus(201)
+	ForumThreadDTO createThread(@PathParam("clubId") UUID clubId, ForumThreadDTO threadDTO,
+			@Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{clubId}/posts")
-        List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId,
-                        @QueryParam("offset") @DefaultValue("0") int offset,
-                        @QueryParam("limit") @DefaultValue("10") int limit,
-                        @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/posts")
+	List<PostDTO> getClubPosts(@PathParam("clubId") UUID clubId,
+			@QueryParam("offset") @DefaultValue("0") int offset,
+			@QueryParam("limit") @DefaultValue("10") int limit,
+			@Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/{clubId}/posts")
-        @Consumes(MediaType.APPLICATION_JSON)
-        @ResponseStatus(201)
-        PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/posts")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ResponseStatus(201)
+	PostDTO createPost(@PathParam("clubId") UUID clubId, PostDTO postDTO, @Context ContainerRequestContext ctx);
 
-        @POST
-        @Path("/{clubId}/posts")
-        @Consumes(MediaType.MULTIPART_FORM_DATA)
-        @ResponseStatus(201)
-        PostDTO createPost(@PathParam("clubId") UUID clubId, PostCreateForm form,
-                        @Context ContainerRequestContext ctx);
+	@POST
+	@Path("/{clubId}/posts")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@ResponseStatus(201)
+	PostDTO createPost(@PathParam("clubId") UUID clubId, PostCreateForm form,
+			@Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{clubId}/posts/{postId}")
@@ -120,12 +119,12 @@ public interface ClubResource {
 	ActionResponseDTO deletePost(@PathParam("clubId") UUID clubId, @PathParam("postId") UUID postId,
 			@Context ContainerRequestContext ctx);
 
-        @GET
-        @Path("/{clubId}/events")
-        List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId,
-                        @QueryParam("offset") @DefaultValue("0") int offset,
-                        @QueryParam("limit") @DefaultValue("10") int limit,
-                        @Context ContainerRequestContext ctx);
+	@GET
+	@Path("/{clubId}/events")
+	List<EventDTO> getClubEvents(@PathParam("clubId") UUID clubId,
+			@QueryParam("offset") @DefaultValue("0") int offset,
+			@QueryParam("limit") @DefaultValue("10") int limit,
+			@Context ContainerRequestContext ctx);
 
 	@GET
 	@Path("/{clubId}/events/{eventId}")

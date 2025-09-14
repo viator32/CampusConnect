@@ -19,21 +19,20 @@ public class FeedResourceImpl implements FeedResource {
 	@Inject
 	PostService postService;
 
-        @Inject
-        EventService eventService;
+	@Inject
+	EventService eventService;
 
-
-        @Override
-        public FeedDTO getFeed(@Context ContainerRequestContext ctx, int postOffset, int postLimit,
-                        int eventOffset, int eventLimit) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                FeedDTO feed = new FeedDTO();
-                feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
-                                .map(p -> ClubMapper.toDTO(p, userId))
-                                .toList());
-                feed.getEvents().addAll(eventService.getFeedForUser(userId, eventOffset, eventLimit).stream()
-                                .map(EventMapper::toDTO)
-                                .toList());
-                return feed;
-        }
+	@Override
+	public FeedDTO getFeed(@Context ContainerRequestContext ctx, int postOffset, int postLimit,
+			int eventOffset, int eventLimit) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		FeedDTO feed = new FeedDTO();
+		feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
+				.map(p -> ClubMapper.toDTO(p, userId))
+				.toList());
+		feed.getEvents().addAll(eventService.getFeedForUser(userId, eventOffset, eventLimit).stream()
+				.map(EventMapper::toDTO)
+				.toList());
+		return feed;
+	}
 }

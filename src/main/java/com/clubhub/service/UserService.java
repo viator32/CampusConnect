@@ -10,7 +10,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.clubhub.entity.User;
 import com.clubhub.entity.dto.UserDTO;
@@ -23,166 +22,166 @@ import com.clubhub.repository.EventRepository;
 import com.clubhub.repository.PostRepository;
 import com.clubhub.repository.UserRepository;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 @ApplicationScoped
 public class UserService {
 
-        @Inject
-        UserRepository userRepository;
+	@Inject
+	UserRepository userRepository;
 
-        @Inject
-        EventRepository eventRepository;
+	@Inject
+	EventRepository eventRepository;
 
-    @Inject
-    PostRepository postRepository;
+	@Inject
+	PostRepository postRepository;
 
-    @Inject
-    ObjectStorageService objectStorageService;
+	@Inject
+	ObjectStorageService objectStorageService;
 
+	@ConfigProperty(name = "auth.pepper")
+	String pepper;
 
-        @ConfigProperty(name = "auth.pepper")
-        String pepper;
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
+	}
 
-        public List<User> getAllUsers() {
-                return userRepository.findAll();
-        }
+	public List<UserDTO> getAllUserProfiles() {
+		return userRepository.findAll().stream().map(u -> {
+			UserDTO dto = UserMapper.toDTO(u);
+			dto.setEventsAttended(eventRepository.countEventsAttendedByUser(u.getId()));
+			dto.setPostsCreated(postRepository.countPostsByAuthor(u.getId()));
+			return dto;
+		}).toList();
+	}
 
-        public List<UserDTO> getAllUserProfiles() {
-                return userRepository.findAll().stream().map(u -> {
-                        UserDTO dto = UserMapper.toDTO(u);
-                        dto.setEventsAttended(eventRepository.countEventsAttendedByUser(u.getId()));
-                        dto.setPostsCreated(postRepository.countPostsByAuthor(u.getId()));
-                        return dto;
-                }).toList();
-        }
+	public User getUserById(UUID id) {
+		User user = userRepository.findById(id);
+		if (user == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_FOUND)
+					.title("User not found")
+					.details("No user with id %s exists.".formatted(id))
+					.messageParameter("userId", id.toString())
+					.sourcePointer("userId")
+					.build());
+		}
+		return user;
+	}
 
-        public User getUserById(UUID id) {
-                User user = userRepository.findById(id);
-                if (user == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.USER_NOT_FOUND)
-                                        .title("User not found")
-                                        .details("No user with id %s exists.".formatted(id))
-                                        .messageParameter("userId", id.toString())
-                                        .sourcePointer("userId")
-                                        .build());
-                }
-                return user;
-        }
+	public UserDTO getUserProfile(UUID id) {
+		User user = getUserById(id);
+		UserDTO dto = UserMapper.toDTO(user);
+		dto.setEventsAttended(eventRepository.countEventsAttendedByUser(id));
+		dto.setPostsCreated(postRepository.countPostsByAuthor(user.getId()));
+		return dto;
+	}
 
-        public UserDTO getUserProfile(UUID id) {
-                User user = getUserById(id);
-                UserDTO dto = UserMapper.toDTO(user);
-                dto.setEventsAttended(eventRepository.countEventsAttendedByUser(id));
-                dto.setPostsCreated(postRepository.countPostsByAuthor(user.getId()));
-                return dto;
-        }
+	public User getUserByEmail(String email) {
+		return userRepository.findByEmail(email);
+	}
 
-        public User getUserByEmail(String email) {
-                return userRepository.findByEmail(email);
-        }
+	private String hash(String password) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			byte[] hashed = md.digest((password + pepper).getBytes(StandardCharsets.UTF_8));
+			return Base64.getEncoder().encodeToString(hashed);
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-        private String hash(String password) {
-                try {
-                        MessageDigest md = MessageDigest.getInstance("SHA-256");
-                        byte[] hashed = md.digest((password + pepper).getBytes(StandardCharsets.UTF_8));
-                        return Base64.getEncoder().encodeToString(hashed);
-                } catch (NoSuchAlgorithmException e) {
-                        throw new RuntimeException(e);
-                }
-        }
+	@Transactional
+	public void createUser(User user, String password) {
+		user.setPasswordHash(hash(password));
+		userRepository.save(user);
+	}
 
-        @Transactional
-        public void createUser(User user, String password) {
-                user.setPasswordHash(hash(password));
-                userRepository.save(user);
-        }
+	public User authenticate(String email, String password) {
+		User user = getUserByEmail(email);
+		if (user == null) {
+			throw new UnauthorizedException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+					.title("Invalid credentials")
+					.details("Email or password is incorrect.")
+					.messageParameter("email", email)
+					.sourcePointer("email")
+					.build());
+		}
+		String hashed = hash(password);
+		if (hashed.equals(user.getPasswordHash())) {
+			return user;
+		}
+		throw new UnauthorizedException(ErrorPayload.builder()
+				.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+				.title("Invalid credentials")
+				.details("Email or password is incorrect.")
+				.messageParameter("email", email)
+				.sourcePointer("password")
+				.build());
+	}
 
-        public User authenticate(String email, String password) {
-                User user = getUserByEmail(email);
-                if (user == null) {
-                        throw new UnauthorizedException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
-                                        .title("Invalid credentials")
-                                        .details("Email or password is incorrect.")
-                                        .messageParameter("email", email)
-                                        .sourcePointer("email")
-                                        .build());
-                }
-                String hashed = hash(password);
-                if (hashed.equals(user.getPasswordHash())) {
-                        return user;
-                }
-                throw new UnauthorizedException(ErrorPayload.builder()
-                                .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
-                                .title("Invalid credentials")
-                                .details("Email or password is incorrect.")
-                                .messageParameter("email", email)
-                                .sourcePointer("password")
-                                .build());
-        }
+	@Transactional
+	public User updateUserProfile(User user) {
+		User existing = getUserById(user.getId());
+		if (user.getEmail() != null) {
+			existing.setEmail(user.getEmail());
+		}
+		if (user.getUsername() != null) {
+			existing.setUsername(user.getUsername());
+		}
+		if (user.getDescription() != null) {
+			existing.setDescription(user.getDescription());
+		}
+		if (user.getPreferences() != null) {
+			existing.setPreferences(user.getPreferences());
+		}
+		if (user.getSubject() != null) {
+			existing.setSubject(user.getSubject());
+		}
+		return userRepository.update(existing);
+	}
 
+	@Transactional
+	public void updateAvatar(UUID id, byte[] avatar, String contentType) {
+		User existing = getUserById(id);
+		var stored = objectStorageService.upload("users/" + id, avatar, contentType);
+		existing.setAvatarBucket(stored.bucket());
+		existing.setAvatarObject(stored.objectKey());
+		existing.setAvatarEtag(stored.etag());
+		userRepository.update(existing);
+	}
 
-        @Transactional
-        public User updateUserProfile(User user) {
-                User existing = getUserById(user.getId());
-                if (user.getEmail() != null) {
-                        existing.setEmail(user.getEmail());
-                }
-                if (user.getUsername() != null) {
-                        existing.setUsername(user.getUsername());
-                }
-                if (user.getDescription() != null) {
-                        existing.setDescription(user.getDescription());
-                }
-               if (user.getPreferences() != null) {
-                       existing.setPreferences(user.getPreferences());
-               }
-                if (user.getSubject() != null) {
-                        existing.setSubject(user.getSubject());
-                }
-                return userRepository.update(existing);
-        }
+	@Transactional
+	public void changePassword(UUID id, String currentPassword, String newPassword) {
+		User existing = getUserById(id);
+		String currentHash = hash(currentPassword);
+		if (!existing.getPasswordHash().equals(currentHash)) {
+			throw new UnauthorizedException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
+					.title("Invalid credentials")
+					.details("Current password is incorrect.")
+					.messageParameter("userId", id.toString())
+					.sourcePointer("currentPassword")
+					.build());
+		}
+		existing.setPasswordHash(hash(newPassword));
+		userRepository.update(existing);
+	}
 
-    @Transactional
-    public void updateAvatar(UUID id, byte[] avatar, String contentType) {
-        User existing = getUserById(id);
-        var stored = objectStorageService.upload("users/" + id, avatar, contentType);
-        existing.setAvatarBucket(stored.bucket());
-        existing.setAvatarObject(stored.objectKey());
-        existing.setAvatarEtag(stored.etag());
-        userRepository.update(existing);
-    }
-
-       @Transactional
-       public void changePassword(UUID id, String currentPassword, String newPassword) {
-                User existing = getUserById(id);
-                String currentHash = hash(currentPassword);
-                if (!existing.getPasswordHash().equals(currentHash)) {
-                        throw new UnauthorizedException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.INVALID_CREDENTIALS)
-                                        .title("Invalid credentials")
-                                        .details("Current password is incorrect.")
-                                        .messageParameter("userId", id.toString())
-                                        .sourcePointer("currentPassword")
-                                        .build());
-                }
-                existing.setPasswordHash(hash(newPassword));
-                userRepository.update(existing);
-        }
-
-        @Transactional
-        public void deleteUser(UUID id) {
-                User user = userRepository.findById(id);
-                if (user == null) {
-                        throw new NotFoundException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.USER_NOT_FOUND)
-                                        .title("User not found")
-                                        .details("No user with id %s exists.".formatted(id))
-                                        .messageParameter("userId", id.toString())
-                                        .sourcePointer("userId")
-                                        .build());
-                }
-                userRepository.delete(id);
-        }
+	@Transactional
+	public void deleteUser(UUID id) {
+		User user = userRepository.findById(id);
+		if (user == null) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_FOUND)
+					.title("User not found")
+					.details("No user with id %s exists.".formatted(id))
+					.messageParameter("userId", id.toString())
+					.sourcePointer("userId")
+					.build());
+		}
+		userRepository.delete(id);
+	}
 
 }

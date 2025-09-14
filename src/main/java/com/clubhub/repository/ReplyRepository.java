@@ -11,51 +11,51 @@ import com.clubhub.entity.Reply;
 @ApplicationScoped
 public class ReplyRepository {
 
-    @Inject
-    EntityManager em;
+	@Inject
+	EntityManager em;
 
-    public void save(Reply reply) {
-        em.persist(reply);
-    }
+	public void save(Reply reply) {
+		em.persist(reply);
+	}
 
-    public Reply findById(UUID id) {
-        return em.find(Reply.class, id);
-    }
+	public Reply findById(UUID id) {
+		return em.find(Reply.class, id);
+	}
 
-    public Reply update(Reply reply) {
-        return em.merge(reply);
-    }
+	public Reply update(Reply reply) {
+		return em.merge(reply);
+	}
 
-    public boolean hasUserUpvotedReply(UUID replyId, UUID userId) {
-        Long count = em.createQuery("""
-                        SELECT COUNT(r)
-                        FROM Reply r
-                        JOIN r.upvotedBy u
-                        WHERE r.id = :replyId AND u.id = :userId
-                        """, Long.class)
-                .setParameter("replyId", replyId)
-                .setParameter("userId", userId)
-                .getSingleResult();
-        return count > 0;
-    }
+	public boolean hasUserUpvotedReply(UUID replyId, UUID userId) {
+		Long count = em.createQuery("""
+				SELECT COUNT(r)
+				FROM Reply r
+				JOIN r.upvotedBy u
+				WHERE r.id = :replyId AND u.id = :userId
+				""", Long.class)
+				.setParameter("replyId", replyId)
+				.setParameter("userId", userId)
+				.getSingleResult();
+		return count > 0;
+	}
 
-    public boolean hasUserDownvotedReply(UUID replyId, UUID userId) {
-        Long count = em.createQuery("""
-                        SELECT COUNT(r)
-                        FROM Reply r
-                        JOIN r.downvotedBy u
-                        WHERE r.id = :replyId AND u.id = :userId
-                        """, Long.class)
-                .setParameter("replyId", replyId)
-                .setParameter("userId", userId)
-                .getSingleResult();
-        return count > 0;
-    }
+	public boolean hasUserDownvotedReply(UUID replyId, UUID userId) {
+		Long count = em.createQuery("""
+				SELECT COUNT(r)
+				FROM Reply r
+				JOIN r.downvotedBy u
+				WHERE r.id = :replyId AND u.id = :userId
+				""", Long.class)
+				.setParameter("replyId", replyId)
+				.setParameter("userId", userId)
+				.getSingleResult();
+		return count > 0;
+	}
 
-    public void delete(UUID id) {
-        Reply r = em.find(Reply.class, id);
-        if (r != null) {
-            em.remove(r);
-        }
-    }
+	public void delete(UUID id) {
+		Reply r = em.find(Reply.class, id);
+		if (r != null) {
+			em.remove(r);
+		}
+	}
 }

@@ -17,11 +17,11 @@ import com.clubhub.entity.dto.FeedDTO;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface FeedResource {
 
-        @GET
-        @Path("/feed")
-        FeedDTO getFeed(@Context ContainerRequestContext ctx,
-                        @QueryParam("postOffset") @DefaultValue("0") int postOffset,
-                        @QueryParam("postLimit") @DefaultValue("10") int postLimit,
-                        @QueryParam("eventOffset") @DefaultValue("0") int eventOffset,
-                        @QueryParam("eventLimit") @DefaultValue("10") int eventLimit);
+	@GET
+	@Path("/feed")
+	FeedDTO getFeed(@Context ContainerRequestContext ctx,
+			@QueryParam("postOffset") @DefaultValue("0") int postOffset,
+			@QueryParam("postLimit") @DefaultValue("10") int postLimit,
+			@QueryParam("eventOffset") @DefaultValue("0") int eventOffset,
+			@QueryParam("eventLimit") @DefaultValue("10") int eventLimit);
 }

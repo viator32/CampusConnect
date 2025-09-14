@@ -22,22 +22,22 @@ public class CommentRepository {
 		return em.find(Comment.class, id);
 	}
 
-        public Comment update(Comment comment) {
-                return em.merge(comment);
-        }
+	public Comment update(Comment comment) {
+		return em.merge(comment);
+	}
 
-        public boolean hasUserLikedComment(UUID commentId, UUID userId) {
-                Long count = em.createQuery("""
-                                SELECT COUNT(c)
-                                FROM Comment c
-                                JOIN c.likedBy u
-                                WHERE c.id = :commentId AND u.id = :userId
-                                """, Long.class)
-                                .setParameter("commentId", commentId)
-                                .setParameter("userId", userId)
-                                .getSingleResult();
-                return count > 0;
-        }
+	public boolean hasUserLikedComment(UUID commentId, UUID userId) {
+		Long count = em.createQuery("""
+				SELECT COUNT(c)
+				FROM Comment c
+				JOIN c.likedBy u
+				WHERE c.id = :commentId AND u.id = :userId
+				""", Long.class)
+				.setParameter("commentId", commentId)
+				.setParameter("userId", userId)
+				.getSingleResult();
+		return count > 0;
+	}
 
 	public void delete(UUID id) {
 		Comment c = em.find(Comment.class, id);

@@ -11,21 +11,21 @@ import io.minio.MinioClient;
 @ApplicationScoped
 public class MinioClientProvider {
 
-    @ConfigProperty(name = "minio.endpoint")
-    String endpoint;
+	@ConfigProperty(name = "minio.endpoint")
+	String endpoint;
 
-    @ConfigProperty(name = "minio.access-key")
-    String accessKey;
+	@ConfigProperty(name = "minio.access-key")
+	String accessKey;
 
-    @ConfigProperty(name = "minio.secret-key")
-    String secretKey;
+	@ConfigProperty(name = "minio.secret-key")
+	String secretKey;
 
-    @Produces
-    @Singleton
-    public MinioClient minioClient() {
-        return MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials(accessKey, secretKey)
-                .build();
-    }
+	@Produces
+	@Singleton
+	public MinioClient minioClient() {
+		return MinioClient.builder()
+				.endpoint(endpoint)
+				.credentials(accessKey, secretKey)
+				.build();
+	}
 }

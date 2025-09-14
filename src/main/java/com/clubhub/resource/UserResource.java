@@ -6,10 +6,10 @@ import java.util.UUID;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
@@ -36,21 +36,21 @@ public interface UserResource {
 	@Path("/{id}")
 	UserDTO getById(@PathParam("id") UUID id);
 
-        @PUT
-        @Path("/{id}")
-        UserDTO update(@PathParam("id") UUID id, UserUpdateDTO userDto);
+	@PUT
+	@Path("/{id}")
+	UserDTO update(@PathParam("id") UUID id, UserUpdateDTO userDto);
 
-       @PUT
-       @Path("/{id}/avatar")
-       @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
-       UserDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
+	@PUT
+	@Path("/{id}/avatar")
+	@Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+	UserDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
 
-        @PUT
-        @Path("/{id}/password")
-        ActionResponseDTO updatePassword(@PathParam("id") UUID id, UserPasswordUpdateDTO passwordDto);
+	@PUT
+	@Path("/{id}/password")
+	ActionResponseDTO updatePassword(@PathParam("id") UUID id, UserPasswordUpdateDTO passwordDto);
 
-        @DELETE
-        @Path("/{id}")
-        ActionResponseDTO delete(@PathParam("id") UUID id);
+	@DELETE
+	@Path("/{id}")
+	ActionResponseDTO delete(@PathParam("id") UUID id);
 
 }
