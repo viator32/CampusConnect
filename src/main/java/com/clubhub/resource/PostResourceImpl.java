@@ -87,19 +87,19 @@ public class PostResourceImpl implements PostResource {
 	}
 
 	@Override
-        public PostDTO updatePicture(UUID postId, byte[] picture, String contentType,
-                        @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.updatePicture(postId, userId, picture, contentType);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post, userId);
-        }
+	public PostDTO updatePicture(UUID postId, byte[] picture, String contentType,
+			@Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.updatePicture(postId, userId, picture, contentType);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post, userId);
+	}
 
-        @Override
-        public PostDTO deletePicture(UUID postId, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                postService.deletePicture(postId, userId);
-                var post = postService.getPost(postId);
-                return ClubMapper.toDTO(post, userId);
-        }
+	@Override
+	public PostDTO deletePicture(UUID postId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		postService.deletePicture(postId, userId);
+		var post = postService.getPost(postId);
+		return ClubMapper.toDTO(post, userId);
+	}
 }
