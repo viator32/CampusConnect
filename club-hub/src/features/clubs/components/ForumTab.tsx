@@ -3,7 +3,7 @@ import { Club, Thread } from '../types';
 import Button from '../../../components/Button';
 import { clubService } from '../services/ClubService';
 import { ApiError } from '../../../services/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowUp, ArrowDown } from 'lucide-react';
 
 /** Props for the club Forum tab. */
 interface ForumTabProps {
@@ -85,6 +85,78 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
     }
   };
 
+  // Compute sorted threads by score (upvotes - downvotes), highest first
+  const sortedThreads = [...(club.forum_threads ?? [])].sort((a, b) => {
+    const sa = (a.upvotes ?? 0) - (a.downvotes ?? 0);
+    const sb = (b.upvotes ?? 0) - (b.downvotes ?? 0);
+    if (sb !== sa) return sb - sa;
+    // tie-breaker: most recent activity first
+    const ta = new Date(a.lastActivity || '').getTime();
+    const tb = new Date(b.lastActivity || '').getTime();
+    return (isNaN(tb) ? 0 : tb) - (isNaN(ta) ? 0 : ta);
+  });
+
+  const updateThreadInClub = (threadId: string, updater: (t: any) => any) => {
+    const list = (club.forum_threads ?? []).map(t => String(t.id) === String(threadId) ? updater(t) : t);
+    onClubUpdate({ ...club, forum_threads: list });
+  };
+
+  const toggleUpvote = async (e: React.MouseEvent, threadId: string) => {
+    e.stopPropagation();
+    const t = (club.forum_threads ?? []).find(x => String(x.id) === String(threadId));
+    if (!t) return;
+    const wasUpvoted = !!t.upvoted;
+    // optimistic
+    updateThreadInClub(threadId, x => ({
+      ...x,
+      upvoted: !wasUpvoted,
+      downvoted: wasUpvoted ? x.downvoted : false,
+      upvotes: (x.upvotes ?? 0) + (wasUpvoted ? -1 : 1),
+      downvotes: wasUpvoted ? (x.downvotes ?? 0) : Math.max(0, (x.downvotes ?? 0) - (x.downvoted ? 1 : 0)),
+    }));
+    try {
+      if (wasUpvoted) await clubService.removeUpvoteThread(threadId);
+      else await clubService.upvoteThread(threadId);
+    } catch (e) {
+      // revert on error
+      updateThreadInClub(threadId, x => ({
+        ...x,
+        upvoted: wasUpvoted,
+        downvoted: x.downvoted,
+        upvotes: (x.upvotes ?? 0) + (wasUpvoted ? 1 : -1),
+        downvotes: x.downvotes,
+      }));
+    }
+  };
+
+  const toggleDownvote = async (e: React.MouseEvent, threadId: string) => {
+    e.stopPropagation();
+    const t = (club.forum_threads ?? []).find(x => String(x.id) === String(threadId));
+    if (!t) return;
+    const wasDownvoted = !!t.downvoted;
+    // optimistic
+    updateThreadInClub(threadId, x => ({
+      ...x,
+      downvoted: !wasDownvoted,
+      upvoted: wasDownvoted ? x.upvoted : false,
+      downvotes: (x.downvotes ?? 0) + (wasDownvoted ? -1 : 1),
+      upvotes: wasDownvoted ? (x.upvotes ?? 0) : Math.max(0, (x.upvotes ?? 0) - (x.upvoted ? 1 : 0)),
+    }));
+    try {
+      if (wasDownvoted) await clubService.removeDownvoteThread(threadId);
+      else await clubService.downvoteThread(threadId);
+    } catch (e) {
+      // revert on error
+      updateThreadInClub(threadId, x => ({
+        ...x,
+        downvoted: wasDownvoted,
+        upvoted: x.upvoted,
+        downvotes: (x.downvotes ?? 0) + (wasDownvoted ? 1 : -1),
+        upvotes: x.upvotes,
+      }));
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -117,16 +189,39 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
         </div>
       )}
 
-      {club.forum_threads.map(thread => (
+      {sortedThreads.map(thread => (
         <div
           key={thread.id}
           className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md cursor-pointer"
           onClick={() => onSelectThread(thread)}
         >
-          <h4 className="font-semibold text-gray-900 mb-2">{thread.title}</h4>
-          <p className="text-xs text-gray-500">
-            By {thread.author} • {thread.replies} replies
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">{thread.title}</h4>
+              <p className="text-xs text-gray-500">
+                By {thread.author} • {thread.replies} replies
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <button
+                className={`p-1 rounded hover:bg-gray-100 ${thread.upvoted ? 'text-orange-600' : ''}`}
+                onClick={(e) => toggleUpvote(e, thread.id)}
+                aria-label="Upvote thread"
+              >
+                <ArrowUp className="w-4 h-4" />
+              </button>
+              <span className="text-sm">{thread.upvotes ?? 0}</span>
+              <button
+                className={`p-1 rounded hover:bg-gray-100 ${thread.downvoted ? 'text-blue-600' : ''}`}
+                onClick={(e) => toggleDownvote(e, thread.id)}
+                aria-label="Downvote thread"
+              >
+                <ArrowDown className="w-4 h-4" />
+              </button>
+              <span className="text-sm">{thread.downvotes ?? 0}</span>
+              <span className="text-xs text-gray-400">• score: {(thread.upvotes ?? 0) - (thread.downvotes ?? 0)}</span>
+            </div>
+          </div>
         </div>
       ))}
 

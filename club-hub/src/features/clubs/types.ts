@@ -41,6 +41,11 @@ export interface Comment {
   time: string;
   likes?: number;
   liked?: boolean;
+  // Voting (used for thread replies; optional for post comments)
+  upvotes?: number;
+  downvotes?: number;
+  upvoted?: boolean;
+  downvoted?: boolean;
 }
 
 /** Single option within a poll. */
@@ -94,6 +99,11 @@ export interface Thread {
   lastActivity: string;
   content?: string;
   posts?: Comment[];
+  // Voting
+  upvotes?: number;
+  downvotes?: number;
+  upvoted?: boolean;
+  downvoted?: boolean;
 }
 
 /**

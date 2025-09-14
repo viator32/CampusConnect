@@ -88,6 +88,27 @@ export class ClubService extends BaseService {
     return mapThread(dto);
   }
 
+  // Voting on threads
+  /** Upvote a thread. */
+  async upvoteThread(threadId: string | number): Promise<void> {
+    await this.api.request<void>(`/threads/${threadId}/upvote`, { method: 'POST' });
+  }
+
+  /** Remove upvote from a thread. */
+  async removeUpvoteThread(threadId: string | number): Promise<void> {
+    await this.api.request<void>(`/threads/${threadId}/upvote`, { method: 'DELETE' });
+  }
+
+  /** Downvote a thread. */
+  async downvoteThread(threadId: string | number): Promise<void> {
+    await this.api.request<void>(`/threads/${threadId}/downvote`, { method: 'POST' });
+  }
+
+  /** Remove downvote from a thread. */
+  async removeDownvoteThread(threadId: string | number): Promise<void> {
+    await this.api.request<void>(`/threads/${threadId}/downvote`, { method: 'DELETE' });
+  }
+
   /** List comments of a thread. */
   async listThreadComments(threadId: string | number) {
     const arr = await this.api.request<any[]>(`/threads/${threadId}/comments`);
@@ -335,6 +356,27 @@ export class ClubService extends BaseService {
   /** Remove like from a comment by ID. */
   async unlikeComment(commentId: string): Promise<void> {
     await this.api.request<void>(`/comments/${commentId}/like`, { method: 'DELETE' });
+  }
+
+  // Voting on comments (used for thread replies)
+  /** Upvote a comment by ID. */
+  async upvoteComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/upvote`, { method: 'POST' });
+  }
+
+  /** Remove upvote on a comment by ID. */
+  async removeUpvoteComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/upvote`, { method: 'DELETE' });
+  }
+
+  /** Downvote a comment by ID. */
+  async downvoteComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/downvote`, { method: 'POST' });
+  }
+
+  /** Remove downvote on a comment by ID. */
+  async removeDownvoteComment(commentId: string): Promise<void> {
+    await this.api.request<void>(`/comments/${commentId}/downvote`, { method: 'DELETE' });
   }
 }
 

@@ -95,6 +95,10 @@ export function mapComment(dto: any): Comment {
     time: dto.time ?? dto.createdAt ?? '',
     likes: dto.likes ?? 0,
     liked: dto.liked ?? dto.likedByUser ?? dto.likedByMe ?? false,
+    upvotes: dto.upvotes ?? 0,
+    downvotes: dto.downvotes ?? 0,
+    upvoted: dto.upvoted ?? false,
+    downvoted: dto.downvoted ?? false,
   };
 }
 
@@ -117,5 +121,9 @@ export function mapThread(dto: any): Thread {
     lastActivity: dto.lastActivity ?? dto.updatedAt ?? dto.time ?? dto.createdAt ?? '',
     content: dto.content ?? '',
     posts: commentsList,
+    upvotes: dto.upvotes ?? 0,
+    downvotes: dto.downvotes ?? 0,
+    upvoted: dto.upvoted ?? false,
+    downvoted: dto.downvoted ?? false,
   };
 }
