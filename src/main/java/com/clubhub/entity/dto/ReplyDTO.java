@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ReplyDTO {
     private UUID id;
     private AuthorDTO author;
+    private UUID threadId;
     private String content;
     private String time;
     private int upvotes;
