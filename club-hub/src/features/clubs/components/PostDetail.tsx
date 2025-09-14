@@ -13,7 +13,7 @@ import ImageLightbox from '../../../components/ImageLightbox';
 /** Props for the dedicated post view. */
 interface PostDetailProps {
   post: Post;
-  clubId: string;
+  clubId?: string; // optional; required only for manage actions
   currentUserRole?: Role;
   onBack: () => void;
   onPostUpdate?: (p: Post) => void;
@@ -99,6 +99,10 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
 
   const saveEdit = async () => {
     if (!canManage) return;
+    if (!clubId) {
+      setActionError('Cannot edit this post: missing club context.');
+      return;
+    }
     setSaving(true);
     try {
       let updated: Post | null = null;
@@ -132,6 +136,10 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
 
   const deletePost = async () => {
     if (!canManage) return;
+    if (!clubId) {
+      setActionError('Cannot delete this post: missing club context.');
+      return;
+    }
     try {
       await clubService.deletePost(clubId, postData.id);
       onPostDelete?.(postData.id);

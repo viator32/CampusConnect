@@ -58,8 +58,7 @@ export default function BookmarksPage() {
               key={post.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
               onClick={() =>
-                post.clubId &&
-                navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                navigate(`/posts/${post.id}` as string, {
                   state: { from: location.pathname },
                 })
               }

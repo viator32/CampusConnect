@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import ExplorePage from '../features/clubs/pages/ExplorePage';
 import ClubDetailPage from '../features/clubs/pages/ClubDetailPage';
+import PostPage from '../features/clubs/pages/PostPage';
 import FeedPage from '../features/feed/pages/FeedPage';
 import { ProfilePage, UserProfilePage } from '../features/profile/pages';
 import SettingsPage from '../features/settings/pages/SettingsPage';
@@ -41,7 +42,8 @@ export default function AppRoutes() {
             <Route path="/" element={<Navigate to="/explore" replace />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/clubs/:clubId" element={<ClubDetailPage />} />
-            <Route path="/clubs/:clubId/posts/:postId" element={<ClubDetailPage />} />
+            <Route path="/clubs/:clubId/posts/:postId" element={<PostPage />} />
+            <Route path="/posts/:postId" element={<PostPage />} />
             <Route path="/clubs/:clubId/threads/:threadId" element={<ClubDetailPage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/profile" element={<ProfilePage />} />

@@ -615,7 +615,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                 </button>
                 {sharePostId === post.id && (
                   <SharePopup
-                    url={`${window.location.origin}/clubs/${club.id}/posts/${post.id}`}
+                    url={`${window.location.origin}/posts/${post.id}`}
                     onClose={() => setSharePostId(null)}
                   />
                 )}

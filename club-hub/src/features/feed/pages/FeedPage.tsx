@@ -398,7 +398,7 @@ export default function FeedPage() {
                 key={`${post.clubId ?? 'unknown'}-${post.id}-${index}`}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer"
                 onClick={() =>
-                  navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                  navigate(`/posts/${post.id}` as string, {
                     state: { from: location.pathname },
                   })
                 }
@@ -449,7 +449,7 @@ export default function FeedPage() {
                     className="flex items-center gap-1 hover:text-orange-500"
                     onClick={e => {
                       e.stopPropagation();
-                      navigate(`/clubs/${post.clubId}/posts/${post.id}` as string, {
+                      navigate(`/posts/${post.id}` as string, {
                         state: { from: location.pathname },
                       });
                     }}
@@ -468,7 +468,7 @@ export default function FeedPage() {
                     </button>
                     {sharePostId === post.id && (
                       <SharePopup
-                        url={`${window.location.origin}/clubs/${post.clubId}/posts/${post.id}`}
+                        url={`${window.location.origin}/posts/${post.id}`}
                         onClose={() => setSharePostId(null)}
                       />
                     )}
