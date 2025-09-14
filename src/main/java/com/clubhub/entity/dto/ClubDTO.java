@@ -26,7 +26,5 @@ public class ClubDTO {
 	private int eventsCount;
 	private int postsCount;
 
-	private final List<EventDTO> events = new ArrayList<>();
-	private final List<MemberDTO> membersList = new ArrayList<>();
-	private final List<ForumThreadDTO> forumThreads = new ArrayList<>();
+        private final List<MemberDTO> membersList = new ArrayList<>();
 }
