@@ -16,8 +16,8 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.reactive.ResponseStatus;
 
-import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.ForumThreadDTO;
+import com.clubhub.entity.dto.ReplyDTO;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,13 +29,13 @@ public interface ForumThreadResource {
     ForumThreadDTO getThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
 
     @GET
-    @Path("/threads/{threadId}/comments")
-    List<CommentDTO> getComments(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
+    @Path("/threads/{threadId}/replies")
+    List<ReplyDTO> getReplies(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
 
     @POST
-    @Path("/threads/{threadId}/comments")
+    @Path("/threads/{threadId}/replies")
     @ResponseStatus(201)
-    CommentDTO addComment(@PathParam("threadId") UUID threadId, CommentDTO dto, @Context ContainerRequestContext ctx);
+    ReplyDTO addReply(@PathParam("threadId") UUID threadId, ReplyDTO dto, @Context ContainerRequestContext ctx);
 
     @POST
     @Path("/threads/{threadId}/upvote")

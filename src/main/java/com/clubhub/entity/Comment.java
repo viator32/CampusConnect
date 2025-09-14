@@ -25,7 +25,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "post", "thread", "likedBy", "author" })
+@ToString(exclude = { "post", "likedBy", "author" })
 public class Comment {
 
 	@Id
@@ -38,21 +38,18 @@ public class Comment {
 
 	private String content;
 
-	@Column(name = "time")
-	private String time;
+       @Column(name = "time")
+       private String time;
 
-	private int likes;
+       @Column(name = "likes")
+       private int likes;
 
-	@ManyToMany
-	@JoinTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-	private Set<User> likedBy = new HashSet<>();
+       @ManyToMany
+       @JoinTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+       private Set<User> likedBy = new HashSet<>();
 
-	@ManyToOne
-	@JoinColumn(name = "post_id")
-	private Post post;
-
-	@ManyToOne
-	@JoinColumn(name = "thread_id")
-	private ForumThread thread;
+       @ManyToOne
+       @JoinColumn(name = "post_id")
+       private Post post;
 
 }

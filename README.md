@@ -59,7 +59,7 @@ script following the `V<version>__description.sql` naming convention.
 
 Each club member is assigned one of the following roles, which determine what actions are allowed inside a club:
 
-- **Member** – Default role for new members. Can view club content, create comments, interact with posts (like, share, bookmark) and comments (like), update or delete only their own comments, and join events. Members cannot create, update or delete posts or events, and they cannot modify other members' roles.
+- **Member** – Default role for new members. Can view club content, create comments on posts and replies in threads, interact with posts (like, share, bookmark), like comments and upvote or downvote replies, update or delete only their own comments and replies, and join events. Members cannot create, update or delete posts or events, and they cannot modify other members' roles.
 - **Moderator** – Inherits all member abilities and can additionally create posts, create, update and delete events, update or delete any post, and delete any comment.
 - **Admin** – Highest privilege level. In addition to moderator capabilities, admins can change the roles of other members. At least one admin must remain in every club.
 
@@ -301,22 +301,50 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        http://localhost:8080/api/threads/<threadId>
   ```
 
-- **List comments of a thread** – `GET /api/threads/{threadId}/comments` (200 OK)
+- **List replies of a thread** – `GET /api/threads/{threadId}/replies` (200 OK)
 
   ```bash
-  curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/threads/<threadId>/comments
+    curl -H "Authorization: Bearer <token>" \
+         http://localhost:8080/api/threads/<threadId>/replies
   ```
 
-- **Add comment to a thread** – `POST /api/threads/{threadId}/comments` (201 Created)
+- **Add reply to a thread** – `POST /api/threads/{threadId}/replies` (201 Created)
 
   ```bash
-  curl -X POST http://localhost:8080/api/threads/<threadId>/comments \
+    curl -X POST http://localhost:8080/api/threads/<threadId>/replies \
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer <token>" \
        -d '{"content":"First reply"}'
   ```
 
+
+- **Upvote reply** – `POST /api/replies/{replyId}/upvote` (200 OK)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/replies/<replyId>/upvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Remove upvote from reply** – `DELETE /api/replies/{replyId}/upvote` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/replies/<replyId>/upvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Downvote reply** – `POST /api/replies/{replyId}/downvote` (200 OK)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/replies/<replyId>/downvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Remove downvote from reply** – `DELETE /api/replies/{replyId}/downvote` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/replies/<replyId>/downvote \
+       -H "Authorization: Bearer <token>"
+  ```
 
 - **Upvote thread** – `POST /api/threads/{threadId}/upvote` (200 OK)
 
@@ -431,14 +459,14 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
        -d '{"content":"Nice post!"}'
   ```
 
-- **Like comment** – `POST /api/comments/{commentId}/like` (200 OK)
+ - **Like comment** – `POST /api/comments/{commentId}/like` (200 OK)
 
   ```bash
   curl -X POST http://localhost:8080/api/comments/<commentId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
-- **Unlike comment** – `DELETE /api/comments/{commentId}/like` (200 OK)
+ - **Unlike comment** – `DELETE /api/comments/{commentId}/like` (200 OK)
 
   ```bash
   curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \

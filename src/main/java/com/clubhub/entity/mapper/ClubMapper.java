@@ -11,6 +11,7 @@ import com.clubhub.entity.Member;
 import com.clubhub.entity.Poll;
 import com.clubhub.entity.PollOption;
 import com.clubhub.entity.Post;
+import com.clubhub.entity.Reply;
 import com.clubhub.entity.dto.ClubDTO;
 import com.clubhub.entity.dto.CommentDTO;
 import com.clubhub.entity.dto.EventDTO;
@@ -19,6 +20,7 @@ import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PollDTO;
 import com.clubhub.entity.dto.PollOptionDTO;
 import com.clubhub.entity.dto.PostDTO;
+import com.clubhub.entity.dto.ReplyDTO;
 import com.clubhub.service.ObjectStorageService;
 
 public class ClubMapper {
@@ -131,16 +133,29 @@ public class ClubMapper {
 		return toDTO(c, null);
 	}
 
-	public static CommentDTO toDTO(Comment c, UUID userId) {
-		CommentDTO dto = new CommentDTO();
-		dto.setId(c.getId());
-		dto.setAuthor(c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null);
-		dto.setContent(c.getContent());
-		dto.setTime(c.getTime());
-		dto.setLikes(c.getLikes());
-		dto.setLiked(userId != null && c.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
-		return dto;
-	}
+        public static CommentDTO toDTO(Comment c, UUID userId) {
+                CommentDTO dto = new CommentDTO();
+                dto.setId(c.getId());
+                dto.setAuthor(c.getAuthor() != null ? UserMapper.toAuthorDTO(c.getAuthor()) : null);
+                dto.setContent(c.getContent());
+                dto.setTime(c.getTime());
+                dto.setLikes(c.getLikes());
+                dto.setLiked(userId != null && c.getLikedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                return dto;
+        }
+
+        public static ReplyDTO toDTO(Reply r, UUID userId) {
+                ReplyDTO dto = new ReplyDTO();
+                dto.setId(r.getId());
+                dto.setAuthor(r.getAuthor() != null ? UserMapper.toAuthorDTO(r.getAuthor()) : null);
+                dto.setContent(r.getContent());
+                dto.setTime(r.getTime());
+                dto.setUpvotes(r.getUpvotes());
+                dto.setDownvotes(r.getDownvotes());
+                dto.setUpvoted(userId != null && r.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                dto.setDownvoted(userId != null && r.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
+                return dto;
+        }
 
 	public static MemberDTO toDTO(Member m) {
 		MemberDTO dto = new MemberDTO();
@@ -169,14 +184,14 @@ public class ClubMapper {
 		dto.setId(t.getId());
 		dto.setTitle(t.getTitle());
 		dto.setAuthor(t.getAuthor() != null ? UserMapper.toAuthorDTO(t.getAuthor()) : null);
-		dto.setReplies(t.getReplies());
+                dto.setReplyCount(t.getReplyCount());
 		dto.setLastActivity(t.getLastActivity());
 		dto.setContent(t.getContent());
 		dto.setUpvotes(t.getUpvotes());
 		dto.setDownvotes(t.getDownvotes());
 		dto.setUpvoted(userId != null && t.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
 		dto.setDownvoted(userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId)));
-		dto.getCommentsList().addAll(t.getCommentsList().stream().map(c -> toDTO(c, userId)).toList());
+                dto.getReplies().addAll(t.getReplies().stream().map(r -> toDTO(r, userId)).toList());
 		dto.setClub(t.getClub() != null ? toSummaryDTO(t.getClub()) : null);
 		return dto;
 	}

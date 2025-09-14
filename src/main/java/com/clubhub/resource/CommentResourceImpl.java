@@ -58,21 +58,21 @@ public class CommentResourceImpl implements CommentResource {
                 return ClubMapper.toDTO(comment, userId);
 	}
 
-	@Override
-	public CommentDTO likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
+        @Override
+        public CommentDTO likeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
                 commentService.like(commentId, userId);
                 var comment = commentService.getComment(commentId);
                 return ClubMapper.toDTO(comment, userId);
-	}
+        }
 
-	@Override
-	public CommentDTO unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
-		UUID userId = (UUID) ctx.getProperty("userId");
+        @Override
+        public CommentDTO unlikeComment(UUID commentId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
                 commentService.unlike(commentId, userId);
                 var comment = commentService.getComment(commentId);
                 return ClubMapper.toDTO(comment, userId);
-	}
+        }
 
 	@Override
 	public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
