@@ -70,10 +70,23 @@ Notes:
 - Feed uses offset/limit pagination: `GET /api/feed?offset=<o>&limit=<n>`.
 - Club posts use offset/limit pagination: `GET /api/clubs/{clubId}/posts?offset=<o>&limit=<n>`.
 - Club threads use offset/limit pagination: `GET /api/clubs/{clubId}/threads?offset=<o>&limit=<n>`.
+- Thread replies use offset/limit pagination: `GET /api/threads/{threadId}/replies?offset=<o>&limit=<n>`.
+- Post comments use offset/limit pagination: `GET /api/posts/{postId}/comments?offset=<o>&limit=<n>`.
 - Posts can include a single `picture` (object storage URL). JSON posts omit it; multipart posts include it under the `picture` field.
 - Comment author DTO shape: `{ id, username, avatar }`.
 
 Feature updates
-- Club Posts tab now supports infinite scroll (IntersectionObserver) and loads pages via `ClubService.listPostsPage` (10 items per load).
-- Forum tab fetches threads on tab open and supports pagination via `ClubService.listThreadsPage` with a Load More action.
-- Thread detail renders embedded comments from the thread (`commentsList`), and posting a reply appends locally after `POST /api/threads/{threadId}/comments`.
+- Club Posts tab: infinite scroll (IntersectionObserver) via `ClubService.listPostsPage` (10 items per page).
+- Forum tab: paginated thread list via `ClubService.listThreadsPage` with Load More.
+- Thread detail: loads replies from the backend with pagination via `GET /api/threads/{threadId}/replies?offset=&limit=` and supports posting replies via `POST /api/threads/{threadId}/replies`.
+- Voting: threads and replies support upvote/downvote with mutual exclusion (switching sides removes the opposite vote first). Score = upvotes − downvotes. Threads and replies are sorted by score (desc) in UI; ties break by latest activity for threads.
+- Permissions: deleting posts allowed for the post author, club ADMIN, or global ADMIN. Editing posts remains author-only. Deleting replies allowed for reply author, club MODERATOR/ADMIN, or global ADMIN.
+- Events in feed: event cards display club avatars (mapped from `club.avatar` fallback `club.image`).
+
+Votes API
+- Threads: `POST /api/threads/{threadId}/upvote`, `DELETE /api/threads/{threadId}/upvote`; `POST /api/threads/{threadId}/downvote`, `DELETE /api/threads/{threadId}/downvote`.
+- Replies: `POST /api/replies/{replyId}/upvote`, `DELETE /api/replies/{replyId}/upvote`; `POST /api/replies/{replyId}/downvote`, `DELETE /api/replies/{replyId}/downvote`.
+
+Replies & Comments
+- List thread replies: `GET /api/threads/{threadId}/replies?offset=&limit=`; add reply: `POST /api/threads/{threadId}/replies`; delete reply: `DELETE /api/replies/{replyId}`.
+- List post comments: `GET /api/posts/{postId}/comments?offset=&limit=`; delete comment: `DELETE /api/comments/{commentId}`.

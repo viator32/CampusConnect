@@ -47,10 +47,13 @@ Sub-views:
 - PostDetail (`components/PostDetail.tsx`)
   - Dedicated post page: loads comments, allows adding comments and liking/unliking comments.
   - Comment authors are structured as `{ id, username, avatar }`.
-  - Methods: `listComments(postId)`, `addComment(postId, content)`, `likeComment(commentId)`, `unlikeComment(commentId)`.
+  - Methods: `listCommentsPage(postId, offset, limit)`, `addComment(postId, content)`, `likeComment(commentId)`, `unlikeComment(commentId)`.
+  - Pagination: Load more comments via `GET /api/posts/{postId}/comments?offset=&limit=`.
 - ThreadDetail (`components/ThreadDetail.tsx`)
-  - Dedicated forum thread view displaying replies; includes share popup.
-  - Renders embedded comments from `thread.posts` (mapped from `commentsList`). Posting a reply calls `addThreadComment` and appends locally.
+  - Dedicated forum thread view displaying replies; includes share popup and voting.
+  - Replies are fetched from the backend with pagination: `GET /api/threads/{threadId}/replies?offset=&limit=`.
+  - Posting a reply: `POST /api/threads/{threadId}/replies`; replies and threads are sorted by score (upvotes − downvotes).
+  - Voting: upvote/downvote with mutual exclusion on threads and replies.
 
 ### MyClubsPage (`src/features/clubs/pages/MyClubsPage.tsx`)
 - Purpose: List of user’s joined clubs with Leave action; create new club modal.

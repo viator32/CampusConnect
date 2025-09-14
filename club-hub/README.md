@@ -43,6 +43,8 @@ Performance & build:
 Feature updates:
 - Club Posts tab uses infinite scroll (offset/limit via `ClubService.listPostsPage`).
 - Forum tab fetches threads on tab open and paginates via `ClubService.listThreadsPage`.
-- Thread detail uses embedded `commentsList` on the thread; reply posts via `POST /api/threads/{threadId}/comments`.
+- Thread detail loads replies from the backend with pagination: `GET /api/threads/{threadId}/replies?offset=&limit=`; add reply via `POST /api/threads/{threadId}/replies`.
+- Voting: threads and replies support upvote/downvote with mutual exclusion. Score = upvotes − downvotes. Threads and replies are sorted by score in UI.
+- Permissions: posts can be deleted by author, club ADMIN, or global ADMIN; replies can be deleted by author, club MOD/ADMIN, or global ADMIN.
 
 Refer to the repository root README and `docs/` for additional details.

@@ -104,6 +104,12 @@ await this.api.request("/clubs", {
   - Shields UI from backend shape drift.
   - Enables incremental backend integration.
 
+### Terminology update: Comments → Replies (Threads)
+
+- Thread comments are now referred to as replies in the backend (`ReplyDTO`).
+- `ForumThreadDTO` provides `replyCount` and `replies[]` collections.
+- The client maps `replyCount` → `Thread.replies` and `replies[]` → `Thread.posts` (array of `Comment` shape).
+
 ### Concrete example: Club → Events → Posts
 
 Backend may return nested club data with varying shapes. The mappers normalize it into consistent app models.
@@ -217,12 +223,18 @@ Note: 401 triggers token clearing and optional `onUnauthorized` callback before 
 - `createPost(clubId, content, picture?)` — JSON or multipart depending on `picture`.
 - `updatePost`, `deletePost`, `likePost`, `unlikePost`.
 
-### Clubs / Threads
+### Clubs / Threads & Replies
 - `listThreadsPage(clubId, offset = 0, limit = 10): Thread[]` — GET `/clubs/{clubId}/threads?offset=&limit=`. Called when Forum tab mounts and for pagination.
 - `createThread(clubId, title, content)` — POST `/clubs/{clubId}/threads` (members only).
-- `getThread(threadId): Thread` — GET `/threads/{threadId}` (includes `commentsList` when provided by backend).
-- `addThreadComment(threadId, content): Comment` — POST `/threads/{threadId}/comments`.
-- Note: `listThreadComments(threadId)` exists but UI prefers embedded `commentsList` on the thread when present to avoid an extra request.
+- `getThread(threadId): Thread` — GET `/threads/{threadId}`.
+- Replies (thread comments):
+  - `listThreadComments(threadId, offset = 0, limit = 10): Comment[]` — GET `/threads/{threadId}/replies?offset=&limit=`.
+  - `addThreadComment(threadId, content): Comment` — POST `/threads/{threadId}/replies`.
+  - `deleteReply(replyId)` — DELETE `/replies/{replyId}`.
+- Voting (mutually exclusive — switching sides clears the opposite vote first):
+  - Threads: `POST/DELETE /threads/{threadId}/upvote`, `POST/DELETE /threads/{threadId}/downvote`.
+  - Replies: `POST/DELETE /replies/{replyId}/upvote`, `POST/DELETE /replies/{replyId}/downvote`.
+  - UI computes score as `upvotes - downvotes`. Threads and replies are sorted by score descending; threads tie-break by `lastActivity`.
 
 ## Feed.getPage payload shapes
 
@@ -279,7 +291,12 @@ Post creation and images:
     - `content`: string
     - `picture`: single file (image/\*, max 100MB).
 
-Likes API:
+Likes & Votes API:
 
 - Posts: `POST /api/posts/{postId}/like`, `DELETE /api/posts/{postId}/like` (unlike).
-- Comments: `POST /api/comments/{commentId}/like`, `DELETE /api/comments/{commentId}/like` (unlike).
+- Post comments (likes): `POST /api/comments/{commentId}/like`, `DELETE /api/comments/{commentId}/like` (unlike). Pagination: `GET /api/posts/{postId}/comments?offset=&limit=`. Delete: `DELETE /api/comments/{commentId}` (author, club MOD/ADMIN, or global ADMIN).
+- Threads and Replies (votes): see section above for endpoints.
+
+Data mapping notes:
+- `mapThread` normalizes `replyCount` to `replies` and maps `replies[]` into the UI `posts` array shape.
+- `mapComment` supports voting fields (`upvotes`, `downvotes`, `upvoted`, `downvoted`) for replies.
