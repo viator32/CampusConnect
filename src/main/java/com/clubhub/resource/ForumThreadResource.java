@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -35,4 +36,20 @@ public interface ForumThreadResource {
     @Path("/threads/{threadId}/comments")
     @ResponseStatus(201)
     CommentDTO addComment(@PathParam("threadId") UUID threadId, CommentDTO dto, @Context ContainerRequestContext ctx);
+
+    @POST
+    @Path("/threads/{threadId}/upvote")
+    ForumThreadDTO upvoteThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
+
+    @DELETE
+    @Path("/threads/{threadId}/upvote")
+    ForumThreadDTO removeUpvoteThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
+
+    @POST
+    @Path("/threads/{threadId}/downvote")
+    ForumThreadDTO downvoteThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
+
+    @DELETE
+    @Path("/threads/{threadId}/downvote")
+    ForumThreadDTO removeDownvoteThread(@PathParam("threadId") UUID threadId, @Context ContainerRequestContext ctx);
 }

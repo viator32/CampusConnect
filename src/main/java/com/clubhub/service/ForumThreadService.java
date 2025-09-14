@@ -47,6 +47,8 @@ public class ForumThreadService {
                        t.getClub().getMembersList().size();
                        t.getClub().getEvents().size();
                        t.getClub().getPosts().size();
+                       t.getUpvotedBy().size();
+                       t.getDownvotedBy().size();
                });
                return threads;
        }
@@ -68,6 +70,8 @@ public class ForumThreadService {
                thread.getClub().getMembersList().size();
                thread.getClub().getEvents().size();
                thread.getClub().getPosts().size();
+               thread.getUpvotedBy().size();
+               thread.getDownvotedBy().size();
                return thread;
        }
 
@@ -89,10 +93,12 @@ public class ForumThreadService {
 		ForumThread thread = new ForumThread();
 		thread.setTitle(title);
 		thread.setAuthor(user);
-		thread.setReplies(0);
-		thread.setLastActivity(LocalDateTime.now().toString());
-		thread.setContent(content);
-		thread.setClub(club);
+                thread.setReplies(0);
+                thread.setLastActivity(LocalDateTime.now().toString());
+                thread.setContent(content);
+                thread.setClub(club);
+                thread.setUpvotes(0);
+                thread.setDownvotes(0);
 
 		threadRepository.save(thread);
 		club.getForumThreads().add(thread);
@@ -117,11 +123,11 @@ public class ForumThreadService {
 		}
 		User user = userService.getUserById(userId);
 		Comment comment = new Comment();
-		comment.setAuthor(user);
-		comment.setContent(content);
-		comment.setLikes(0);
-		comment.setTime(LocalDateTime.now().toString());
-		comment.setThread(thread);
+                comment.setAuthor(user);
+                comment.setContent(content);
+                comment.setLikes(0);
+                comment.setTime(LocalDateTime.now().toString());
+                comment.setThread(thread);
 
                 commentRepository.save(comment);
                 thread.getCommentsList().add(comment);
@@ -129,5 +135,95 @@ public class ForumThreadService {
                 thread.setLastActivity(comment.getTime());
                 threadRepository.update(thread);
                 return comment;
+        }
+
+        @Transactional
+        public void upvote(UUID threadId, UUID userId) {
+                ForumThread thread = getThread(threadId);
+                Club club = thread.getClub();
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to upvote threads.")
+                                        .messageParameter("threadId", threadId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                if (!threadRepository.hasUserUpvotedThread(threadId, userId)) {
+                        User user = userService.getUserById(userId);
+                        thread.getUpvotedBy().add(user);
+                }
+                thread.getDownvotedBy().removeIf(u -> u.getId().equals(userId));
+                thread.setUpvotes(thread.getUpvotedBy().size());
+                thread.setDownvotes(thread.getDownvotedBy().size());
+                threadRepository.update(thread);
+        }
+
+        @Transactional
+        public void removeUpvote(UUID threadId, UUID userId) {
+                ForumThread thread = getThread(threadId);
+                Club club = thread.getClub();
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to remove upvote.")
+                                        .messageParameter("threadId", threadId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                thread.getUpvotedBy().removeIf(u -> u.getId().equals(userId));
+                thread.setUpvotes(thread.getUpvotedBy().size());
+                threadRepository.update(thread);
+        }
+
+        @Transactional
+        public void downvote(UUID threadId, UUID userId) {
+                ForumThread thread = getThread(threadId);
+                Club club = thread.getClub();
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to downvote threads.")
+                                        .messageParameter("threadId", threadId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                if (!threadRepository.hasUserDownvotedThread(threadId, userId)) {
+                        User user = userService.getUserById(userId);
+                        thread.getDownvotedBy().add(user);
+                }
+                thread.getUpvotedBy().removeIf(u -> u.getId().equals(userId));
+                thread.setDownvotes(thread.getDownvotedBy().size());
+                thread.setUpvotes(thread.getUpvotedBy().size());
+                threadRepository.update(thread);
+        }
+
+        @Transactional
+        public void removeDownvote(UUID threadId, UUID userId) {
+                ForumThread thread = getThread(threadId);
+                Club club = thread.getClub();
+                boolean isMember = club.getMembersList().stream()
+                                .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+                if (!isMember) {
+                        throw new ValidationException(ErrorPayload.builder()
+                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+                                        .title("User not a member")
+                                        .details("User must be a member of the club to remove downvote.")
+                                        .messageParameter("threadId", threadId.toString())
+                                        .messageParameter("userId", userId.toString())
+                                        .build());
+                }
+                thread.getDownvotedBy().removeIf(u -> u.getId().equals(userId));
+                thread.setDownvotes(thread.getDownvotedBy().size());
+                threadRepository.update(thread);
         }
 }

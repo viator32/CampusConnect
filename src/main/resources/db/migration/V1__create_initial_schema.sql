@@ -58,7 +58,21 @@ CREATE TABLE forumthread (
     replies       INTEGER,
     last_activity VARCHAR,
     content       TEXT,
-    club_id       UUID REFERENCES clubs (id) ON DELETE SET NULL
+    club_id       UUID REFERENCES clubs (id) ON DELETE SET NULL,
+    upvotes       INTEGER,
+    downvotes     INTEGER
+);
+
+CREATE TABLE thread_upvotes (
+    thread_id UUID NOT NULL REFERENCES forumthread (id) ON DELETE CASCADE,
+    user_id   UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (thread_id, user_id)
+);
+
+CREATE TABLE thread_downvotes (
+    thread_id UUID NOT NULL REFERENCES forumthread (id) ON DELETE CASCADE,
+    user_id   UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (thread_id, user_id)
 );
 
 CREATE TABLE post (
@@ -122,4 +136,6 @@ CREATE INDEX IF NOT EXISTS idx_post_time ON post ("time");
 CREATE INDEX IF NOT EXISTS idx_member_club_user ON member (club_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_post_likes_post_user ON post_likes (post_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_comment_likes_comment_user ON comment_likes (comment_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_thread_upvotes_thread_user ON thread_upvotes (thread_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_thread_downvotes_thread_user ON thread_downvotes (thread_id, user_id);
 

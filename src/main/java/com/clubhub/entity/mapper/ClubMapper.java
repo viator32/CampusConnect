@@ -31,7 +31,7 @@ public class ClubMapper {
 
                 dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
                 dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
-                dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
+                dto.forum_threads = club.getForumThreads().stream().map(t -> ClubMapper.toDTO(t, userId)).toList();
 
                 return dto;
         }
@@ -160,6 +160,10 @@ public class ClubMapper {
        }
 
         public static ForumThreadDTO toDTO(ForumThread t) {
+                return toDTO(t, null);
+        }
+
+        public static ForumThreadDTO toDTO(ForumThread t, UUID userId) {
                 ForumThreadDTO dto = new ForumThreadDTO();
                 dto.id = t.getId();
                 dto.title = t.getTitle();
@@ -167,7 +171,11 @@ public class ClubMapper {
                 dto.replies = t.getReplies();
                 dto.lastActivity = t.getLastActivity();
                 dto.content = t.getContent();
-                dto.commentsList = t.getCommentsList().stream().map(ClubMapper::toDTO).toList();
+                dto.upvotes = t.getUpvotes();
+                dto.downvotes = t.getDownvotes();
+                dto.upvoted = userId != null && t.getUpvotedBy().stream().anyMatch(u -> u.getId().equals(userId));
+                dto.downvoted = userId != null && t.getDownvotedBy().stream().anyMatch(u -> u.getId().equals(userId));
+                dto.commentsList = t.getCommentsList().stream().map(c -> toDTO(c, userId)).toList();
                 dto.club = t.getClub() != null ? toSummaryDTO(t.getClub()) : null;
                 return dto;
         }

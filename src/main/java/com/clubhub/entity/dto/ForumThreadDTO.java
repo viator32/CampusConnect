@@ -12,6 +12,10 @@ public class ForumThreadDTO {
         public int replies;
         public String lastActivity;
         public String content;
+        public int upvotes;
+        public int downvotes;
+        public boolean upvoted;
+        public boolean downvoted;
         public List<CommentDTO> commentsList = new ArrayList<>();
         public ClubDTO club;
 }

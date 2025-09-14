@@ -44,7 +44,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
                                         .messageParameter("userId", userId.toString())
                                         .build());
                 }
-                return ClubMapper.toDTO(thread);
+                return ClubMapper.toDTO(thread, userId);
         }
 
         @Override
@@ -71,5 +71,37 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 var comment = threadService.addReply(threadId, userId, dto.content);
                 return ClubMapper.toDTO(comment, userId);
+        }
+
+        @Override
+        public ForumThreadDTO upvoteThread(UUID threadId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                threadService.upvote(threadId, userId);
+                var thread = threadService.getThread(threadId);
+                return ClubMapper.toDTO(thread, userId);
+        }
+
+        @Override
+        public ForumThreadDTO removeUpvoteThread(UUID threadId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                threadService.removeUpvote(threadId, userId);
+                var thread = threadService.getThread(threadId);
+                return ClubMapper.toDTO(thread, userId);
+        }
+
+        @Override
+        public ForumThreadDTO downvoteThread(UUID threadId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                threadService.downvote(threadId, userId);
+                var thread = threadService.getThread(threadId);
+                return ClubMapper.toDTO(thread, userId);
+        }
+
+        @Override
+        public ForumThreadDTO removeDownvoteThread(UUID threadId, @Context ContainerRequestContext ctx) {
+                UUID userId = (UUID) ctx.getProperty("userId");
+                threadService.removeDownvote(threadId, userId);
+                var thread = threadService.getThread(threadId);
+                return ClubMapper.toDTO(thread, userId);
         }
 }
