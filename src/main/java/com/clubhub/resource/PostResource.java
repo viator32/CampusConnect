@@ -51,9 +51,13 @@ public interface PostResource {
 	@Path("/posts/{postId}/share")
 	PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
-	@PUT
-	@Path("/posts/{postId}/picture")
-	@Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
-	PostDTO updatePicture(@PathParam("postId") UUID postId, byte[] picture,
-			@HeaderParam("Content-Type") String contentType, @Context ContainerRequestContext ctx);
+        @PUT
+        @Path("/posts/{postId}/picture")
+        @Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
+        PostDTO updatePicture(@PathParam("postId") UUID postId, byte[] picture,
+                        @HeaderParam("Content-Type") String contentType, @Context ContainerRequestContext ctx);
+
+        @DELETE
+        @Path("/posts/{postId}/picture")
+        PostDTO deletePicture(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 }
