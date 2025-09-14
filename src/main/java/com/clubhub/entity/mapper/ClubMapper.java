@@ -30,7 +30,6 @@ public class ClubMapper {
                 ClubDTO dto = toSummaryDTO(club);
 
                 dto.events = club.getEvents().stream().map(ClubMapper::toDTO).toList();
-                dto.posts = club.getPosts().stream().map(p -> toDTO(p, userId)).toList();
                 dto.members_list = club.getMembersList().stream().map(ClubMapper::toDTO).toList();
                 dto.forum_threads = club.getForumThreads().stream().map(ClubMapper::toDTO).toList();
 
