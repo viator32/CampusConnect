@@ -336,7 +336,7 @@ export default function FeedPage() {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">{ev.clubImage}</div>
+                      <Avatar avatar={ev.clubImage} size={32} />
                       <div>
                         <p className="font-medium text-gray-900">{ev.clubName}</p>
                         <p className="text-sm text-gray-500">{ev.title}</p>

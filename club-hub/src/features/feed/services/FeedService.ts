@@ -80,7 +80,8 @@ export class FeedService extends BaseService {
       id: e.id,
       clubId: e.clubId ?? e.club?.id ?? '',
       clubName: e.club?.name ?? '',
-      clubImage: e.club?.image ?? '',
+      // Prefer avatar, fallback to image if provided
+      clubImage: e.club?.avatar ?? e.club?.image ?? '',
       isJoinedClub: e.club?.isJoined ?? false,
       title: e.title,
       date: e.date,
