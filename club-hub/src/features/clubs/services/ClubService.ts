@@ -109,9 +109,16 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/threads/${threadId}/downvote`, { method: 'DELETE' });
   }
 
-  /** List replies of a thread. */
-  async listThreadComments(threadId: string | number) {
-    const arr = await this.api.request<any[]>(`/threads/${threadId}/replies`);
+  /**
+   * List a page of replies for a thread using offset/limit pagination.
+   * Backend endpoint: GET /api/threads/{threadId}/replies?offset=0&limit=10
+   */
+  async listThreadComments(threadId: string | number, offset = 0, limit = 10) {
+    const params = new URLSearchParams();
+    if (typeof offset === 'number') params.set('offset', String(offset));
+    if (typeof limit === 'number') params.set('limit', String(limit));
+    const query = params.toString();
+    const arr = await this.api.request<any[]>(`/threads/${threadId}/replies${query ? `?${query}` : ''}`);
     return arr.map(mapComment);
   }
 
@@ -333,10 +340,19 @@ export class ClubService extends BaseService {
   }
 
   // Comments on a post
-  /** List comments for a post. */
-  async listComments(postId: string): Promise<Comment[]> {
-    const arr = await this.api.request<any[]>(`/posts/${postId}/comments`);
+  /** List a page of comments for a post. */
+  async listCommentsPage(postId: string, offset = 0, limit = 10): Promise<Comment[]> {
+    const params = new URLSearchParams();
+    if (typeof offset === 'number') params.set('offset', String(offset));
+    if (typeof limit === 'number') params.set('limit', String(limit));
+    const query = params.toString();
+    const arr = await this.api.request<any[]>(`/posts/${postId}/comments${query ? `?${query}` : ''}`);
     return arr.map(mapComment);
+  }
+
+  // Backwards-compat: fetch first page by default
+  async listComments(postId: string): Promise<Comment[]> {
+    return this.listCommentsPage(postId, 0, 10);
   }
 
   /** Add a new comment to a post. */

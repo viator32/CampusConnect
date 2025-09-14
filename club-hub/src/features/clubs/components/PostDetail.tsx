@@ -36,21 +36,45 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
   const [editPreview, setEditPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { user } = useProfile();
+  // Pagination state for comments
+  const [cmOffset, setCmOffset] = useState<number>(0);
+  const [cmHasMore, setCmHasMore] = useState<boolean>(true);
+  const [cmLoading, setCmLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    clubService
-      .listComments(post.id)
-      .then(comments => {
-        setPostData(p => ({
-          ...p,
-          comments: comments.length,
-          commentsList: comments,
-        }));
+    const init = async () => {
+      setCmLoading(true);
+      try {
+        const limit = 10;
+        const comments = await clubService.listCommentsPage(post.id, 0, limit);
+        setPostData(p => ({ ...p, comments: comments.length, commentsList: comments }));
+        setCmOffset(comments.length);
+        setCmHasMore(comments.length >= limit);
         onPostUpdate?.({ ...post, comments: comments.length, commentsList: comments });
-      })
-      .catch(() => {});
+      } catch {}
+      finally { setCmLoading(false); }
+    };
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
+
+  const loadMoreComments = async () => {
+    if (cmLoading || !cmHasMore) return;
+    setCmLoading(true);
+    try {
+      const limit = 10;
+      const next = await clubService.listCommentsPage(post.id, cmOffset, limit);
+      setPostData(p => {
+        const list = [ ...(p.commentsList ?? []), ...next ];
+        const updated = { ...p, commentsList: list, comments: list.length };
+        onPostUpdate?.(updated);
+        return updated;
+      });
+      setCmOffset(o => o + next.length);
+      if (next.length < limit) setCmHasMore(false);
+    } catch {}
+    finally { setCmLoading(false); }
+  };
 
   // Permissions
   const isAuthor = !!user?.name && String(postData.author) === String(user?.name);
@@ -214,7 +238,7 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
     }
 
     try {
-      const comments = await clubService.listComments(postData.id);
+      const comments = await clubService.listCommentsPage(postData.id, 0, Math.max(10, (postData.commentsList?.length ?? 0)));
       setPostData(p => {
         const next = {
           ...p,
@@ -443,6 +467,17 @@ export default function PostDetail({ post, clubId, currentUserRole, onBack, onPo
           </div>
         ))}
       </div>
+      {cmHasMore && (
+        <div className="flex justify-center py-2">
+          <Button onClick={loadMoreComments} disabled={cmLoading} className="px-4 py-2">
+            {cmLoading ? (
+              <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</span>
+            ) : (
+              'Load more comments'
+            )}
+          </Button>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <h4 className="font-semibold text-gray-900 mb-3">Add a Comment</h4>

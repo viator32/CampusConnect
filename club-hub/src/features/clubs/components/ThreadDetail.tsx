@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { Thread, Comment } from '../types';
 import { Share2, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
@@ -22,17 +22,57 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [reply, setReply] = useState<string>('');
   const [posting, setPosting] = useState<boolean>(false);
+  // Pagination state for replies
+  const [offset, setOffset] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const inFlightRef = useRef(false);
 
   // Sorting helper for comments by score (upvotes - downvotes)
   const sortByScore = (list: Comment[]) =>
     [...list].sort((a, b) => ((b.upvotes ?? 0) - (b.downvotes ?? 0)) - ((a.upvotes ?? 0) - (a.downvotes ?? 0)));
 
-  // Keep local comments in sync with the provided thread object
+  // Load first page of replies when thread changes
   useEffect(() => {
     setThreadState(thread);
-    const list = thread.posts ?? [];
-    setComments(sortByScore(list));
-  }, [thread.id, thread.posts]);
+    setComments([]);
+    setOffset(0);
+    setHasMore(true);
+    inFlightRef.current = false;
+    const init = async () => {
+      try {
+        inFlightRef.current = true;
+        setLoadingMore(true);
+        const limit = 10;
+        const list = await clubService.listThreadComments(thread.id, 0, limit);
+        setComments(sortByScore(list));
+        setOffset(list.length);
+        if (list.length < limit) setHasMore(false);
+      } catch {}
+      finally {
+        inFlightRef.current = false;
+        setLoadingMore(false);
+      }
+    };
+    init();
+  }, [thread.id]);
+
+  const loadMore = useCallback(async () => {
+    if (inFlightRef.current || !hasMore) return;
+    inFlightRef.current = true;
+    setLoadingMore(true);
+    try {
+      const limit = 10;
+      const list = await clubService.listThreadComments(threadState.id, offset, limit);
+      if (list.length > 0) setComments(prev => sortByScore([...prev, ...list]));
+      setOffset(o => o + list.length);
+      if (list.length < limit) setHasMore(false);
+    } catch {}
+    finally {
+      setLoadingMore(false);
+      inFlightRef.current = false;
+    }
+  }, [threadState.id, offset, hasMore]);
 
   const threadScore = useMemo(
     () => (threadState.upvotes ?? 0) - (threadState.downvotes ?? 0),
@@ -288,7 +328,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
               setError(null);
               try {
                 const created = await clubService.addThreadComment(threadState.id, reply.trim());
-                setComments(prev => sortByScore([...prev, created]));
+                setComments(prev => sortByScore([created, ...prev]));
                 setReply('');
               } catch (e) {
                 const err = e as any;
@@ -310,6 +350,17 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
           </Button>
         </div>
       </div>
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button onClick={loadMore} disabled={loadingMore} className="px-4 py-2">
+            {loadingMore ? (
+              <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</span>
+            ) : (
+              'Load more replies'
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
