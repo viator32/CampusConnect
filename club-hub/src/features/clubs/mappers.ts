@@ -107,7 +107,9 @@ export function mapThread(dto: any): Thread {
   const authorObj = dto.author ?? {};
   const author = authorObj.username ?? dto.author ?? dto.username ?? 'Unknown';
   const avatar = authorObj.avatar ?? dto.avatar ?? '';
-  const commentsList = Array.isArray(dto.posts)
+  const commentsList = Array.isArray(dto.replies)
+    ? (dto.replies as any[]).map(mapComment)
+    : Array.isArray(dto.posts)
     ? (dto.posts as any[]).map(mapComment)
     : Array.isArray(dto.commentsList)
       ? (dto.commentsList as any[]).map(mapComment)
@@ -117,7 +119,7 @@ export function mapThread(dto: any): Thread {
     title: dto.title ?? '',
     author,
     avatar,
-    replies: dto.replies ?? dto.comments ?? dto.commentCount ?? commentsList.length ?? 0,
+    replies: dto.replyCount ?? dto.replies ?? dto.comments ?? dto.commentCount ?? commentsList.length ?? 0,
     lastActivity: dto.lastActivity ?? dto.updatedAt ?? dto.time ?? dto.createdAt ?? '',
     content: dto.content ?? '',
     posts: commentsList,

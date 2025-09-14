@@ -109,15 +109,15 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/threads/${threadId}/downvote`, { method: 'DELETE' });
   }
 
-  /** List comments of a thread. */
+  /** List replies of a thread. */
   async listThreadComments(threadId: string | number) {
-    const arr = await this.api.request<any[]>(`/threads/${threadId}/comments`);
+    const arr = await this.api.request<any[]>(`/threads/${threadId}/replies`);
     return arr.map(mapComment);
   }
 
-  /** Add comment to a thread. */
+  /** Add reply to a thread. */
   async addThreadComment(threadId: string | number, content: string) {
-    const dto = await this.api.request<any>(`/threads/${threadId}/comments`, {
+    const dto = await this.api.request<any>(`/threads/${threadId}/replies`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     });
@@ -359,25 +359,35 @@ export class ClubService extends BaseService {
   }
 
   // Voting on comments (used for thread replies)
-  /** Upvote a comment by ID. */
-  async upvoteComment(commentId: string): Promise<void> {
-    await this.api.request<void>(`/comments/${commentId}/upvote`, { method: 'POST' });
+  /** Upvote a thread reply by ID. Returns updated reply DTO. */
+  async upvoteReply(replyId: string): Promise<Comment> {
+    const dto = await this.api.request<any>(`/replies/${replyId}/upvote`, { method: 'POST' });
+    return mapComment(dto);
   }
 
-  /** Remove upvote on a comment by ID. */
-  async removeUpvoteComment(commentId: string): Promise<void> {
-    await this.api.request<void>(`/comments/${commentId}/upvote`, { method: 'DELETE' });
+  /** Remove upvote on a thread reply by ID. Returns updated reply DTO. */
+  async removeUpvoteReply(replyId: string): Promise<Comment> {
+    const dto = await this.api.request<any>(`/replies/${replyId}/upvote`, { method: 'DELETE' });
+    return mapComment(dto);
   }
 
-  /** Downvote a comment by ID. */
-  async downvoteComment(commentId: string): Promise<void> {
-    await this.api.request<void>(`/comments/${commentId}/downvote`, { method: 'POST' });
+  /** Downvote a thread reply by ID. Returns updated reply DTO. */
+  async downvoteReply(replyId: string): Promise<Comment> {
+    const dto = await this.api.request<any>(`/replies/${replyId}/downvote`, { method: 'POST' });
+    return mapComment(dto);
   }
 
-  /** Remove downvote on a comment by ID. */
-  async removeDownvoteComment(commentId: string): Promise<void> {
-    await this.api.request<void>(`/comments/${commentId}/downvote`, { method: 'DELETE' });
+  /** Remove downvote on a thread reply by ID. Returns updated reply DTO. */
+  async removeDownvoteReply(replyId: string): Promise<Comment> {
+    const dto = await this.api.request<any>(`/replies/${replyId}/downvote`, { method: 'DELETE' });
+    return mapComment(dto);
   }
+
+  // Backwards-compatible aliases (comments -> replies)
+  async upvoteComment(commentId: string): Promise<Comment> { return this.upvoteReply(commentId); }
+  async removeUpvoteComment(commentId: string): Promise<Comment> { return this.removeUpvoteReply(commentId); }
+  async downvoteComment(commentId: string): Promise<Comment> { return this.downvoteReply(commentId); }
+  async removeDownvoteComment(commentId: string): Promise<Comment> { return this.removeDownvoteReply(commentId); }
 
   /** Delete a comment by ID (admins/moderators permitted). */
   async deleteComment(commentId: string): Promise<void> {

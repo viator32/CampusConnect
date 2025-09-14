@@ -106,6 +106,7 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
     const t = (club.forum_threads ?? []).find(x => String(x.id) === String(threadId));
     if (!t) return;
     const wasUpvoted = !!t.upvoted;
+    const hadDownvoted = !!t.downvoted;
     // optimistic
     updateThreadInClub(threadId, x => ({
       ...x,
@@ -115,8 +116,12 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
       downvotes: wasUpvoted ? (x.downvotes ?? 0) : Math.max(0, (x.downvotes ?? 0) - (x.downvoted ? 1 : 0)),
     }));
     try {
-      if (wasUpvoted) await clubService.removeUpvoteThread(threadId);
-      else await clubService.upvoteThread(threadId);
+      if (wasUpvoted) {
+        await clubService.removeUpvoteThread(threadId);
+      } else {
+        if (hadDownvoted) await clubService.removeDownvoteThread(threadId);
+        await clubService.upvoteThread(threadId);
+      }
     } catch (e) {
       // revert on error
       updateThreadInClub(threadId, x => ({
@@ -134,6 +139,7 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
     const t = (club.forum_threads ?? []).find(x => String(x.id) === String(threadId));
     if (!t) return;
     const wasDownvoted = !!t.downvoted;
+    const hadUpvoted = !!t.upvoted;
     // optimistic
     updateThreadInClub(threadId, x => ({
       ...x,
@@ -143,8 +149,12 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
       upvotes: wasDownvoted ? (x.upvotes ?? 0) : Math.max(0, (x.upvotes ?? 0) - (x.upvoted ? 1 : 0)),
     }));
     try {
-      if (wasDownvoted) await clubService.removeDownvoteThread(threadId);
-      else await clubService.downvoteThread(threadId);
+      if (wasDownvoted) {
+        await clubService.removeDownvoteThread(threadId);
+      } else {
+        if (hadUpvoted) await clubService.removeUpvoteThread(threadId);
+        await clubService.downvoteThread(threadId);
+      }
     } catch (e) {
       // revert on error
       updateThreadInClub(threadId, x => ({

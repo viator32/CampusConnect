@@ -42,6 +42,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
   // Toggle upvote/downvote on the thread
   const toggleThreadUpvote = async () => {
     const wasUpvoted = !!threadState.upvoted;
+    const hadDownvoted = !!threadState.downvoted;
     setThreadState(t => ({
       ...t,
       upvoted: !wasUpvoted,
@@ -50,8 +51,12 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
       downvotes: wasUpvoted ? (t.downvotes ?? 0) : Math.max(0, (t.downvotes ?? 0) - (t.downvoted ? 1 : 0)),
     }));
     try {
-      if (wasUpvoted) await clubService.removeUpvoteThread(threadState.id);
-      else await clubService.upvoteThread(threadState.id);
+      if (wasUpvoted) {
+        await clubService.removeUpvoteThread(threadState.id);
+      } else {
+        if (hadDownvoted) await clubService.removeDownvoteThread(threadState.id);
+        await clubService.upvoteThread(threadState.id);
+      }
     } catch (e) {
       // revert on error
       setThreadState(t => ({
@@ -68,6 +73,7 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
 
   const toggleThreadDownvote = async () => {
     const wasDownvoted = !!threadState.downvoted;
+    const hadUpvoted = !!threadState.upvoted;
     setThreadState(t => ({
       ...t,
       downvoted: !wasDownvoted,
@@ -76,8 +82,12 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
       upvotes: wasDownvoted ? (t.upvotes ?? 0) : Math.max(0, (t.upvotes ?? 0) - (t.upvoted ? 1 : 0)),
     }));
     try {
-      if (wasDownvoted) await clubService.removeDownvoteThread(threadState.id);
-      else await clubService.downvoteThread(threadState.id);
+      if (wasDownvoted) {
+        await clubService.removeDownvoteThread(threadState.id);
+      } else {
+        if (hadUpvoted) await clubService.removeUpvoteThread(threadState.id);
+        await clubService.downvoteThread(threadState.id);
+      }
     } catch (e) {
       // revert on error
       setThreadState(t => ({
@@ -101,29 +111,30 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
       prevUpvoted = !!c.upvoted;
       prevDownvoted = !!c.downvoted;
       const nextUpvoted = !prevUpvoted;
-      const nextDownvoted = prevDownvoted && nextUpvoted ? false : prevDownvoted;
-      return {
-        ...c,
-        upvoted: nextUpvoted,
-        downvoted: nextDownvoted,
-        upvotes: (c.upvotes ?? 0) + (nextUpvoted ? 1 : -1),
-        downvotes: nextDownvoted ? Math.max(0, (c.downvotes ?? 0) - 1) : (c.downvotes ?? 0),
-      };
+      const nextDownvoted = nextUpvoted ? false : prevDownvoted;
+      const up = (c.upvotes ?? 0) + (nextUpvoted ? 1 : -1);
+      const down = (c.downvotes ?? 0) - (prevDownvoted && nextUpvoted ? 1 : 0);
+      return { ...c, upvoted: nextUpvoted, downvoted: nextDownvoted, upvotes: Math.max(0, up), downvotes: Math.max(0, down) };
     })));
     try {
-      if (prevUpvoted) await clubService.removeUpvoteComment(commentId);
-      else await clubService.upvoteComment(commentId);
+      let updated;
+      if (prevUpvoted) {
+        updated = await clubService.removeUpvoteComment(commentId);
+      } else {
+        if (prevDownvoted) await clubService.removeDownvoteComment(commentId);
+        updated = await clubService.upvoteComment(commentId);
+      }
+      // Merge server response for accuracy
+      if (updated) {
+        setComments(prev => sortByScore(prev.map(c => (c.id === commentId ? { ...c, ...updated } : c))));
+      }
     } catch (e) {
       // revert
       setComments(prev => sortByScore(prev.map(c => {
         if (c.id !== commentId) return c;
-        return {
-          ...c,
-          upvoted: prevUpvoted,
-          downvoted: prevDownvoted,
-          upvotes: (c.upvotes ?? 0) + (prevUpvoted ? 1 : -1),
-          downvotes: prevDownvoted ? (c.downvotes ?? 0) + 1 : (c.downvotes ?? 0),
-        };
+        const up = (c.upvotes ?? 0) + (prevUpvoted ? 1 : -1);
+        const down = (c.downvotes ?? 0) + (prevDownvoted ? 1 : 0);
+        return { ...c, upvoted: prevUpvoted, downvoted: prevDownvoted, upvotes: Math.max(0, up), downvotes: Math.max(0, down) };
       })));
       const err = e as any;
       if (err instanceof ApiError && err.status === 403) setError('You must be a member to vote.');
@@ -138,29 +149,29 @@ export default function ThreadDetail({ thread, onBack }: ThreadDetailProps) {
       prevUpvoted = !!c.upvoted;
       prevDownvoted = !!c.downvoted;
       const nextDownvoted = !prevDownvoted;
-      const nextUpvoted = prevUpvoted && nextDownvoted ? false : prevUpvoted;
-      return {
-        ...c,
-        downvoted: nextDownvoted,
-        upvoted: nextUpvoted,
-        downvotes: (c.downvotes ?? 0) + (nextDownvoted ? 1 : -1),
-        upvotes: nextUpvoted ? Math.max(0, (c.upvotes ?? 0) - 1) : (c.upvotes ?? 0),
-      };
+      const nextUpvoted = nextDownvoted ? false : prevUpvoted;
+      const down = (c.downvotes ?? 0) + (nextDownvoted ? 1 : -1);
+      const up = (c.upvotes ?? 0) - (prevUpvoted && nextDownvoted ? 1 : 0);
+      return { ...c, downvoted: nextDownvoted, upvoted: nextUpvoted, downvotes: Math.max(0, down), upvotes: Math.max(0, up) };
     })));
     try {
-      if (prevDownvoted) await clubService.removeDownvoteComment(commentId);
-      else await clubService.downvoteComment(commentId);
+      let updated;
+      if (prevDownvoted) {
+        updated = await clubService.removeDownvoteComment(commentId);
+      } else {
+        if (prevUpvoted) await clubService.removeUpvoteComment(commentId);
+        updated = await clubService.downvoteComment(commentId);
+      }
+      if (updated) {
+        setComments(prev => sortByScore(prev.map(c => (c.id === commentId ? { ...c, ...updated } : c))));
+      }
     } catch (e) {
       // revert
       setComments(prev => sortByScore(prev.map(c => {
         if (c.id !== commentId) return c;
-        return {
-          ...c,
-          upvoted: prevUpvoted,
-          downvoted: prevDownvoted,
-          downvotes: (c.downvotes ?? 0) + (prevDownvoted ? 1 : -1),
-          upvotes: prevUpvoted ? (c.upvotes ?? 0) + 1 : (c.upvotes ?? 0),
-        };
+        const down = (c.downvotes ?? 0) + (prevDownvoted ? 1 : -1);
+        const up = (c.upvotes ?? 0) + (prevUpvoted ? 1 : 0);
+        return { ...c, upvoted: prevUpvoted, downvoted: prevDownvoted, downvotes: Math.max(0, down), upvotes: Math.max(0, up) };
       })));
       const err = e as any;
       if (err instanceof ApiError && err.status === 403) setError('You must be a member to vote.');
