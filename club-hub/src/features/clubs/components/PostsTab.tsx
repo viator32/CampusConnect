@@ -7,7 +7,6 @@ import {
   Heart,
   Share2,
   Image as PhotoIcon,
-  BarChart2,
   Bookmark as BookmarkIcon,
   Smile,
   MoreHorizontal,
@@ -45,9 +44,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [photo, setPhoto] = useState<File|null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [isPoll, setIsPoll] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [options, setOptions]   = useState<string[]>(['','']);
+  // Poll creation removed; composer now only supports text + optional image
   const [error, setError]       = useState<string|null>(null);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
@@ -232,9 +229,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
     setEditPhotoPreview(null);
   };
 
-  const addPollOption = () => setOptions(o => [...o, '']);
-  const changeOpt = (i: number, v: string) =>
-    setOptions(o => o.map((x,idx) => idx===i? v:x));
+  // Poll creation removed
 
   const handlePost = async () => {
     setError(null);
@@ -257,9 +252,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
         URL.revokeObjectURL(photoPreview);
         setPhotoPreview(null);
       }
-      setIsPoll(false);
-      setQuestion('');
-      setOptions(['', '']);
+      // Poll-related resets removed
       onSelectPost(created);
     } catch (e) {
       const err = e as any;
@@ -442,34 +435,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                 ref={textareaRef}
               />
 
-              {isPoll && (
-                <div className="mt-2 space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Poll question"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-1"
-                    value={question}
-                    onChange={e => setQuestion(e.target.value)}
-                  />
-                  {options.map((opt,i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      placeholder={`Option ${i+1}`}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-1"
-                      value={opt}
-                      onChange={e => changeOpt(i, e.target.value)}
-                    />
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addPollOption}
-                    className="text-blue-500 text-sm"
-                  >
-                    + Add option
-                  </button>
-                </div>
-              )}
+              {/* Poll creation removed */}
 
               <div className="flex items-center gap-4 mt-2 relative">
                 <label className="p-2 cursor-pointer hover:bg-gray-100 rounded-full">
@@ -481,13 +447,7 @@ export default function PostsTab({ club, onClubUpdate, onSelectPost }: PostsTabP
                     onChange={handlePhoto}
                   />
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setIsPoll(p => !p)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <BarChart2 className="w-5 h-5 text-gray-500" />
-                </button>
+                {/* Poll toggle removed */}
                 <div className="relative">
                   <button
                     type="button"
