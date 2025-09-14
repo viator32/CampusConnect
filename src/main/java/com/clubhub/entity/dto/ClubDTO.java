@@ -22,7 +22,6 @@ public class ClubDTO {
 	public int postsCount;
 
 	public List<EventDTO> events = new ArrayList<>();
-	public List<PostDTO> posts = new ArrayList<>();
 	public List<MemberDTO> members_list = new ArrayList<>();
 	public List<ForumThreadDTO> forum_threads = new ArrayList<>();
 }
