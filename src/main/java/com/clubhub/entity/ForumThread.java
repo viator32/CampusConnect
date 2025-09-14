@@ -1,7 +1,9 @@
 package com.clubhub.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -11,7 +13,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -25,7 +29,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = { "club", "commentsList" })
+@ToString(exclude = { "club", "commentsList", "upvotedBy", "downvotedBy" })
 public class ForumThread {
 
 	@Id
@@ -47,7 +51,19 @@ public class ForumThread {
         @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL)
         private List<Comment> commentsList = new ArrayList<>();
 
-	@ManyToOne
-	@JoinColumn(name = "club_id")
-	private Club club;
+        private int upvotes;
+
+        private int downvotes;
+
+        @ManyToMany
+        @JoinTable(name = "thread_upvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> upvotedBy = new HashSet<>();
+
+        @ManyToMany
+        @JoinTable(name = "thread_downvotes", joinColumns = @JoinColumn(name = "thread_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+        private Set<User> downvotedBy = new HashSet<>();
+
+        @ManyToOne
+        @JoinColumn(name = "club_id")
+        private Club club;
 }

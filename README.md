@@ -317,6 +317,36 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
        -d '{"content":"First reply"}'
   ```
 
+
+- **Upvote thread** – `POST /api/threads/{threadId}/upvote` (200 OK)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/threads/<threadId>/upvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Remove upvote from thread** – `DELETE /api/threads/{threadId}/upvote` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/threads/<threadId>/upvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Downvote thread** – `POST /api/threads/{threadId}/downvote` (200 OK)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/threads/<threadId>/downvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Remove downvote from thread** – `DELETE /api/threads/{threadId}/downvote` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/threads/<threadId>/downvote \
+       -H "Authorization: Bearer <token>"
+  ```
+
+
 ### Events
 
 Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED`.

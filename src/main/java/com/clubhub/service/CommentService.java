@@ -83,8 +83,8 @@ public class CommentService {
     @Transactional
     public void like(UUID commentId, UUID userId) {
         Comment c = getComment(commentId);
-        Post post = c.getPost();
-        boolean isMember = post.getClub().getMembersList().stream()
+        var club = c.getPost() != null ? c.getPost().getClub() : c.getThread().getClub();
+        boolean isMember = club.getMembersList().stream()
                 .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
         if (!isMember) {
             throw new ValidationException(ErrorPayload.builder()
@@ -106,8 +106,8 @@ public class CommentService {
     @Transactional
     public void unlike(UUID commentId, UUID userId) {
         Comment c = getComment(commentId);
-        Post post = c.getPost();
-        boolean isMember = post.getClub().getMembersList().stream()
+        var club = c.getPost() != null ? c.getPost().getClub() : c.getThread().getClub();
+        boolean isMember = club.getMembersList().stream()
                 .anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
         if (!isMember) {
             throw new ValidationException(ErrorPayload.builder()
@@ -127,8 +127,8 @@ public class CommentService {
     public Comment updateComment(UUID commentId, UUID userId, String content) {
         Comment comment = getComment(commentId);
         User user = userService.getUserById(userId);
-        Post post = comment.getPost();
-        Member membership = post.getClub().getMembersList().stream()
+        var club = comment.getPost() != null ? comment.getPost().getClub() : comment.getThread().getClub();
+        Member membership = club.getMembersList().stream()
                 .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
                 .findFirst().orElse(null);
         if (membership == null) {
@@ -157,8 +157,8 @@ public class CommentService {
     public void deleteComment(UUID commentId, UUID userId) {
         Comment comment = getComment(commentId);
         User user = userService.getUserById(userId);
-        Post post = comment.getPost();
-        Member membership = post.getClub().getMembersList().stream()
+        var club = comment.getPost() != null ? comment.getPost().getClub() : comment.getThread().getClub();
+        Member membership = club.getMembersList().stream()
                 .filter(m -> m.getUser() != null && m.getUser().getId().equals(userId))
                 .findFirst().orElse(null);
         if (membership == null) {
@@ -180,10 +180,18 @@ public class CommentService {
                     .messageParameter("userId", userId.toString())
                     .build());
         }
-        Post p = comment.getPost();
-        p.getCommentsList().remove(comment);
-        p.setComments(p.getComments() - 1);
-        commentRepository.delete(commentId);
-        em.merge(p);
+        if (comment.getPost() != null) {
+            Post p = comment.getPost();
+            p.getCommentsList().remove(comment);
+            p.setComments(p.getComments() - 1);
+            commentRepository.delete(commentId);
+            em.merge(p);
+        } else if (comment.getThread() != null) {
+            var thread = comment.getThread();
+            thread.getCommentsList().remove(comment);
+            thread.setReplies(thread.getReplies() - 1);
+            commentRepository.delete(commentId);
+            em.merge(thread);
+        }
     }
 }

@@ -143,7 +143,7 @@ public class ClubResourceImpl implements ClubResource {
                                        .build());
                }
                return threadService.getThreadsForClub(clubId, offset, limit).stream()
-                               .map(ClubMapper::toDTO)
+                               .map(t -> ClubMapper.toDTO(t, userId))
                                .toList();
        }
 
@@ -152,7 +152,7 @@ public class ClubResourceImpl implements ClubResource {
                        @Context ContainerRequestContext ctx) {
                UUID userId = (UUID) ctx.getProperty("userId");
                var thread = threadService.addThread(clubId, userId, dto.title, dto.content);
-               return ClubMapper.toDTO(thread);
+               return ClubMapper.toDTO(thread, userId);
        }
 
 	@Override
