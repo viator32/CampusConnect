@@ -162,10 +162,12 @@ public class ClubService {
 	 *     identifier of the club to update
 	 * @param updated
 	 *     club containing new values
+	 * @param actingUserId
+	 *     user performing the update
 	 * @return the updated club
 	 */
 	@Transactional
-	public Club updateClub(UUID id, Club updated) {
+	public Club updateClub(UUID id, Club updated, UUID actingUserId) {
 		Club existing = clubRepository.findById(id);
 		if (existing == null) {
 			throw new NotFoundException(ErrorPayload.builder()
@@ -174,6 +176,19 @@ public class ClubService {
 					.details("No club with id %s exists.".formatted(id))
 					.messageParameter("clubId", id.toString())
 					.sourcePointer("clubId")
+					.build());
+		}
+		Member actingMember = existing.getMembersList().stream()
+				.filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))
+				.findFirst()
+				.orElse(null);
+		if (actingMember == null || actingMember.getRole() != MemberRole.ADMIN) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+					.title("Insufficient permissions")
+					.details("Only admins can update club details.")
+					.messageParameter("clubId", id.toString())
+					.messageParameter("userId", actingUserId.toString())
 					.build());
 		}
 		existing.setName(updated.getName());
@@ -206,10 +221,25 @@ public class ClubService {
 	 *     avatar image data
 	 * @param contentType
 	 *     MIME type of the image
+	 * @param actingUserId
+	 *     user performing the update
 	 */
 	@Transactional
-	public void updateAvatar(UUID id, byte[] avatar, String contentType) {
+	public void updateAvatar(UUID id, byte[] avatar, String contentType, UUID actingUserId) {
 		Club existing = getClubById(id);
+		Member actingMember = existing.getMembersList().stream()
+				.filter(m -> m.getUser() != null && m.getUser().getId().equals(actingUserId))
+				.findFirst()
+				.orElse(null);
+		if (actingMember == null || actingMember.getRole() != MemberRole.ADMIN) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+					.title("Insufficient permissions")
+					.details("Only admins can update club avatar.")
+					.messageParameter("clubId", id.toString())
+					.messageParameter("userId", actingUserId.toString())
+					.build());
+		}
 		var stored = objectStorageService.upload("clubs/" + id, avatar, contentType);
 		existing.setAvatarBucket(stored.bucket());
 		existing.setAvatarObject(stored.objectKey());

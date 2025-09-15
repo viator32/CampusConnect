@@ -52,12 +52,13 @@ public interface ClubResource {
 
 	@PUT
 	@Path("/{id}")
-	ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO);
+	ClubDTO update(@PathParam("id") UUID id, ClubDTO clubDTO, @Context ContainerRequestContext ctx);
 
 	@PUT
 	@Path("/{id}/avatar")
 	@Consumes({ MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpeg", "image/webp", "image/gif" })
-	ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar, @HeaderParam("Content-Type") String contentType);
+	ClubDTO updateAvatar(@PathParam("id") UUID id, byte[] avatar,
+			@HeaderParam("Content-Type") String contentType, @Context ContainerRequestContext ctx);
 
 	@DELETE
 	@Path("/{id}")

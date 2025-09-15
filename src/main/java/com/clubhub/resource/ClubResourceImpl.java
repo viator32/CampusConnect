@@ -87,14 +87,16 @@ public class ClubResourceImpl implements ClubResource {
 	}
 
 	@Override
-	public ClubDTO update(UUID id, ClubDTO clubDto) {
-		Club updated = clubService.updateClub(id, ClubMapper.toEntity(clubDto));
+	public ClubDTO update(UUID id, ClubDTO clubDto, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		Club updated = clubService.updateClub(id, ClubMapper.toEntity(clubDto), userId);
 		return ClubMapper.toDTO(updated);
 	}
 
 	@Override
-	public ClubDTO updateAvatar(UUID id, byte[] avatar, String contentType) {
-		clubService.updateAvatar(id, avatar, contentType);
+	public ClubDTO updateAvatar(UUID id, byte[] avatar, String contentType, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		clubService.updateAvatar(id, avatar, contentType, userId);
 		return ClubMapper.toDTO(clubService.getClubById(id));
 	}
 
