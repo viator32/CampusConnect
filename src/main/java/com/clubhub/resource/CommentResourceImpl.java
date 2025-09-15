@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.CommentDTO;
-import com.clubhub.entity.mapper.ClubMapper;
+import com.clubhub.entity.mapper.CommentMapper;
 import com.clubhub.service.CommentService;
 
 @RequestScoped
@@ -30,14 +30,14 @@ public class CommentResourceImpl implements CommentResource {
         public List<CommentDTO> getComments(UUID postId, int offset, int limit, @Context ContainerRequestContext ctx) {
                 UUID userId = (UUID) ctx.getProperty("userId");
                 var comments = commentService.getComments(postId, userId, offset, limit);
-                return comments.stream().map(c -> ClubMapper.toDTO(c, userId)).toList();
+                return comments.stream().map(c -> CommentMapper.toDTO(c, userId)).toList();
         }
 
 	@Override
 	public CommentDTO addComment(UUID postId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var comment = commentService.addComment(postId, userId, dto.getContent());
-		return ClubMapper.toDTO(comment, userId);
+                return CommentMapper.toDTO(comment, userId);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class CommentResourceImpl implements CommentResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		commentService.like(commentId, userId);
 		var comment = commentService.getComment(commentId);
-		return ClubMapper.toDTO(comment, userId);
+                return CommentMapper.toDTO(comment, userId);
 	}
 
 	@Override
@@ -53,14 +53,14 @@ public class CommentResourceImpl implements CommentResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		commentService.unlike(commentId, userId);
 		var comment = commentService.getComment(commentId);
-		return ClubMapper.toDTO(comment, userId);
+                return CommentMapper.toDTO(comment, userId);
 	}
 
 	@Override
 	public CommentDTO updateComment(UUID commentId, CommentDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var updated = commentService.updateComment(commentId, userId, dto.getContent());
-		return ClubMapper.toDTO(updated, userId);
+                return CommentMapper.toDTO(updated, userId);
 	}
 
 	@Override

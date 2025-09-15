@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.clubhub.entity.dto.ActionResponseDTO;
 import com.clubhub.entity.dto.ReplyDTO;
-import com.clubhub.entity.mapper.ClubMapper;
+import com.clubhub.entity.mapper.ReplyMapper;
 import com.clubhub.service.ReplyService;
 
 @RequestScoped
@@ -30,7 +30,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.upvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-		return ClubMapper.toDTO(reply, userId);
+                return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.removeUpvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-		return ClubMapper.toDTO(reply, userId);
+                return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.downvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-		return ClubMapper.toDTO(reply, userId);
+                return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -54,14 +54,14 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.removeDownvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-		return ClubMapper.toDTO(reply, userId);
+                return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
 	public ReplyDTO updateReply(UUID replyId, ReplyDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var updated = replyService.updateReply(replyId, userId, dto.getContent());
-		return ClubMapper.toDTO(updated, userId);
+                return ReplyMapper.toDTO(updated, userId);
 	}
 
 	@Override

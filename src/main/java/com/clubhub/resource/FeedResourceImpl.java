@@ -8,8 +8,8 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 
 import com.clubhub.entity.dto.FeedDTO;
-import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.EventMapper;
+import com.clubhub.entity.mapper.PostMapper;
 import com.clubhub.service.EventService;
 import com.clubhub.service.PostService;
 
@@ -27,9 +27,9 @@ public class FeedResourceImpl implements FeedResource {
 			int eventOffset, int eventLimit) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		FeedDTO feed = new FeedDTO();
-		feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
-				.map(p -> ClubMapper.toDTO(p, userId))
-				.toList());
+                feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
+                                .map(p -> PostMapper.toDTO(p, userId))
+                                .toList());
 		feed.getEvents().addAll(eventService.getFeedForUser(userId, eventOffset, eventLimit).stream()
 				.map(EventMapper::toDTO)
 				.toList());

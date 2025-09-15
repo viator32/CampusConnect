@@ -25,6 +25,7 @@ import com.clubhub.entity.dto.MemberDTO;
 import com.clubhub.entity.dto.PostDTO;
 import com.clubhub.entity.mapper.ClubMapper;
 import com.clubhub.entity.mapper.EventMapper;
+import com.clubhub.entity.mapper.ForumThreadMapper;
 import com.clubhub.entity.mapper.PostMapper;
 import com.clubhub.exception.ClubHubErrorCode;
 import com.clubhub.exception.ErrorPayload;
@@ -145,7 +146,7 @@ public class ClubResourceImpl implements ClubResource {
 					.build());
 		}
 		return threadService.getThreadsForClub(clubId, offset, limit).stream()
-				.map(t -> ClubMapper.toDTO(t, userId))
+                        .map(t -> ForumThreadMapper.toDTO(t, userId))
 				.toList();
 	}
 
@@ -154,7 +155,7 @@ public class ClubResourceImpl implements ClubResource {
 			@Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var thread = threadService.addThread(clubId, userId, dto.getTitle(), dto.getContent());
-		return ClubMapper.toDTO(thread, userId);
+                return ForumThreadMapper.toDTO(thread, userId);
 	}
 
 	@Override
@@ -173,7 +174,7 @@ public class ClubResourceImpl implements ClubResource {
 					.build());
 		}
 		return postService.getPostsForClub(clubId, offset, limit).stream()
-				.map(p -> ClubMapper.toDTO(p, userId))
+                        .map(p -> PostMapper.toDTO(p, userId))
 				.toList();
 	}
 
@@ -208,7 +209,7 @@ public class ClubResourceImpl implements ClubResource {
 			post.setTime(java.time.LocalDateTime.now());
 		}
 		var created = postService.createPost(clubId, post);
-		return ClubMapper.toDTO(created, userId);
+                return PostMapper.toDTO(created, userId);
 	}
 
 	@Override
@@ -229,7 +230,7 @@ public class ClubResourceImpl implements ClubResource {
 			if (contentType != null) {
 				postService.updatePicture(created.getId(), userId, form.getPicture(), contentType);
 				var post = postService.getPost(created.getId());
-				return ClubMapper.toDTO(post, userId);
+                                return PostMapper.toDTO(post, userId);
 			}
 		}
 		return created;
@@ -240,7 +241,7 @@ public class ClubResourceImpl implements ClubResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.updatePost(clubId, postId, dto, userId);
 		var post = postService.getPost(postId);
-		return ClubMapper.toDTO(post, userId);
+        return PostMapper.toDTO(post, userId);
 	}
 
 	@Override
