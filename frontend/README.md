@@ -55,17 +55,17 @@ Build the production image and run it with Nginx serving the static app.
 
 We rely on Docker BuildKit for caching npm layers. Enable it when building the image:
 
-DOCKER_BUILDKIT=1 docker build --progress=plain -t club-hub-frontend -f frontend/Dockerfile .
+DOCKER_BUILDKIT=1 docker build --progress=plain -t clubhub-frontend -f frontend/Dockerfile .
 
 1. Build the image from the repository root (this reuses the Dockerfile that
    lives in `frontend/` while keeping the correct build context):
    ```bash
-   docker build -t club-hub-frontend -f frontend/Dockerfile --build-arg VITE_API_URL=http://localhost:8080 .
+   docker build -t clubhub-frontend -f frontend/Dockerfile --build-arg VITE_API_URL=http://localhost:8080 .
    ```
    If you prefer running the command from inside the `frontend/` directory,
    override the source path once:
    ```bash
-   docker build -t club-hub-frontend --build-arg FRONTEND_SRC=club-hub .
+   docker build -t clubhub-frontend --build-arg FRONTEND_SRC=club-hub .
    ```
 2. Run the container (maps container port 80 to localhost:3000):
    ```bash
