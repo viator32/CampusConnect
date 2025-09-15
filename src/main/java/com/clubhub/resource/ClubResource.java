@@ -152,4 +152,8 @@ public interface ClubResource {
 	EventDTO joinEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
 			@Context ContainerRequestContext ctx);
 
+	@POST
+	@Path("/{clubId}/events/{eventId}/leave")
+	EventDTO leaveEvent(@PathParam("clubId") UUID clubId, @PathParam("eventId") UUID eventId,
+			@Context ContainerRequestContext ctx);
 }

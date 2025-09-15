@@ -23,6 +23,10 @@ Edit `.env` and replace the placeholder value:
 AUTH_PEPPER=CHANGE_ME
 ```
 
+### Build the project
+
+mvn package -DskipTests
+
 ### Start with Docker
 
 ```bash

@@ -360,4 +360,22 @@ public class ClubResourceImpl implements ClubResource {
 		event = eventService.getEventById(eventId);
 		return EventMapper.toDTO(event);
 	}
+
+	@Override
+	public EventDTO leaveEvent(UUID clubId, UUID eventId, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		Event event = eventService.getEventById(eventId);
+		if (event.getClub() == null || !event.getClub().getId().equals(clubId)) {
+			throw new NotFoundException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.EVENT_NOT_FOUND)
+					.title("Event not found")
+					.details("No event %s for club %s found.".formatted(eventId, clubId))
+					.messageParameter("eventId", eventId.toString())
+					.messageParameter("clubId", clubId.toString())
+					.build());
+		}
+		eventService.leaveEvent(eventId, userId);
+		event = eventService.getEventById(eventId);
+		return EventMapper.toDTO(event);
+	}
 }

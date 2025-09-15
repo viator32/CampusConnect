@@ -97,6 +97,35 @@ public class EventService {
 	}
 
 	/**
+	 * Removes a user from an event's attendee list if they belong to the club.
+	 *
+	 * @param eventId
+	 *     identifier of the event
+	 * @param userId
+	 *     identifier of the leaving user
+	 */
+	@Transactional
+	public void leaveEvent(UUID eventId, UUID userId) {
+		Event event = getEventById(eventId);
+		userService.getUserById(userId);
+		boolean isMember = event.getClub().getMembersList().stream()
+				.anyMatch(m -> m.getUser() != null && m.getUser().getId().equals(userId));
+		if (!isMember) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+					.title("User not a member")
+					.details("User must be a member of the club to leave events.")
+					.messageParameter("eventId", eventId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		boolean attended = event.getAttendees().removeIf(u -> u.getId().equals(userId));
+		if (attended) {
+			eventRepository.update(event);
+		}
+	}
+
+	/**
 	 * Retrieves a paginated feed of events for a user.
 	 *
 	 * @param userId
