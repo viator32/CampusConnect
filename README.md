@@ -201,7 +201,7 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
   ```
   The `subject` field accepts a value from the `Subject` enum and `interest` from the `Preference` enum.
 
-- **Update club** – `PUT /api/clubs/{id}` (200 OK)
+- **Update club** – `PUT /api/clubs/{id}` (200 OK, admins only)
 
   ```bash
   curl -X PUT http://localhost:8080/api/clubs/<clubId> \
@@ -315,9 +315,11 @@ Unless noted otherwise, requests require an `Authorization: Bearer <token>` head
 
 - **List replies of a thread** – `GET /api/threads/{threadId}/replies` (200 OK)
 
+  Supports pagination via `offset` (default `0`) and `limit` (default `10`) query parameters.
+
   ```bash
-    curl -H "Authorization: Bearer <token>" \
-         http://localhost:8080/api/threads/<threadId>/replies
+  curl -H "Authorization: Bearer <token>" \
+       "http://localhost:8080/api/threads/<threadId>/replies?offset=0&limit=10"
   ```
 
 - **Add reply to a thread** – `POST /api/threads/{threadId}/replies` (201 Created)
@@ -426,10 +428,17 @@ Events have a `status` field with values `SCHEDULED`, `COMPLETED`, or `CANCELLED
 
 - **Join event** – `POST /api/clubs/{clubId}/events/{eventId}/join` (200 OK)
 
-```bash
-curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
-     -H "Authorization: Bearer <token>"
-```
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/join \
+       -H "Authorization: Bearer <token>"
+  ```
+
+- **Leave event** – `POST /api/clubs/{clubId}/events/{eventId}/leave` (200 OK)
+
+  ```bash
+  curl -X POST http://localhost:8080/api/clubs/<clubId>/events/<eventId>/leave \
+       -H "Authorization: Bearer <token>"
+  ```
 
 - **Get single event of a club** – `GET /api/clubs/{clubId}/events/{eventId}` (200 OK)
 
@@ -456,9 +465,11 @@ curl -H "Authorization: Bearer <token>" \
 
 - **List comments of a post** – `GET /api/posts/{postId}/comments` (200 OK)
 
+  Supports pagination via `offset` (default `0`) and `limit` (default `10`) query parameters.
+
   ```bash
   curl -H "Authorization: Bearer <token>" \
-       http://localhost:8080/api/posts/<postId>/comments
+       "http://localhost:8080/api/posts/<postId>/comments?offset=0&limit=10"
   ```
 
 - **Add comment to a post** – `POST /api/posts/{postId}/comments` (201 Created)
@@ -548,6 +559,13 @@ curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
        -H "Authorization: Bearer <token>" \
        -H "Content-Type: image/jpeg" \
        --data-binary "@picture.jpg"
+  ```
+
+- **Delete post picture** – `DELETE /api/posts/{postId}/picture` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/posts/<postId>/picture \
+       -H "Authorization: Bearer <token>"
   ```
 
   Uploaded images are stored in the `posts` bucket in MinIO. Only the bucket name and object key are persisted in the
