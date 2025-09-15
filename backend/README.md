@@ -21,6 +21,9 @@ Edit `.env` and replace the placeholder value:
 
 ```bash
 AUTH_PEPPER=CHANGE_ME
+DB_URL=jdbc:postgresql://postgres:5432/clubhub
+DB_HOST=clubhub
+DB_PASSWORD=clubhub
 ```
 
 ### Build the project
