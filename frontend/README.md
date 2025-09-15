@@ -8,7 +8,7 @@ ClubHub is a social student hub for organizations and interest groups. Members c
 - Tailwind CSS
 - Vite-style env via `import.meta.env` (configure `VITE_API_URL`)
 - Feature-first folder structure with a small service layer
-  
+
 Performance notes (Vite): see the updated `vite.config.js` for faster dev and prod builds. We prebundle common deps, set modern targets, and split vendor chunks.
 
 ## Getting Started
@@ -30,6 +30,7 @@ Performance notes (Vite): see the updated `vite.config.js` for faster dev and pr
 5. Open http://localhost:3000
 
 Performance tips
+
 - Dev startup/reloads: We prebundle `react`, `react-dom`, `react-router-dom`, `lucide-react`, and `emoji-picker-react` to reduce cold start and rebuild lag.
 - Production build: Modern target (`es2020`), `esbuild` minification, manual vendor chunks (`react`, `icons`, `emoji`) and disabled compressed-size reports for faster CI.
 - Cache: Vite cache lives in `node_modules/.vite`. If builds seem off after upgrading deps, clear it and restart: `rm -rf node_modules/.vite`.
@@ -50,18 +51,31 @@ For a feature-level overview also see `club-hub/README.md`.
 
 Build the production image and run it with Nginx serving the static app.
 
-1. Build the image from the repository root:
+### Build with BuildKit
+
+We rely on Docker BuildKit for caching npm layers. Enable it when building the image:
+
+DOCKER_BUILDKIT=1 docker build --progress=plain -t club-hub-frontend -f frontend/Dockerfile .
+
+1. Build the image from the repository root (this reuses the Dockerfile that
+   lives in `frontend/` while keeping the correct build context):
    ```bash
-   docker build -t club-hub-frontend .
+   docker build -t club-hub-frontend -f frontend/Dockerfile --build-arg VITE_API_URL=http://localhost:8080 .
+   ```
+   If you prefer running the command from inside the `frontend/` directory,
+   override the source path once:
+   ```bash
+   docker build -t club-hub-frontend --build-arg FRONTEND_SRC=club-hub .
    ```
 2. Run the container (maps container port 80 to localhost:3000):
    ```bash
-   docker run --rm -p 3000:80 club-hub-frontend
+   docker run --rm --name clubhub-frontend -p 3000:80 clubhub-frontend
    ```
 3. Open the app:
    - http://localhost:3000
 
 Notes:
+
 - The client defaults its API root to `http://localhost:8080` (see `club-hub/src/services/api/ClientApi.ts`). Make sure your backend is reachable there (serving `/api`).
 - If your backend lives elsewhere, pass a build arg for Vite: `--build-arg VITE_API_URL=https://your.api` and rebuild the image.
 
@@ -76,6 +90,7 @@ Notes:
 - Comment author DTO shape: `{ id, username, avatar }`.
 
 Feature updates
+
 - Club Posts tab: infinite scroll (IntersectionObserver) via `ClubService.listPostsPage` (10 items per page).
 - Forum tab: paginated thread list via `ClubService.listThreadsPage` with Load More.
 - Thread detail: loads replies from the backend with pagination via `GET /api/threads/{threadId}/replies?offset=&limit=` and supports posting replies via `POST /api/threads/{threadId}/replies`.
@@ -84,9 +99,11 @@ Feature updates
 - Events in feed: event cards display club avatars (mapped from `club.avatar` fallback `club.image`).
 
 Votes API
+
 - Threads: `POST /api/threads/{threadId}/upvote`, `DELETE /api/threads/{threadId}/upvote`; `POST /api/threads/{threadId}/downvote`, `DELETE /api/threads/{threadId}/downvote`.
 - Replies: `POST /api/replies/{replyId}/upvote`, `DELETE /api/replies/{replyId}/upvote`; `POST /api/replies/{replyId}/downvote`, `DELETE /api/replies/{replyId}/downvote`.
 
 Replies & Comments
+
 - List thread replies: `GET /api/threads/{threadId}/replies?offset=&limit=`; add reply: `POST /api/threads/{threadId}/replies`; delete reply: `DELETE /api/replies/{replyId}`.
 - List post comments: `GET /api/posts/{postId}/comments?offset=&limit=`; delete comment: `DELETE /api/comments/{commentId}`.
