@@ -79,6 +79,24 @@ Notes:
 - The client defaults its API root to `http://localhost:8080` (see `club-hub/src/services/api/ClientApi.ts`). Make sure your backend is reachable there (serving `/api`).
 - If your backend lives elsewhere, pass a build arg for Vite: `--build-arg VITE_API_URL=https://your.api` and rebuild the image.
 
+## Single Container: Backend + Frontend
+
+To run both the backend (Quarkus) and the built frontend from a single container, use the root `Dockerfile.fullstack`. It builds the React app, embeds it into the Quarkus resources, and runs only the Quarkus server. The app is served from `/` and APIs from `/api` on port 8080.
+
+Build and run from the repository root:
+
+```bash
+docker build -t clubhub-fullstack -f Dockerfile.fullstack .
+docker run --rm -p 8080:8080 --name clubhub-fullstack clubhub-fullstack
+```
+
+Open the app at http://localhost:8080
+
+Notes:
+- No Nginx is used; Quarkus serves the static frontend directly.
+- For different API roots at build time, pass `--build-arg VITE_API_URL=https://your.api`.
+- Since frontend and backend are same-origin here, CORS is not required.
+
 ## Notable Data Model Notes
 
 - Feed uses offset/limit pagination: `GET /api/feed?offset=<o>&limit=<n>`.

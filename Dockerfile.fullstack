@@ -1,0 +1,65 @@
+# syntax=docker/dockerfile:1.7
+
+# Build both frontend and backend into a single image.
+# Quarkus serves the built React app as static files, and exposes APIs under /api.
+
+ARG BASE_REGISTRY=mirror.gcr.io
+ARG NODE_TAG=library/node:20-bullseye-slim
+ARG MAVEN_TAG=library/maven:3.9-eclipse-temurin-21
+
+# =====================
+# Stage 1: Frontend build
+# =====================
+FROM ${BASE_REGISTRY}/${NODE_TAG} AS fe
+WORKDIR /fe
+
+# Install deps with cache
+COPY frontend/club-hub/package.json frontend/club-hub/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --no-audit --no-fund
+
+# Build app
+COPY frontend/club-hub/ ./
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+ENV NODE_ENV=production
+RUN npm run build
+
+# =====================
+# Stage 2: Backend build (Quarkus)
+# =====================
+FROM ${BASE_REGISTRY}/${MAVEN_TAG} AS be
+WORKDIR /workspace
+
+# Copy backend sources (we will use mvn from the Maven image; no wrapper needed)
+COPY backend/pom.xml backend/pom.xml
+COPY backend/src backend/src
+
+# Inject frontend build into Quarkus static resources so it’s served from '/'
+RUN mkdir -p backend/src/main/resources/META-INF/resources
+COPY --from=fe /fe/dist/ backend/src/main/resources/META-INF/resources/
+
+# Build the backend (skip tests for speed)
+RUN mvn -f backend/pom.xml -DskipTests package
+
+# =====================
+# Stage 3: Runtime image
+# =====================
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.21 AS runtime
+ENV LANGUAGE='en_US:en'
+
+# Copy Quarkus runnable application
+COPY --chown=185 --from=be /workspace/backend/target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 --from=be /workspace/backend/target/quarkus-app/*.jar /deployments/
+COPY --chown=185 --from=be /workspace/backend/target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 --from=be /workspace/backend/target/quarkus-app/quarkus/ /deployments/quarkus/
+
+# Ensure frontend assets are present on the runtime classpath as static resources
+COPY --chown=185 --from=fe /fe/dist/ /deployments/app/META-INF/resources/
+
+EXPOSE 8080
+USER 185
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
+
+ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
