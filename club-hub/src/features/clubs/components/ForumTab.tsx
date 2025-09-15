@@ -3,7 +3,8 @@ import { Club, Thread } from '../types';
 import Button from '../../../components/Button';
 import { clubService } from '../services/ClubService';
 import { ApiError } from '../../../services/api';
-import { Loader2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Loader2, ArrowUp, ArrowDown, Share2 } from 'lucide-react';
+import SharePopup from '../../../components/SharePopup';
 
 /** Props for the club Forum tab. */
 interface ForumTabProps {
@@ -23,6 +24,7 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState<number>(club.forum_threads.length || 0);
+  const [shareThreadId, setShareThreadId] = useState<string | null>(null);
   const clubRef = useRef(club);
   useEffect(() => { clubRef.current = club; }, [club]);
 
@@ -230,6 +232,21 @@ export default function ForumTab({ club, onClubUpdate, onSelectThread }: ForumTa
               </button>
               <span className="text-sm">{thread.downvotes ?? 0}</span>
               <span className="text-xs text-gray-400">• score: {(thread.upvotes ?? 0) - (thread.downvotes ?? 0)}</span>
+              <div className="relative" onClick={e => e.stopPropagation()}>
+                <button
+                  className="p-1 rounded hover:bg-gray-100"
+                  onClick={() => setShareThreadId(prev => (prev === String(thread.id) ? null : String(thread.id)))}
+                  aria-label="Share thread"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                {shareThreadId === String(thread.id) && (
+                  <SharePopup
+                    url={`${window.location.origin}/clubs/${club.id}/threads/${thread.id}`}
+                    onClose={() => setShareThreadId(null)}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
