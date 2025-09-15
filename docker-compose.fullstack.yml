@@ -56,7 +56,21 @@ services:
     ports:
       - "8080:8080"
 
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        # Build the frontend to call the backend on localhost:8080 from the browser
+        VITE_API_URL: http://localhost:8080
+        # If you run this compose stack remotely, set this to your public backend URL instead.
+    depends_on:
+      app:
+        condition: service_started
+    ports:
+      - "3000:80"
+    container_name: clubhub-frontend
+
 volumes:
   pgdata:
   minio_data:
-
