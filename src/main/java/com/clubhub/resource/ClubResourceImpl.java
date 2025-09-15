@@ -146,7 +146,7 @@ public class ClubResourceImpl implements ClubResource {
 					.build());
 		}
 		return threadService.getThreadsForClub(clubId, offset, limit).stream()
-                        .map(t -> ForumThreadMapper.toDTO(t, userId))
+				.map(t -> ForumThreadMapper.toDTO(t, userId))
 				.toList();
 	}
 
@@ -155,7 +155,7 @@ public class ClubResourceImpl implements ClubResource {
 			@Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var thread = threadService.addThread(clubId, userId, dto.getTitle(), dto.getContent());
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class ClubResourceImpl implements ClubResource {
 					.build());
 		}
 		return postService.getPostsForClub(clubId, offset, limit).stream()
-                        .map(p -> PostMapper.toDTO(p, userId))
+				.map(p -> PostMapper.toDTO(p, userId))
 				.toList();
 	}
 
@@ -209,7 +209,7 @@ public class ClubResourceImpl implements ClubResource {
 			post.setTime(java.time.LocalDateTime.now());
 		}
 		var created = postService.createPost(clubId, post);
-                return PostMapper.toDTO(created, userId);
+		return PostMapper.toDTO(created, userId);
 	}
 
 	@Override
@@ -230,7 +230,7 @@ public class ClubResourceImpl implements ClubResource {
 			if (contentType != null) {
 				postService.updatePicture(created.getId(), userId, form.getPicture(), contentType);
 				var post = postService.getPost(created.getId());
-                                return PostMapper.toDTO(post, userId);
+				return PostMapper.toDTO(post, userId);
 			}
 		}
 		return created;
@@ -241,7 +241,7 @@ public class ClubResourceImpl implements ClubResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		postService.updatePost(clubId, postId, dto, userId);
 		var post = postService.getPost(postId);
-        return PostMapper.toDTO(post, userId);
+		return PostMapper.toDTO(post, userId);
 	}
 
 	@Override

@@ -49,22 +49,22 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 					.messageParameter("userId", userId.toString())
 					.build());
 		}
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 
-        @Override
-        public List<ReplyDTO> getReplies(UUID threadId, int offset, int limit, @Context ContainerRequestContext ctx) {
-                UUID userId = (UUID) ctx.getProperty("userId");
-                var replies = replyService.getReplies(threadId, userId, offset, limit);
-                return replies.stream().map(r -> ReplyMapper.toDTO(r, userId)).toList();
-        }
+	@Override
+	public List<ReplyDTO> getReplies(UUID threadId, int offset, int limit, @Context ContainerRequestContext ctx) {
+		UUID userId = (UUID) ctx.getProperty("userId");
+		var replies = replyService.getReplies(threadId, userId, offset, limit);
+		return replies.stream().map(r -> ReplyMapper.toDTO(r, userId)).toList();
+	}
 
 	@Override
 	public ReplyDTO addReply(UUID threadId, ReplyDTO dto,
 			@Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var reply = replyService.addReply(threadId, userId, dto.getContent());
-                return ReplyMapper.toDTO(reply, userId);
+		return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		threadService.upvote(threadId, userId);
 		var thread = threadService.getThread(threadId);
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		threadService.removeUpvote(threadId, userId);
 		var thread = threadService.getThread(threadId);
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		threadService.downvote(threadId, userId);
 		var thread = threadService.getThread(threadId);
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 
 	@Override
@@ -96,6 +96,6 @@ public class ForumThreadResourceImpl implements ForumThreadResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		threadService.removeDownvote(threadId, userId);
 		var thread = threadService.getThread(threadId);
-                return ForumThreadMapper.toDTO(thread, userId);
+		return ForumThreadMapper.toDTO(thread, userId);
 	}
 }

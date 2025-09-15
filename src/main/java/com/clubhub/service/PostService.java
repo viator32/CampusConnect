@@ -134,6 +134,26 @@ public class PostService {
 	}
 
 	@Transactional
+	public void removeBookmark(UUID postId, UUID userId) {
+		Post p = getPost(postId);
+		boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
+		if (!isMember) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+					.title("User not a member")
+					.details("User must be a member of the club to remove bookmarks.")
+					.messageParameter("postId", postId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		if (postRepository.hasUserBookmarkedPost(postId, userId)) {
+			p.getBookmarkedBy().removeIf(u -> u.getId().equals(userId));
+			p.setBookmarks(p.getBookmarkedBy().size());
+			postRepository.update(p);
+		}
+	}
+
+	@Transactional
 	public void share(UUID postId, UUID userId) {
 		Post p = getPost(postId);
 		boolean isMember = memberRepository.existsByClubAndUser(p.getClub().getId(), userId);
@@ -165,7 +185,7 @@ public class PostService {
 	}
 
 	@Transactional
-        public void updatePicture(UUID postId, UUID userId, byte[] picture, String contentType) {
+	public void updatePicture(UUID postId, UUID userId, byte[] picture, String contentType) {
 		Post post = getPost(postId);
 		Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
 		if (membership == null) {
@@ -205,54 +225,54 @@ public class PostService {
 		post.setPictureBucket(stored.bucket());
 		post.setPictureObject(stored.objectKey());
 		post.setPictureEtag(stored.etag());
-                postRepository.update(post);
-        }
+		postRepository.update(post);
+	}
 
-        @Transactional
-        public void deletePicture(UUID postId, UUID userId) {
-                Post post = getPost(postId);
-                Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
-                if (membership == null) {
-                        throw new ValidationException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
-                                        .title("User not a member")
-                                        .details("User must be a member of the club to delete pictures.")
-                                        .messageParameter("postId", postId.toString())
-                                        .messageParameter("userId", userId.toString())
-                                        .build());
-                }
-                boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(userId);
-                if ((membership.getRole() == MemberRole.MEMBER || membership.getRole() == MemberRole.MODERATOR) && !isAuthor) {
-                        throw new ValidationException(ErrorPayload.builder()
-                                        .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
-                                        .title("Insufficient permissions")
-                                        .details("Members and moderators can only delete images from their own posts.")
-                                        .messageParameter("postId", postId.toString())
-                                        .messageParameter("userId", userId.toString())
-                                        .build());
-                }
-                if (membership.getRole() == MemberRole.ADMIN && !isAuthor) {
-                        Member authorMembership = post.getAuthor() != null
-                                        ? memberRepository.findByClubAndUser(post.getClub().getId(), post.getAuthor().getId())
-                                        : null;
-                        if (authorMembership != null && authorMembership.getRole() == MemberRole.MODERATOR) {
-                                throw new ValidationException(ErrorPayload.builder()
-                                                .errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
-                                                .title("Insufficient permissions")
-                                                .details("Admins cannot delete images from posts of moderators.")
-                                                .messageParameter("postId", postId.toString())
-                                                .messageParameter("userId", userId.toString())
-                                                .build());
-                        }
-                }
-                if (post.getPictureBucket() != null && post.getPictureObject() != null) {
-                        objectStorageService.deleteFrom(post.getPictureBucket(), post.getPictureObject());
-                }
-                post.setPictureBucket(null);
-                post.setPictureObject(null);
-                post.setPictureEtag(null);
-                postRepository.update(post);
-        }
+	@Transactional
+	public void deletePicture(UUID postId, UUID userId) {
+		Post post = getPost(postId);
+		Member membership = memberRepository.findByClubAndUser(post.getClub().getId(), userId);
+		if (membership == null) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.USER_NOT_MEMBER_OF_CLUB)
+					.title("User not a member")
+					.details("User must be a member of the club to delete pictures.")
+					.messageParameter("postId", postId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(userId);
+		if ((membership.getRole() == MemberRole.MEMBER || membership.getRole() == MemberRole.MODERATOR) && !isAuthor) {
+			throw new ValidationException(ErrorPayload.builder()
+					.errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+					.title("Insufficient permissions")
+					.details("Members and moderators can only delete images from their own posts.")
+					.messageParameter("postId", postId.toString())
+					.messageParameter("userId", userId.toString())
+					.build());
+		}
+		if (membership.getRole() == MemberRole.ADMIN && !isAuthor) {
+			Member authorMembership = post.getAuthor() != null
+					? memberRepository.findByClubAndUser(post.getClub().getId(), post.getAuthor().getId())
+					: null;
+			if (authorMembership != null && authorMembership.getRole() == MemberRole.MODERATOR) {
+				throw new ValidationException(ErrorPayload.builder()
+						.errorCode(ClubHubErrorCode.INSUFFICIENT_PERMISSIONS)
+						.title("Insufficient permissions")
+						.details("Admins cannot delete images from posts of moderators.")
+						.messageParameter("postId", postId.toString())
+						.messageParameter("userId", userId.toString())
+						.build());
+			}
+		}
+		if (post.getPictureBucket() != null && post.getPictureObject() != null) {
+			objectStorageService.deleteFrom(post.getPictureBucket(), post.getPictureObject());
+		}
+		post.setPictureBucket(null);
+		post.setPictureObject(null);
+		post.setPictureEtag(null);
+		postRepository.update(post);
+	}
 
 	@Transactional
 	public void updatePost(UUID clubId, UUID postId, PostDTO dto, UUID userId) {

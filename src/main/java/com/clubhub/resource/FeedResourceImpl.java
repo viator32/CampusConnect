@@ -27,9 +27,9 @@ public class FeedResourceImpl implements FeedResource {
 			int eventOffset, int eventLimit) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		FeedDTO feed = new FeedDTO();
-                feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
-                                .map(p -> PostMapper.toDTO(p, userId))
-                                .toList());
+		feed.getPosts().addAll(postService.getFeedForUser(userId, postOffset, postLimit).stream()
+				.map(p -> PostMapper.toDTO(p, userId))
+				.toList());
 		feed.getEvents().addAll(eventService.getFeedForUser(userId, eventOffset, eventLimit).stream()
 				.map(EventMapper::toDTO)
 				.toList());

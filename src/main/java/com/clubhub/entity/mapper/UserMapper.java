@@ -14,10 +14,10 @@ public class UserMapper {
 		UserDTO dto = toSummaryDTO(user);
 		dto.setPreferences(user.getPreferences());
 		dto.setSubject(user.getSubject() != null ? user.getSubject() : Subject.NONE);
-                dto.setMemberships(user.getMemberships()
-                                .stream()
-                                .map(MemberMapper::toDTO)
-                                .toList());
+		dto.setMemberships(user.getMemberships()
+				.stream()
+				.map(MemberMapper::toDTO)
+				.toList());
 		dto.setClubsJoined(dto.getMemberships() != null ? dto.getMemberships().size() : 0);
 		return dto;
 	}

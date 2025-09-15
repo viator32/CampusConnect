@@ -12,13 +12,13 @@ public class ClubMapper {
 		return toDTO(club, null);
 	}
 
-        public static ClubDTO toDTO(Club club, UUID userId) {
-                ClubDTO dto = toSummaryDTO(club);
+	public static ClubDTO toDTO(Club club, UUID userId) {
+		ClubDTO dto = toSummaryDTO(club);
 
-                dto.getMembersList().addAll(club.getMembersList().stream().map(MemberMapper::toDTO).toList());
+		dto.getMembersList().addAll(club.getMembersList().stream().map(MemberMapper::toDTO).toList());
 
-                return dto;
-        }
+		return dto;
+	}
 
 	public static ClubDTO toSummaryDTO(Club club) {
 		ClubDTO dto = new ClubDTO();
@@ -52,8 +52,8 @@ public class ClubMapper {
 		club.setLocation(dto.getLocation());
 		// avatar handled separately
 		club.setJoined(dto.isJoined());
-                club.setMembers(dto.getMembers());
+		club.setMembers(dto.getMembers());
 
-                return club;
-        }
+		return club;
+	}
 }

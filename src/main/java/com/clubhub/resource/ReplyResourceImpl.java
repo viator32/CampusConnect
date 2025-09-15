@@ -30,7 +30,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.upvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-                return ReplyMapper.toDTO(reply, userId);
+		return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.removeUpvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-                return ReplyMapper.toDTO(reply, userId);
+		return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.downvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-                return ReplyMapper.toDTO(reply, userId);
+		return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
@@ -54,14 +54,14 @@ public class ReplyResourceImpl implements ReplyResource {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		replyService.removeDownvote(replyId, userId);
 		var reply = replyService.getReply(replyId);
-                return ReplyMapper.toDTO(reply, userId);
+		return ReplyMapper.toDTO(reply, userId);
 	}
 
 	@Override
 	public ReplyDTO updateReply(UUID replyId, ReplyDTO dto, @Context ContainerRequestContext ctx) {
 		UUID userId = (UUID) ctx.getProperty("userId");
 		var updated = replyService.updateReply(replyId, userId, dto.getContent());
-                return ReplyMapper.toDTO(updated, userId);
+		return ReplyMapper.toDTO(updated, userId);
 	}
 
 	@Override

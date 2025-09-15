@@ -545,6 +545,13 @@ curl -X DELETE http://localhost:8080/api/comments/<commentId>/like \
        -H "Authorization: Bearer <token>"
   ```
 
+**Remove bookmark** – `DELETE /api/posts/{postId}/bookmark` (200 OK)
+
+  ```bash
+  curl -X DELETE http://localhost:8080/api/posts/<postId>/bookmark \
+       -H "Authorization: Bearer <token>"
+  ```
+
 - **Share post** – `POST /api/posts/{postId}/share` (200 OK)
 
   ```bash

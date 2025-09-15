@@ -11,14 +11,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class ReplyDTO {
-    private UUID id;
-    private AuthorDTO author;
-    private UUID threadId;
-    private String content;
-    private String time;
-    private int upvotes;
-    private int downvotes;
-    private boolean upvoted;
-    private boolean downvoted;
+	private UUID id;
+	private AuthorDTO author;
+	private UUID threadId;
+	private String content;
+	private String time;
+	private int upvotes;
+	private int downvotes;
+	private boolean upvoted;
+	private boolean downvoted;
 }
-

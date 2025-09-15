@@ -47,6 +47,10 @@ public interface PostResource {
 	@Path("/posts/{postId}/bookmark")
 	PostDTO bookmarkPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
 
+	@DELETE
+	@Path("/posts/{postId}/bookmark")
+	PostDTO removeBookmarkFromPost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
+
 	@POST
 	@Path("/posts/{postId}/share")
 	PostDTO sharePost(@PathParam("postId") UUID postId, @Context ContainerRequestContext ctx);
