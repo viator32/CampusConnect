@@ -342,6 +342,11 @@ export class ClubService extends BaseService {
     await this.api.request<void>(`/clubs/${clubId}/events/${eventId}/join`, { method: 'POST' });
   }
 
+  /** Leave a club event. */
+  async leaveEvent(clubId: string, eventId: string | number): Promise<void> {
+    await this.api.request<void>(`/clubs/${clubId}/events/${eventId}/leave`, { method: 'POST' });
+  }
+
   /** Change a member's role within the club. */
   async updateMemberRole(clubId: string, memberId: number | string, role: Role): Promise<void> {
     await this.api.request<void>(`/clubs/${clubId}/members/${memberId}/role`, {

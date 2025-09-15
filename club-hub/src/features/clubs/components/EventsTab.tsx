@@ -161,9 +161,13 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
     });
     onClubUpdate({ ...club, events: updated });
     const exists = ev.participants?.find(p => String(p.id) === String(user.id));
-    if (!exists) {
-      try { await clubService.joinEvent(club.id, ev.id); } catch {}
-    }
+    try {
+      if (exists) {
+        await clubService.leaveEvent(club.id, ev.id);
+      } else {
+        await clubService.joinEvent(club.id, ev.id);
+      }
+    } catch {}
   };
 
   const downloadCSV = (ev: ClubEvent) => {
@@ -344,14 +348,13 @@ export default function EventsTab({ club, onClubUpdate, userRole }: EventsTabPro
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleJoinToggle(ev)}
-                    disabled={isJoined}
                     className={`flex-1 py-2 rounded-lg text-center ${
                       isJoined
-                        ? 'bg-gray-300 text-gray-700 cursor-default'
+                        ? 'bg-red-500 text-white hover:bg-red-600'
                         : 'bg-orange-500 text-white hover:bg-orange-600'
                     }`}
                   >
-                    {isJoined ? 'Joined' : 'Join Event'}
+                    {isJoined ? 'Leave Event' : 'Join Event'}
                   </Button>
                   {(userRole === 'ADMIN' || userRole === 'MODERATOR' || user?.role === 'ADMIN') && (
                     <Button

@@ -225,8 +225,64 @@ export default function FeedPage() {
   const handleJoinEvent = async (ev: EventFeedItem) => {
     if (!user) return;
     const key = `${ev.clubId}-${ev.id}`;
-    if (joinedEvents.has(key)) return;
+    const isJoined = joinedEvents.has(key);
 
+    if (isJoined) {
+      // Optimistic leave
+      setJoinedEvents(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      setItems(prev =>
+        prev.map(item => {
+          if (isEvent(item) && item.clubId === ev.clubId && item.id === ev.id) {
+            const attendees = (item.attendees || []).filter(a => a.email !== user.email);
+            return {
+              ...item,
+              attendees,
+              joinedCount: Math.max(0, item.joinedCount - 1),
+            };
+          }
+          return item;
+        })
+      );
+      try {
+        await clubService.leaveEvent(ev.clubId, ev.id);
+      } catch (e) {
+        const err = e as any;
+        if (err instanceof ApiError && err.status === 403) {
+          setActionError('You do not have permission to leave events.');
+        }
+        // Revert optimistic leave on error
+        setJoinedEvents(prev => new Set(prev).add(key));
+        setItems(prev =>
+          prev.map(item => {
+            if (isEvent(item) && item.clubId === ev.clubId && item.id === ev.id) {
+              const attendees = item.attendees || [];
+              return {
+                ...item,
+                attendees: [
+                  ...attendees,
+                  {
+                    id: user.id,
+                    name: user.name,
+                    surname: (user as any).surname || '',
+                    email: user.email,
+                    avatar: user.avatar,
+                  },
+                ],
+                joinedCount: item.joinedCount + 1,
+              };
+            }
+            return item;
+          })
+        );
+      }
+      return;
+    }
+
+    // Optimistic join
     setJoinedEvents(prev => new Set(prev).add(key));
     setItems(prev =>
       prev.map(item => {
@@ -251,13 +307,13 @@ export default function FeedPage() {
       })
     );
     try {
-      // Use the raw event id as provided by the feed (string or number)
       await clubService.joinEvent(ev.clubId, ev.id);
     } catch (e) {
       const err = e as any;
       if (err instanceof ApiError && err.status === 403) {
         setActionError('You do not have permission to join events.');
       }
+      // Revert optimistic join on error
       setJoinedEvents(prev => {
         const next = new Set(prev);
         next.delete(key);
@@ -380,11 +436,11 @@ export default function FeedPage() {
                         onClick={() => handleJoinEvent(ev)}
                         className={`px-4 py-2 rounded-lg text-sm ${
                           joinedByUser
-                            ? 'bg-gray-200 text-gray-700 cursor-default'
+                            ? 'bg-red-500 text-white hover:bg-red-600'
                             : 'bg-orange-500 text-white hover:bg-orange-600'
                         }`}
                       >
-                        {joinedByUser ? 'Joined' : 'Join'}
+                        {joinedByUser ? 'Leave' : 'Join'}
                       </Button>
                     </div>
                   </div>
