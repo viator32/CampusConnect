@@ -15,6 +15,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
   minio:
     image: quay.io/minio/minio:latest
@@ -27,6 +28,7 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
+    restart: unless-stopped
 
   backend:
     build: .
@@ -49,6 +51,26 @@ services:
         condition: service_started
     ports:
       - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        BASE_REGISTRY: mirror.gcr.io
+        NODE_TAG: library/node:20-bullseye-slim
+        NGINX_TAG: library/nginx:1.27-alpine
+        FRONTEND_SRC: club-hub
+        FRONTEND_DIR: .
+        VITE_API_URL: "http://localhost:8080"
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+
 volumes:
   pgdata:
   minio_data:
