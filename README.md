@@ -1,6 +1,6 @@
-# CampusConnect / ClubHub – Root Guide
+# CampusConnect / ClubHub - Root Guide
 
-This repo contains a Quarkus backend and a React (Vite) frontend. You can run both in one container with Docker, or run them separately for development.
+This repo contains a Quarkus backend and a React (Vite) frontend. You can run the full stack with Docker Compose, or run services separately for development.
 
 ## Quick Start (One Command)
 
@@ -8,17 +8,18 @@ This repo contains a Quarkus backend and a React (Vite) frontend. You can run bo
 - Copy backend env file and set a strong pepper:
   - `cp backend/.env.example backend/.env`
   - Edit `backend/.env` and set `AUTH_PEPPER` to a long random string.
-- Build and start everything (Postgres, MinIO, App) with Compose:
+- Build and start everything (Postgres, MinIO, Backend API, Frontend) with Compose:
   - `docker compose -f docker-compose.fullstack.yml up --build`
-- Open the app: http://localhost:8080
+- Open the frontend: http://localhost:3000
+- Backend API (Quarkus): http://localhost:8080
 
 What this does
-- Builds a single image from `Dockerfile.fullstack` that embeds the built frontend into the Quarkus backend.
 - Starts services defined in `docker-compose.fullstack.yml`:
-  - Postgres on `5432`
-  - MinIO on `9000` (console on `9001`), default creds `minio / minio123`
-  - App on `8080` serving frontend at `/` and APIs under `/api`
-- Uses `backend/.env` for secrets and MinIO config.
+  - Postgres on `5432` (volume `pgdata`)
+  - MinIO on `9000` (console on `9001`), default creds `minio / minio123` (volume `minio_data`)
+  - Backend app on `8080` exposing REST APIs under `/api`
+  - Frontend (Nginx) on `3000` serving the built SPA; it calls the backend at `http://localhost:8080`
+- Uses `backend/.env` for secrets and MinIO config (e.g., `AUTH_PEPPER`, `DB_*`, `MINIO_*`).
 
 ## Frontend-Only Dev (Hot Reload)
 
@@ -32,7 +33,7 @@ If your backend runs elsewhere, set an env var when starting Vite:
 
 ## Run Fullstack Image Without Compose
 
-If you already have Postgres and MinIO running, you can run only the app container:
+If you already have Postgres and MinIO running, you can run only the app container (the image built by `Dockerfile.fullstack` embeds the built frontend into the Quarkus runtime for same-origin serving):
 
 - Build: `docker build -t clubhub-fullstack -f Dockerfile.fullstack .`
 - Run (example wiring to external services):
@@ -51,13 +52,17 @@ If you already have Postgres and MinIO running, you can run only the app contain
 - First run creates MinIO buckets and public policy automatically (avatars, posts).
 - If you change frontend code, rebuild the image or use the dev server on port 3000.
 - If a build fails on `@swc/core`, the project is configured to use Babel (`@vitejs/plugin-react`) inside Docker to avoid native binary issues.
-- CORS: when using the fullstack image or compose, frontend and backend are same-origin (no CORS needed). Vite dev (port 3000) is allowed by backend CORS.
+- CORS:
+  - With the Compose setup that includes the separate `frontend` service on port `3000`, requests are cross-origin. The backend is configured to allow `http://localhost:3000`.
+  - With the single fullstack image (backend serving static files), frontend and backend are same-origin (no CORS needed).
 
 ## Useful Files
 
-- `Dockerfile.fullstack` – Builds frontend and embeds it into Quarkus runtime
-- `docker-compose.fullstack.yml` – Orchestrates Postgres, MinIO, and the app
-- `backend/.env.example` – Example env; copy to `backend/.env` and edit
-- `frontend/club-hub/vite.config.js` – Vite dev config (port 3000)
-- `frontend/club-hub/src/services/api/ClientApi.ts` – API base resolution
+- `docker-compose.fullstack.yml` - Orchestrates Postgres, MinIO, backend API, and the Nginx-served frontend
+- `Dockerfile.fullstack` - Builds frontend and embeds it into Quarkus runtime (single-container alternative)
+- `frontend/Dockerfile` - Builds the production SPA, served by Nginx in the `frontend` service
+- `frontend/nginx.conf` - Nginx config used by the `frontend` service
+- `backend/.env.example` - Example env; copy to `backend/.env` and edit
+- `frontend/club-hub/vite.config.js` - Vite dev config (port 3000)
+- `frontend/club-hub/src/services/api/ClientApi.ts` - API base resolution
 
