@@ -8,6 +8,7 @@ Backend service for ClubHub built with [Quarkus](https://quarkus.io/).
 
 - Docker and Docker Compose
 - Java 21 (if running without Docker)
+- Apache Maven
 
 ### Environment configuration
 
@@ -28,7 +29,11 @@ DB_PASSWORD=clubhub
 
 ### Build the project
 
-mvn package -DskipTests
+- (The project must be built first, otherwise the Docker image required for Docker Compose will not work).
+
+```bash
+- mvn package -DskipTests
+```
 
 ### Start with Docker
 
@@ -602,22 +607,21 @@ All API errors return a structured JSON payload. A typical error looks like:
 The `errorCode` format is `CLB-XX-XXXX-XXXX` where `CLB` identifies the ClubHub module.
 The following codes are currently in use:
 
-| Code               | HTTP Status      | Meaning                              |
-|--------------------|------------------|--------------------------------------|
-| `CLB-00-0000-0001` | 404 Not Found    | User not found                       |
-| `CLB-00-0000-0002` | 404 Not Found    | Club not found                       |
-| `CLB-00-0000-0003` | 404 Not Found    | Post not found                       |
-| `CLB-00-0000-0004` | 400 Bad Request  | User is not a member of the club     |
-| `CLB-00-0000-0005` | 400 Bad Request  | User is already a member of the club |
-| `CLB-00-0000-0006` | 400 Bad Request  | Invalid credentials provided         |
-| `CLB-00-0000-0007` | 404 Not Found    | Comment not found                    |
-| `CLB-00-0000-0008` | 404 Not Found    | Event not found                      |
-| `CLB-00-0000-0009` | 400 Bad Request  | User already exists                  |
-| `CLB-00-0000-0010` | 404 Not Found    | Member not found                     |
-| `CLB-00-0000-0011` | 403 Forbidden    | Insufficient permissions             |
-| `CLB-00-0000-0012` | 400 Bad Request  | Last admin cannot leave              |
-| `CLB-00-0000-0013` | 400 Bad Request  | Last admin cannot change own role    |
-| `CLB-00-0000-0014` | 401 Unauthorized | Invalid or expired token             |
+| Code               | HTTP Status     | Meaning                              |
+|--------------------|-----------------|--------------------------------------|
+| `CLB-00-0000-0001` | 404 Not Found   | User not found                       |
+| `CLB-00-0000-0002` | 404 Not Found   | Club not found                       |
+| `CLB-00-0000-0003` | 404 Not Found   | Post not found                       |
+| `CLB-00-0000-0004` | 400 Bad Request | User is not a member of the club     |
+| `CLB-00-0000-0005` | 400 Bad Request | User is already a member of the club |
+| `CLB-00-0000-0006` | 400 Bad Request | Invalid credentials provided         |
+| `CLB-00-0000-0007` | 404 Not Found   | Comment not found                    |
+| `CLB-00-0000-0008` | 404 Not Found   | Event not found                      |
+| `CLB-00-0000-0009` | 400 Bad Request | User already exists                  |
+| `CLB-00-0000-0010` | 404 Not Found   | Member not found                     |
+| `CLB-00-0000-0011` | 403 Forbidden   | Insufficient permissions             |
+| `CLB-00-0000-0012` | 400 Bad Request | Last admin cannot leave              |
+| `CLB-00-0000-0013` | 400 Bad Request | Last admin cannot change own role    || `CLB-00-0000-0014` | 401 Unauthorized | Invalid or expired token             |
 
 The `title` gives a brief summary while `details` can contain a human-readable
 description. `messageParameters` provides contextual values, and `sourcePointer`

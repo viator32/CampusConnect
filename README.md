@@ -3,6 +3,11 @@
 This repo contains a Quarkus backend and a React (Vite) frontend. You can run the full stack with Docker Compose, or run
 services separately for development.
 
+## Before Starting
+
+- Make sure you have read the README files in both the backend and frontend, and that all required software is
+  installed.
+
 ## Quick Start (One Command)
 
 - Ensure Docker is installed and running.
