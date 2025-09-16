@@ -38,6 +38,8 @@ docker compose up --build
 
 The API will be available at <http://localhost:8080>.
 
+Frontend will be available at <http://localhost:3000>.
+
 MinIO's S3-compatible API is exposed on <http://localhost:9000> with a web console at <http://localhost:9001> (
 credentials `minio`/`minio123`).
 
